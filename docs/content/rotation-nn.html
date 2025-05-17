@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.43">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>7&nbsp; Advanced Models: Rotations and Neural Networks – Knowledge Graph Embeddings for Link Prediction and Reasoning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../content/training.html" rel="next">
+<link href="../content/semantic-matching.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-d4d76bf8491c20bad77d141916dc28e1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-bdec3157979715d7154bb60f5aa24e58.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../content/rotation-nn.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Advanced Models: Rotations and Neural Networks</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Knowledge Graph Embeddings for Link Prediction and Reasoning</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/summary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Summary</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/outline.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Outline</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Introduction to Knowledge Graphs and Representations</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/embedding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Fundamentals of Vector Space Representations</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/translation-based.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Translation-Based Embedding Models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/semantic-matching.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Semantic Matching Models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/rotation-nn.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Advanced Models: Rotations and Neural Networks</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/training.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Training and Optimization Techniques</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/evaluation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Evaluation Methodologies and Benchmarks</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/additional-knowledge.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Incorporating Additional Information</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/reasoning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Reasoning with Knowledge Graph Embeddings</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/applications.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Practical Applications and Case Studies</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/implementation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Implementing Knowledge Graph Embedding Systems</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/frontier.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Advanced Topics and Research Frontiers</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/appendix-a.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Appendix A: Mathematical Foundations</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/appendix-b.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Appendix B: Resources and Tools</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="-1">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#rotations-in-embedding-space" id="toc-rotations-in-embedding-space" class="nav-link active" data-scroll-target="#rotations-in-embedding-space"><span class="header-section-number">7.1</span> Rotations in embedding space</a></li>
+  <li><a href="#rotate-relational-rotation-in-complex-space" id="toc-rotate-relational-rotation-in-complex-space" class="nav-link" data-scroll-target="#rotate-relational-rotation-in-complex-space"><span class="header-section-number">7.2</span> RotatE: relational rotation in complex space</a>
+  <ul class="collapse">
+  <li><a href="#complex-number-interpretation" id="toc-complex-number-interpretation" class="nav-link" data-scroll-target="#complex-number-interpretation"><span class="header-section-number">7.2.1</span> Complex number interpretation</a></li>
+  <li><a href="#modeling-relation-patterns" id="toc-modeling-relation-patterns" class="nav-link" data-scroll-target="#modeling-relation-patterns"><span class="header-section-number">7.2.2</span> Modeling relation patterns</a></li>
+  <li><a href="#self-adversarial-negative-sampling" id="toc-self-adversarial-negative-sampling" class="nav-link" data-scroll-target="#self-adversarial-negative-sampling"><span class="header-section-number">7.2.3</span> Self-adversarial negative sampling</a></li>
+  <li><a href="#rotate-strengths-and-limitations" id="toc-rotate-strengths-and-limitations" class="nav-link" data-scroll-target="#rotate-strengths-and-limitations"><span class="header-section-number">7.2.4</span> RotatE strengths and limitations</a></li>
+  </ul></li>
+  <li><a href="#protate-phase-rotation-model" id="toc-protate-phase-rotation-model" class="nav-link" data-scroll-target="#protate-phase-rotation-model"><span class="header-section-number">7.3</span> pRotatE: phase rotation model</a></li>
+  <li><a href="#quate-quaternion-embeddings" id="toc-quate-quaternion-embeddings" class="nav-link" data-scroll-target="#quate-quaternion-embeddings"><span class="header-section-number">7.4</span> QuatE: quaternion embeddings</a>
+  <ul class="collapse">
+  <li><a href="#quaternion-algebra" id="toc-quaternion-algebra" class="nav-link" data-scroll-target="#quaternion-algebra"><span class="header-section-number">7.4.1</span> Quaternion algebra</a></li>
+  <li><a href="#quaternion-rotations" id="toc-quaternion-rotations" class="nav-link" data-scroll-target="#quaternion-rotations"><span class="header-section-number">7.4.2</span> Quaternion rotations</a></li>
+  <li><a href="#quate-strengths-and-limitations" id="toc-quate-strengths-and-limitations" class="nav-link" data-scroll-target="#quate-strengths-and-limitations"><span class="header-section-number">7.4.3</span> QuatE strengths and limitations</a></li>
+  </ul></li>
+  <li><a href="#dense-rotation-in-spinor-space" id="toc-dense-rotation-in-spinor-space" class="nav-link" data-scroll-target="#dense-rotation-in-spinor-space"><span class="header-section-number">7.5</span> DensE: rotation in spinor space</a></li>
+  <li><a href="#neural-network-based-models" id="toc-neural-network-based-models" class="nav-link" data-scroll-target="#neural-network-based-models"><span class="header-section-number">7.6</span> Neural network-based models</a></li>
+  <li><a href="#neural-tensor-network-ntn" id="toc-neural-tensor-network-ntn" class="nav-link" data-scroll-target="#neural-tensor-network-ntn"><span class="header-section-number">7.7</span> Neural Tensor Network (NTN)</a>
+  <ul class="collapse">
+  <li><a href="#tensor-product" id="toc-tensor-product" class="nav-link" data-scroll-target="#tensor-product"><span class="header-section-number">7.7.1</span> Tensor product</a></li>
+  <li><a href="#ntn-strengths-and-limitations" id="toc-ntn-strengths-and-limitations" class="nav-link" data-scroll-target="#ntn-strengths-and-limitations"><span class="header-section-number">7.7.2</span> NTN strengths and limitations</a></li>
+  </ul></li>
+  <li><a href="#multi-layer-perceptron-mlp-models" id="toc-multi-layer-perceptron-mlp-models" class="nav-link" data-scroll-target="#multi-layer-perceptron-mlp-models"><span class="header-section-number">7.8</span> Multi-Layer Perceptron (MLP) models</a></li>
+  <li><a href="#convolutional-models" id="toc-convolutional-models" class="nav-link" data-scroll-target="#convolutional-models"><span class="header-section-number">7.9</span> Convolutional models</a>
+  <ul class="collapse">
+  <li><a href="#convkb" id="toc-convkb" class="nav-link" data-scroll-target="#convkb"><span class="header-section-number">7.9.1</span> ConvKB</a></li>
+  <li><a href="#capse-capsule-network-for-kge" id="toc-capse-capsule-network-for-kge" class="nav-link" data-scroll-target="#capse-capsule-network-for-kge"><span class="header-section-number">7.9.2</span> CapsE: Capsule Network for KGE</a></li>
+  </ul></li>
+  <li><a href="#graph-neural-network-gnn-based-models" id="toc-graph-neural-network-gnn-based-models" class="nav-link" data-scroll-target="#graph-neural-network-gnn-based-models"><span class="header-section-number">7.10</span> Graph Neural Network (GNN) based models</a>
+  <ul class="collapse">
+  <li><a href="#r-gcn-relational-graph-convolutional-networks" id="toc-r-gcn-relational-graph-convolutional-networks" class="nav-link" data-scroll-target="#r-gcn-relational-graph-convolutional-networks"><span class="header-section-number">7.10.1</span> R-GCN: Relational Graph Convolutional Networks</a></li>
+  <li><a href="#compgcn-compositional-graph-convolutional-networks" id="toc-compgcn-compositional-graph-convolutional-networks" class="nav-link" data-scroll-target="#compgcn-compositional-graph-convolutional-networks"><span class="header-section-number">7.10.2</span> CompGCN: Compositional Graph Convolutional Networks</a></li>
+  </ul></li>
+  <li><a href="#attention-based-models" id="toc-attention-based-models" class="nav-link" data-scroll-target="#attention-based-models"><span class="header-section-number">7.11</span> Attention-based models</a>
+  <ul class="collapse">
+  <li><a href="#kbat-knowledge-base-attention-network" id="toc-kbat-knowledge-base-attention-network" class="nav-link" data-scroll-target="#kbat-knowledge-base-attention-network"><span class="header-section-number">7.11.1</span> KBAT: Knowledge Base Attention Network</a></li>
+  <li><a href="#multihopkg-multi-hop-knowledge-graph-reasoning" id="toc-multihopkg-multi-hop-knowledge-graph-reasoning" class="nav-link" data-scroll-target="#multihopkg-multi-hop-knowledge-graph-reasoning"><span class="header-section-number">7.11.2</span> MultiHopKG: Multi-hop Knowledge Graph Reasoning</a></li>
+  </ul></li>
+  <li><a href="#pre-trained-language-model-approaches" id="toc-pre-trained-language-model-approaches" class="nav-link" data-scroll-target="#pre-trained-language-model-approaches"><span class="header-section-number">7.12</span> Pre-trained language model approaches</a>
+  <ul class="collapse">
+  <li><a href="#kg-bert" id="toc-kg-bert" class="nav-link" data-scroll-target="#kg-bert"><span class="header-section-number">7.12.1</span> KG-BERT</a></li>
+  <li><a href="#kepler" id="toc-kepler" class="nav-link" data-scroll-target="#kepler"><span class="header-section-number">7.12.2</span> KEPLER</a></li>
+  </ul></li>
+  <li><a href="#hybrid-and-multi-modal-models" id="toc-hybrid-and-multi-modal-models" class="nav-link" data-scroll-target="#hybrid-and-multi-modal-models"><span class="header-section-number">7.13</span> Hybrid and multi-modal models</a>
+  <ul class="collapse">
+  <li><a href="#ikrl-image-embodied-knowledge-representation-learning" id="toc-ikrl-image-embodied-knowledge-representation-learning" class="nav-link" data-scroll-target="#ikrl-image-embodied-knowledge-representation-learning"><span class="header-section-number">7.13.1</span> IKRL: Image-Embodied Knowledge Representation Learning</a></li>
+  <li><a href="#mmkb-multi-modal-knowledge-bases" id="toc-mmkb-multi-modal-knowledge-bases" class="nav-link" data-scroll-target="#mmkb-multi-modal-knowledge-bases"><span class="header-section-number">7.13.2</span> MMKB: Multi-Modal Knowledge Bases</a></li>
+  </ul></li>
+  <li><a href="#comparative-analysis" id="toc-comparative-analysis" class="nav-link" data-scroll-target="#comparative-analysis"><span class="header-section-number">7.14</span> Comparative analysis</a></li>
+  <li><a href="#performance-analysis" id="toc-performance-analysis" class="nav-link" data-scroll-target="#performance-analysis"><span class="header-section-number">7.15</span> Performance analysis</a></li>
+  <li><a href="#computational-efficiency" id="toc-computational-efficiency" class="nav-link" data-scroll-target="#computational-efficiency"><span class="header-section-number">7.16</span> Computational efficiency</a></li>
+  <li><a href="#implementation-considerations" id="toc-implementation-considerations" class="nav-link" data-scroll-target="#implementation-considerations"><span class="header-section-number">7.17</span> Implementation considerations</a>
+  <ul class="collapse">
+  <li><a href="#initialization-strategies" id="toc-initialization-strategies" class="nav-link" data-scroll-target="#initialization-strategies"><span class="header-section-number">7.17.1</span> Initialization strategies</a></li>
+  <li><a href="#hardware-acceleration" id="toc-hardware-acceleration" class="nav-link" data-scroll-target="#hardware-acceleration"><span class="header-section-number">7.17.2</span> Hardware acceleration</a></li>
+  <li><a href="#regularization-and-training-stability" id="toc-regularization-and-training-stability" class="nav-link" data-scroll-target="#regularization-and-training-stability"><span class="header-section-number">7.17.3</span> Regularization and training stability</a></li>
+  </ul></li>
+  <li><a href="#applications-of-advanced-models" id="toc-applications-of-advanced-models" class="nav-link" data-scroll-target="#applications-of-advanced-models"><span class="header-section-number">7.18</span> Applications of advanced models</a>
+  <ul class="collapse">
+  <li><a href="#complex-question-answering" id="toc-complex-question-answering" class="nav-link" data-scroll-target="#complex-question-answering"><span class="header-section-number">7.18.1</span> Complex question answering</a></li>
+  <li><a href="#entity-typing-and-hierarchical-reasoning" id="toc-entity-typing-and-hierarchical-reasoning" class="nav-link" data-scroll-target="#entity-typing-and-hierarchical-reasoning"><span class="header-section-number">7.18.2</span> Entity typing and hierarchical reasoning</a></li>
+  <li><a href="#explainable-recommendations" id="toc-explainable-recommendations" class="nav-link" data-scroll-target="#explainable-recommendations"><span class="header-section-number">7.18.3</span> Explainable recommendations</a></li>
+  </ul></li>
+  <li><a href="#future-directions" id="toc-future-directions" class="nav-link" data-scroll-target="#future-directions"><span class="header-section-number">7.19</span> Future directions</a>
+  <ul class="collapse">
+  <li><a href="#inductive-learning" id="toc-inductive-learning" class="nav-link" data-scroll-target="#inductive-learning"><span class="header-section-number">7.19.1</span> Inductive learning</a></li>
+  <li><a href="#temporal-knowledge-graphs" id="toc-temporal-knowledge-graphs" class="nav-link" data-scroll-target="#temporal-knowledge-graphs"><span class="header-section-number">7.19.2</span> Temporal knowledge graphs</a></li>
+  <li><a href="#neuro-symbolic-approaches" id="toc-neuro-symbolic-approaches" class="nav-link" data-scroll-target="#neuro-symbolic-approaches"><span class="header-section-number">7.19.3</span> Neuro-symbolic approaches</a></li>
+  </ul></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">7.20</span> Summary</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading"><span class="header-section-number">7.21</span> Further reading</a>
+  <ul class="collapse">
+  <li><a href="#rotational-models" id="toc-rotational-models" class="nav-link" data-scroll-target="#rotational-models"><span class="header-section-number">7.21.1</span> Rotational models</a></li>
+  <li><a href="#neural-network-models" id="toc-neural-network-models" class="nav-link" data-scroll-target="#neural-network-models"><span class="header-section-number">7.21.2</span> Neural network models</a></li>
+  <li><a href="#attention-and-language-model-approaches" id="toc-attention-and-language-model-approaches" class="nav-link" data-scroll-target="#attention-and-language-model-approaches"><span class="header-section-number">7.21.3</span> Attention and language model approaches</a></li>
+  <li><a href="#multi-modal-and-hybrid-approaches" id="toc-multi-modal-and-hybrid-approaches" class="nav-link" data-scroll-target="#multi-modal-and-hybrid-approaches"><span class="header-section-number">7.21.4</span> Multi-modal and hybrid approaches</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-body" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Advanced Models: Rotations and Neural Networks</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta column-body">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>The previous chapters explored translation-based and semantic matching models, which have formed the foundation of knowledge graph embedding approaches. As research in this field has progressed, more sophisticated models have emerged, leveraging complex spaces, rotational transformations, and neural network architectures to achieve greater expressiveness and performance. These advanced models aim to address limitations of earlier approaches and capture more complex relation patterns in knowledge graphs.</p>
+<p>This chapter delves into two main categories of advanced knowledge graph embedding models. First, we’ll explore models based on rotations in complex or other geometric spaces, which offer powerful ways to represent various relation patterns. Then, we’ll examine neural network-based approaches that leverage deep learning architectures to model complex interactions between entities and relations. By the end of this chapter, you’ll understand how these advanced models push the boundaries of knowledge graph embedding and enable more accurate link prediction and reasoning.</p>
+<section id="rotations-in-embedding-space" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="rotations-in-embedding-space"><span class="header-section-number">7.1</span> Rotations in embedding space</h2>
+<p>Rotational transformations provide a powerful geometric framework for modeling relationships in knowledge graphs. Unlike translations, which shift points in embedding space, rotations preserve distances while changing directions. This property makes rotational models particularly effective at capturing various relation patterns, including symmetry, antisymmetry, inversion, and composition.</p>
+<div id="def-rotation-transformation" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.1 (Rotation transformation)</strong></span> A <strong>rotation transformation</strong> in a vector space is a linear transformation that preserves distances between points and keeps the origin fixed. In 2D Euclidean space, a rotation by angle <span class="math inline">\(\theta\)</span> can be represented by the matrix:</p>
+<p><span class="math display">\[R(\theta) = \begin{pmatrix} \cos\theta &amp; -\sin\theta \\ \sin\theta &amp; \cos\theta \end{pmatrix}\]</span></p>
+<p>When applied to a vector <span class="math inline">\(\mathbf{v}\)</span>, the rotated vector is <span class="math inline">\(R(\theta)\mathbf{v}\)</span>.</p>
+<p>In higher dimensions or different geometric spaces, rotations take more complex forms but maintain their distance-preserving property.</p>
+</div>
+<p>Rotational transformations have several advantages for modeling relations:</p>
+<ol type="1">
+<li><strong>Distance preservation</strong>: Rotations don’t change the magnitude of vectors, which helps maintain entity similarity structures</li>
+<li><strong>Compositionality</strong>: Successive rotations combine naturally through matrix multiplication</li>
+<li><strong>Invertibility</strong>: Every rotation has a well-defined inverse (the opposite rotation)</li>
+<li><strong>Varied expressiveness</strong>: Different rotation angles can model different relation patterns</li>
+</ol>
+<div id="exm-rotation-intuition" class="theorem example">
+<p><span class="theorem-title"><strong>Example 7.1 (Rotation intuition example)</strong></span> Consider a simple knowledge graph with countries and their capitals:</p>
+<ul>
+<li>(France, capital_of, Paris)</li>
+<li>(Germany, capital_of, Berlin)</li>
+<li>(Italy, capital_of, Rome)</li>
+</ul>
+<p>In a rotation-based model, the relation “capital_of” might be represented as a rotation that transforms country embeddings into the region of the embedding space where their capital cities are located.</p>
+<p>If countries are clustered in one region of the embedding space and capital cities in another, a consistent rotation would align the embedding of each country with its capital.</p>
+</div>
+</section>
+<section id="rotate-relational-rotation-in-complex-space" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="rotate-relational-rotation-in-complex-space"><span class="header-section-number">7.2</span> RotatE: relational rotation in complex space</h2>
+<p>RotatE, introduced by Sun et al.&nbsp;(2019), represents relations as rotations in complex vector space. We first discussed RotatE in Chapter 3 as an advanced translation-based model, but its primary innovation is the use of rotations in complex space.</p>
+<div id="def-rotate" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.2 (RotatE model)</strong></span> In the <strong>RotatE</strong> model, entities and relations are embedded in complex space <span class="math inline">\(\mathbb{C}^d\)</span>:</p>
+<ul>
+<li>Each entity <span class="math inline">\(e\)</span> is represented by a complex vector <span class="math inline">\(\mathbf{e} \in \mathbb{C}^d\)</span></li>
+<li>Each relation <span class="math inline">\(r\)</span> is represented by a complex vector <span class="math inline">\(\mathbf{r} \in \mathbb{C}^d\)</span> with <span class="math inline">\(|\mathbf{r}_i| = 1\)</span> for all components <span class="math inline">\(i\)</span></li>
+</ul>
+<p>The model enforces: <span class="math display">\[\mathbf{t} = \mathbf{h} \circ \mathbf{r}\]</span></p>
+<p>where <span class="math inline">\(\circ\)</span> is the Hadamard (element-wise) product and <span class="math inline">\(\mathbf{h}, \mathbf{r}, \mathbf{t}\)</span> are the embeddings of head entity, relation, and tail entity, respectively.</p>
+<p>The scoring function is: <span class="math display">\[f_r(h, t) = -\|\mathbf{h} \circ \mathbf{r} - \mathbf{t}\|^2\]</span></p>
+</div>
+<section id="complex-number-interpretation" class="level3" data-number="7.2.1">
+<h3 data-number="7.2.1" class="anchored" data-anchor-id="complex-number-interpretation"><span class="header-section-number">7.2.1</span> Complex number interpretation</h3>
+<p>The key insight of RotatE is that multiplying by a complex number with unit modulus corresponds to a rotation in the complex plane:</p>
+<div id="def-complex-rotation" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.3 (Complex number rotation)</strong></span> A complex number <span class="math inline">\(z = e^{i\theta} = \cos\theta + i\sin\theta\)</span> with unit modulus (<span class="math inline">\(|z| = 1\)</span>) represents a rotation by angle <span class="math inline">\(\theta\)</span> in the complex plane.</p>
+<p>When multiplying complex numbers:</p>
+<ul>
+<li>The moduli multiply: <span class="math inline">\(|z_1 \cdot z_2| = |z_1| \cdot |z_2|\)</span></li>
+<li>The arguments (angles) add: <span class="math inline">\(\arg(z_1 \cdot z_2) = \arg(z_1) + \arg(z_2)\)</span></li>
+</ul>
+<p>Therefore, multiplying a complex vector by another complex vector with unit modulus components performs element-wise rotations.</p>
+</div>
+<div id="exm-rotate-rotation" class="theorem example">
+<p><span class="theorem-title"><strong>Example 7.2 (RotatE rotation example)</strong></span> Consider a 2-dimensional complex embedding space with:</p>
+<ul>
+<li><span class="math inline">\(\mathbf{h} = [0.8 + 0.6i, 0.5 - 0.5i]\)</span> (head entity embedding)</li>
+<li><span class="math inline">\(\mathbf{r} = [0.7 + 0.7i, 0.0 + 1.0i]\)</span> (relation embedding)</li>
+</ul>
+<p>Note that each component of <span class="math inline">\(\mathbf{r}\)</span> has unit modulus:</p>
+<ul>
+<li><span class="math inline">\(|0.7 + 0.7i| = \sqrt{0.7^2 + 0.7^2} = \sqrt{0.98} \approx 1\)</span></li>
+<li><span class="math inline">\(|0.0 + 1.0i| = \sqrt{0^2 + 1^2} = 1\)</span></li>
+</ul>
+<p>The Hadamard product would be: <span class="math inline">\(\mathbf{h} \circ \mathbf{r} = [(0.8 + 0.6i) \cdot (0.7 + 0.7i), (0.5 - 0.5i) \cdot (0.0 + 1.0i)]\)</span></p>
+<p>For the first component: <span class="math inline">\((0.8 + 0.6i) \cdot (0.7 + 0.7i) = (0.8 \cdot 0.7 - 0.6 \cdot 0.7) + (0.8 \cdot 0.7 + 0.6 \cdot 0.7)i = 0.56 - 0.42 + (0.56 + 0.42)i = 0.14 + 0.98i\)</span></p>
+<p>For the second component: <span class="math inline">\((0.5 - 0.5i) \cdot (0.0 + 1.0i) = (0.5 \cdot 0.0 - (-0.5) \cdot 1.0) + (0.5 \cdot 1.0 + (-0.5) \cdot 0.0)i = 0.0 + 0.5 + 0.5i = 0.5 + 0.5i\)</span></p>
+<p>Therefore: <span class="math inline">\(\mathbf{h} \circ \mathbf{r} = [0.14 + 0.98i, 0.5 + 0.5i]\)</span></p>
+<p>This represents the head entity rotated according to the relation.</p>
+</div>
+</section>
+<section id="modeling-relation-patterns" class="level3" data-number="7.2.2">
+<h3 data-number="7.2.2" class="anchored" data-anchor-id="modeling-relation-patterns"><span class="header-section-number">7.2.2</span> Modeling relation patterns</h3>
+<p>RotatE can model various relation patterns through rotations in complex space:</p>
+<div id="def-rotate-patterns" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.4 (RotatE relation patterns)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><strong>Symmetry</strong>: A symmetric relation has <span class="math inline">\(\mathbf{r}_i = 1\)</span> or <span class="math inline">\(\mathbf{r}_i = -1\)</span> for all components <span class="math inline">\(i\)</span>, corresponding to rotation by 0 or π radians</li>
+<li><strong>Antisymmetry</strong>: An antisymmetric relation has <span class="math inline">\(\mathbf{r}_i \neq 1\)</span> and <span class="math inline">\(\mathbf{r}_i \neq -1\)</span> for some components <span class="math inline">\(i\)</span></li>
+<li><strong>Inversion</strong>: For inverse relations <span class="math inline">\(r_1\)</span> and <span class="math inline">\(r_2\)</span>, <span class="math inline">\(\mathbf{r}_2 = \overline{\mathbf{r}_1}\)</span> (complex conjugate)</li>
+<li><strong>Composition</strong>: For relations <span class="math inline">\(r_1\)</span>, <span class="math inline">\(r_2\)</span>, and <span class="math inline">\(r_3\)</span> where <span class="math inline">\((h, r_1, e)\)</span> and <span class="math inline">\((e, r_2, t)\)</span> imply <span class="math inline">\((h, r_3, t)\)</span>, we have <span class="math inline">\(\mathbf{r}_3 = \mathbf{r}_1 \circ \mathbf{r}_2\)</span></li>
+</ol>
+</div>
+<div id="exm-rotate-patterns" class="theorem example">
+<p><span class="theorem-title"><strong>Example 7.3 (RotatE relation patterns example)</strong></span> Consider these relation patterns:</p>
+<ol type="1">
+<li><p><strong>Symmetry</strong> (e.g., “is_sibling_of”):</p>
+<ul>
+<li>If <span class="math inline">\(\mathbf{r} = [1, 1, ..., 1]\)</span> (all ones), then <span class="math inline">\(\mathbf{h} \circ \mathbf{r} = \mathbf{h}\)</span></li>
+<li>This would model a relation where <span class="math inline">\((h, r, t)\)</span> implies <span class="math inline">\((t, r, h)\)</span> with the same score</li>
+</ul></li>
+<li><p><strong>Inversion</strong> (e.g., “is_parent_of” and “is_child_of”):</p>
+<ul>
+<li>If <span class="math inline">\(\mathbf{r}_{\text{is\_parent\_of}} = [0.7 + 0.7i, 0.0 + 1.0i, ...]\)</span></li>
+<li>Then <span class="math inline">\(\mathbf{r}_{\text{is\_child\_of}} = [0.7 - 0.7i, 0.0 - 1.0i, ...]\)</span> (complex conjugate)</li>
+<li>This ensures that rotating by “is_parent_of” and then by “is_child_of” returns to the original position</li>
+</ul></li>
+<li><p><strong>Composition</strong> (e.g., “is_born_in” and “is_located_in” compose to “has_nationality”):</p>
+<ul>
+<li>If <span class="math inline">\(\mathbf{r}_{\text{is\_born\_in}} = [0.9 + 0.4i, 0.7 + 0.7i, ...]\)</span></li>
+<li>And <span class="math inline">\(\mathbf{r}_{\text{is\_located\_in}} = [0.8 + 0.6i, 0.5 + 0.9i, ...]\)</span></li>
+<li>Then <span class="math inline">\(\mathbf{r}_{\text{has\_nationality}} = \mathbf{r}_{\text{is\_born\_in}} \circ \mathbf{r}_{\text{is\_located\_in}}\)</span></li>
+<li>This models the transitive relationship where being born in a city located in a country implies having that country’s nationality</li>
+</ul></li>
+</ol>
+</div>
+</section>
+<section id="self-adversarial-negative-sampling" class="level3" data-number="7.2.3">
+<h3 data-number="7.2.3" class="anchored" data-anchor-id="self-adversarial-negative-sampling"><span class="header-section-number">7.2.3</span> Self-adversarial negative sampling</h3>
+<p>A key innovation in RotatE is its self-adversarial negative sampling technique, which improves training efficiency:</p>
+<div id="def-self-adversarial" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.5 (Self-adversarial negative sampling)</strong></span> In <strong>self-adversarial negative sampling</strong>, the weight of a negative sample <span class="math inline">\((h', r, t')\)</span> is determined by its current score according to the model:</p>
+<p><span class="math display">\[p(h', r, t') = \frac{\exp(\alpha f_r(h', t'))}{\sum_{(h_j', r, t_j') \in T'_{(h,r,t)}} \exp(\alpha f_r(h_j', t_j'))}\]</span></p>
+<p>where <span class="math inline">\(\alpha\)</span> is a temperature hyperparameter.</p>
+<p>The negative sampling loss becomes: <span class="math display">\[L = -\log\sigma(\gamma - f_r(h, t)) - \sum_{(h', r, t') \in T'_{(h,r,t)}} p(h', r, t') \log\sigma(f_r(h', t') - \gamma)\]</span></p>
+<p>where <span class="math inline">\(\sigma\)</span> is the sigmoid function and <span class="math inline">\(\gamma\)</span> is the margin.</p>
+</div>
+<p>This approach focuses training on “hard” negative examples (those that the model incorrectly scores highly), leading to more efficient learning.</p>
+</section>
+<section id="rotate-strengths-and-limitations" class="level3" data-number="7.2.4">
+<h3 data-number="7.2.4" class="anchored" data-anchor-id="rotate-strengths-and-limitations"><span class="header-section-number">7.2.4</span> RotatE strengths and limitations</h3>
+<p>RotatE offers several advantages:</p>
+<ol type="1">
+<li><strong>Expressive modeling of relation patterns</strong>: RotatE can model symmetry, antisymmetry, inversion, and composition</li>
+<li><strong>Parameter efficiency</strong>: With <span class="math inline">\(O(2|E|d + 2|R|d)\)</span> parameters (considering real and imaginary parts separately), RotatE is relatively efficient</li>
+<li><strong>Strong empirical performance</strong>: RotatE achieves state-of-the-art results on various knowledge graph completion benchmarks</li>
+</ol>
+<p>However, RotatE also has some limitations:</p>
+<ol type="1">
+<li><strong>Restricted to rotations</strong>: The model can only represent relationships as rotations, which may not capture all possible patterns</li>
+<li><strong>2D rotations only</strong>: Each complex dimension allows for rotation only in a 2D plane, potentially limiting expressiveness in higher dimensions</li>
+<li><strong>Unit modulus constraint</strong>: The constraint that relation embeddings must have unit modulus components restricts the model’s flexibility</li>
+</ol>
+</section>
+</section>
+<section id="protate-phase-rotation-model" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="protate-phase-rotation-model"><span class="header-section-number">7.3</span> pRotatE: phase rotation model</h2>
+<p>pRotatE, a variant of RotatE introduced in the same paper by Sun et al.&nbsp;(2019), explicitly models relations as phase rotations in complex space:</p>
+<div id="def-protate" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.6 (pRotatE model)</strong></span> In the <strong>pRotatE</strong> model, entities and relations are embedded based on their phase angles:</p>
+<ul>
+<li>Each entity <span class="math inline">\(e\)</span> is represented by a complex vector <span class="math inline">\(\mathbf{e} \in \mathbb{C}^d\)</span> with <span class="math inline">\(|\mathbf{e}_i| = 1\)</span> for all components <span class="math inline">\(i\)</span></li>
+<li>Each relation <span class="math inline">\(r\)</span> is represented by a vector of phase angles <span class="math inline">\(\mathbf{r} \in [0, 2\pi)^d\)</span></li>
+</ul>
+<p>The model enforces: <span class="math display">\[e^{i\theta_{\mathbf{t}}} = e^{i\theta_{\mathbf{h}}} \circ e^{i\mathbf{r}}\]</span></p>
+<p>where <span class="math inline">\(\theta_{\mathbf{e}}\)</span> denotes the phase angle of the complex vector <span class="math inline">\(\mathbf{e}\)</span>.</p>
+<p>The scoring function is: <span class="math display">\[f_r(h, t) = -\|e^{i\theta_{\mathbf{h}}} \circ e^{i\mathbf{r}} - e^{i\theta_{\mathbf{t}}}\|^2\]</span></p>
+</div>
+<p>pRotatE makes the phase rotation aspect of RotatE more explicit, emphasizing that the modulus of entity embeddings doesn’t affect the scoring function.</p>
+</section>
+<section id="quate-quaternion-embeddings" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="quate-quaternion-embeddings"><span class="header-section-number">7.4</span> QuatE: quaternion embeddings</h2>
+<p>QuatE, proposed by Zhang et al.&nbsp;(2019), extends rotational embeddings from the complex domain to quaternions, providing additional degrees of freedom for representation.</p>
+<div id="def-quate" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.7 (QuatE model)</strong></span> In the <strong>QuatE</strong> model, entities and relations are represented as quaternions: <span class="math display">\[\mathbf{e} = e_r + e_i\mathbf{i} + e_j\mathbf{j} + e_k\mathbf{k}\]</span> where <span class="math inline">\(e_r, e_i, e_j, e_k \in \mathbb{R}\)</span> are real numbers, and <span class="math inline">\(\mathbf{i}, \mathbf{j}, \mathbf{k}\)</span> are imaginary units with: <span class="math display">\[\mathbf{i}^2 = \mathbf{j}^2 = \mathbf{k}^2 = \mathbf{i}\mathbf{j}\mathbf{k} = -1\]</span></p>
+<p>The scoring function is: <span class="math display">\[f_r(h, t) = \langle \mathbf{h} \otimes \mathbf{r}_n, \mathbf{t} \rangle\]</span> where <span class="math inline">\(\otimes\)</span> is quaternion multiplication, <span class="math inline">\(\mathbf{r}_n\)</span> is the normalized relation quaternion, and <span class="math inline">\(\langle \cdot, \cdot \rangle\)</span> is the quaternion inner product.</p>
+</div>
+<section id="quaternion-algebra" class="level3" data-number="7.4.1">
+<h3 data-number="7.4.1" class="anchored" data-anchor-id="quaternion-algebra"><span class="header-section-number">7.4.1</span> Quaternion algebra</h3>
+<p>Quaternions extend complex numbers to four dimensions, providing a powerful framework for representing 3D rotations:</p>
+<div id="def-quaternions" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.8 (Quaternion algebra)</strong></span> A <strong>quaternion</strong> <span class="math inline">\(q = a + b\mathbf{i} + c\mathbf{j} + d\mathbf{k}\)</span> consists of:</p>
+<ul>
+<li>A scalar (real) part <span class="math inline">\(a \in \mathbb{R}\)</span></li>
+<li>Three imaginary parts <span class="math inline">\(b, c, d \in \mathbb{R}\)</span> with imaginary units <span class="math inline">\(\mathbf{i}, \mathbf{j}, \mathbf{k}\)</span></li>
+</ul>
+<p>Key operations include:</p>
+<ol type="1">
+<li><strong>Conjugate</strong>: <span class="math inline">\(\overline{q} = a - b\mathbf{i} - c\mathbf{j} - d\mathbf{k}\)</span></li>
+<li><strong>Norm</strong>: <span class="math inline">\(|q| = \sqrt{a^2 + b^2 + c^2 + d^2}\)</span></li>
+<li><strong>Multiplication</strong>: Defined by the properties <span class="math inline">\(\mathbf{i}^2 = \mathbf{j}^2 = \mathbf{k}^2 = -1\)</span>, <span class="math inline">\(\mathbf{i}\mathbf{j} = \mathbf{k}\)</span>, <span class="math inline">\(\mathbf{j}\mathbf{k} = \mathbf{i}\)</span>, <span class="math inline">\(\mathbf{k}\mathbf{i} = \mathbf{j}\)</span>, <span class="math inline">\(\mathbf{j}\mathbf{i} = -\mathbf{k}\)</span>, <span class="math inline">\(\mathbf{k}\mathbf{j} = -\mathbf{i}\)</span>, <span class="math inline">\(\mathbf{i}\mathbf{k} = -\mathbf{j}\)</span></li>
+<li><strong>Inner product</strong>: <span class="math inline">\(\langle q_1, q_2 \rangle = a_1a_2 + b_1b_2 + c_1c_2 + d_1d_2\)</span></li>
+</ol>
+</div>
+</section>
+<section id="quaternion-rotations" class="level3" data-number="7.4.2">
+<h3 data-number="7.4.2" class="anchored" data-anchor-id="quaternion-rotations"><span class="header-section-number">7.4.2</span> Quaternion rotations</h3>
+<p>A key advantage of quaternions is their ability to efficiently represent 3D rotations:</p>
+<div id="def-quaternion-rotation" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.9 (Quaternion rotation)</strong></span> A rotation in 3D space can be represented by a unit quaternion <span class="math inline">\(q\)</span> with <span class="math inline">\(|q| = 1\)</span>. To rotate a vector <span class="math inline">\(\mathbf{v} = (x, y, z)\)</span> by quaternion <span class="math inline">\(q\)</span>:</p>
+<ol type="1">
+<li>Convert <span class="math inline">\(\mathbf{v}\)</span> to a pure imaginary quaternion: <span class="math inline">\(v = 0 + x\mathbf{i} + y\mathbf{j} + z\mathbf{k}\)</span></li>
+<li>Apply the rotation: <span class="math inline">\(v' = q \otimes v \otimes q^{-1}\)</span> where <span class="math inline">\(q^{-1} = \overline{q}\)</span> for unit quaternions</li>
+<li>Extract the vector from the resulting quaternion: <span class="math inline">\(\mathbf{v}' = (v'_i, v'_j, v'_k)\)</span></li>
+</ol>
+<p>This rotation preserves the vector’s magnitude and offers a compact and numerically stable representation of 3D rotations.</p>
+</div>
+<div id="exm-quate-rotation" class="theorem example">
+<p><span class="theorem-title"><strong>Example 7.4 (QuatE rotation example)</strong></span> Consider a quaternion relation embedding <span class="math inline">\(\mathbf{r} = \frac{\sqrt{2}}{2} + \frac{\sqrt{2}}{2}\mathbf{i} + 0\mathbf{j} + 0\mathbf{k}\)</span> (representing a 90-degree rotation around the i-axis).</p>
+<p>For an entity embedding <span class="math inline">\(\mathbf{h} = 0 + 0\mathbf{i} + 1\mathbf{j} + 0\mathbf{k}\)</span>, the quaternion product would be: <span class="math inline">\(\mathbf{h} \otimes \mathbf{r} = (0 + 0\mathbf{i} + 1\mathbf{j} + 0\mathbf{k}) \otimes (\frac{\sqrt{2}}{2} + \frac{\sqrt{2}}{2}\mathbf{i} + 0\mathbf{j} + 0\mathbf{k})\)</span></p>
+<p>Following quaternion multiplication rules: <span class="math inline">\(\mathbf{h} \otimes \mathbf{r} = \frac{\sqrt{2}}{2}\mathbf{j} + \frac{\sqrt{2}}{2}(\mathbf{j} \otimes \mathbf{i}) = \frac{\sqrt{2}}{2}\mathbf{j} + \frac{\sqrt{2}}{2}(-\mathbf{k}) = \frac{\sqrt{2}}{2}\mathbf{j} - \frac{\sqrt{2}}{2}\mathbf{k}\)</span></p>
+<p>This represents the head entity rotated by 90 degrees according to the relation quaternion.</p>
+</div>
+</section>
+<section id="quate-strengths-and-limitations" class="level3" data-number="7.4.3">
+<h3 data-number="7.4.3" class="anchored" data-anchor-id="quate-strengths-and-limitations"><span class="header-section-number">7.4.3</span> QuatE strengths and limitations</h3>
+<p>QuatE offers several advantages:</p>
+<ol type="1">
+<li><strong>Enhanced expressiveness</strong>: Quaternions provide additional degrees of freedom compared to complex numbers</li>
+<li><strong>3D rotation modeling</strong>: QuatE can naturally model rotations in 3D space, which can capture more complex relation patterns</li>
+<li><strong>Strong empirical performance</strong>: QuatE achieves state-of-the-art results on several benchmarks</li>
+</ol>
+<p>However, QuatE also has limitations:</p>
+<ol type="1">
+<li><strong>Increased complexity</strong>: Quaternion operations are more complex than real or complex operations</li>
+<li><strong>Additional parameters</strong>: With four components per dimension, QuatE has more parameters than real-valued models</li>
+<li><strong>Training challenges</strong>: The model requires careful initialization and training due to the complexity of quaternion algebra</li>
+</ol>
+</section>
+</section>
+<section id="dense-rotation-in-spinor-space" class="level2" data-number="7.5">
+<h2 data-number="7.5" class="anchored" data-anchor-id="dense-rotation-in-spinor-space"><span class="header-section-number">7.5</span> DensE: rotation in spinor space</h2>
+<p>DensE, proposed by Li et al.&nbsp;(2020), extends rotational models to higher dimensions using spinor representations:</p>
+<div id="def-dense" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.10 (DensE model)</strong></span> In the <strong>DensE</strong> model, entities and relations are embedded in higher-dimensional spaces using spinor representations:</p>
+<ul>
+<li>Entities are represented as multivectors in Clifford algebra</li>
+<li>Relations are represented as rotors (generalized quaternions) that act on entity embeddings</li>
+</ul>
+<p>The model applies rotations in higher-dimensional spaces, extending beyond the 3D rotations of quaternions to arbitrary dimensions.</p>
+<p>The scoring function measures the distance between the rotated head entity and the tail entity in this higher-dimensional space.</p>
+</div>
+<p>DensE leverages the mathematical framework of Clifford algebra and geometric algebra to represent rotations in arbitrary dimensions, offering even greater expressiveness than quaternion-based models.</p>
+</section>
+<section id="neural-network-based-models" class="level2" data-number="7.6">
+<h2 data-number="7.6" class="anchored" data-anchor-id="neural-network-based-models"><span class="header-section-number">7.6</span> Neural network-based models</h2>
+<p>While geometric models like RotatE and QuatE offer powerful representations through rotations, neural network-based models take a different approach by leveraging the expressive power of neural architectures to model complex interactions between entities and relations.</p>
+<div id="def-neural-kge" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.11 (Neural network-based knowledge graph embedding)</strong></span> <strong>Neural network-based knowledge graph embedding</strong> models use neural architectures to:</p>
+<ol type="1">
+<li>Process entity and relation embeddings</li>
+<li>Model complex, non-linear interactions between entities and relations</li>
+<li>Compute scores for triples based on learned representations</li>
+</ol>
+</div>
+<p>Neural network approaches have several potential advantages:</p>
+<ol type="1">
+<li><strong>Expressiveness</strong>: Neural networks can approximate arbitrary functions, potentially capturing more complex patterns</li>
+<li><strong>Non-linearity</strong>: Non-linear activation functions enable modeling of complex, non-linear relationships</li>
+<li><strong>Feature learning</strong>: Neural networks can learn useful features from raw embeddings</li>
+<li><strong>Integration with other modalities</strong>: Neural architectures can naturally integrate with other neural models for multimodal learning</li>
+</ol>
+</section>
+<section id="neural-tensor-network-ntn" class="level2" data-number="7.7">
+<h2 data-number="7.7" class="anchored" data-anchor-id="neural-tensor-network-ntn"><span class="header-section-number">7.7</span> Neural Tensor Network (NTN)</h2>
+<p>The Neural Tensor Network (NTN), proposed by Socher et al.&nbsp;(2013), was one of the first neural network-based models for knowledge graph embedding:</p>
+<div id="def-ntn" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.12 (Neural Tensor Network model)</strong></span> In the <strong>Neural Tensor Network (NTN)</strong> model, entities are represented as vectors <span class="math inline">\(\mathbf{e} \in \mathbb{R}^d\)</span>, and each relation <span class="math inline">\(r\)</span> is associated with:</p>
+<ol type="1">
+<li>A tensor <span class="math inline">\(\mathcal{W}_r \in \mathbb{R}^{d \times d \times k}\)</span></li>
+<li>A linear transform matrix <span class="math inline">\(\mathbf{V}_r \in \mathbb{R}^{k \times 2d}\)</span></li>
+<li>A bias vector <span class="math inline">\(\mathbf{b}_r \in \mathbb{R}^k\)</span></li>
+<li>A weight vector <span class="math inline">\(\mathbf{u}_r \in \mathbb{R}^k\)</span></li>
+</ol>
+<p>The scoring function is: <span class="math display">\[f_r(h, t) = \mathbf{u}_r^T \tanh(\mathbf{h}^T \mathcal{W}_r \mathbf{t} + \mathbf{V}_r [\mathbf{h}; \mathbf{t}] + \mathbf{b}_r)\]</span></p>
+<p>where <span class="math inline">\([\mathbf{h}; \mathbf{t}]\)</span> denotes the concatenation of <span class="math inline">\(\mathbf{h}\)</span> and <span class="math inline">\(\mathbf{t}\)</span>, and <span class="math inline">\(\tanh\)</span> is the hyperbolic tangent activation function.</p>
+</div>
+<section id="tensor-product" class="level3" data-number="7.7.1">
+<h3 data-number="7.7.1" class="anchored" data-anchor-id="tensor-product"><span class="header-section-number">7.7.1</span> Tensor product</h3>
+<p>The core of the NTN model is the tensor product, which captures multiplicative interactions between entity embeddings:</p>
+<div id="def-tensor-product" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.13 (Tensor product)</strong></span> The <strong>tensor product</strong> between vectors <span class="math inline">\(\mathbf{h}, \mathbf{t} \in \mathbb{R}^d\)</span> with a tensor <span class="math inline">\(\mathcal{W} \in \mathbb{R}^{d \times d \times k}\)</span> produces a vector <span class="math inline">\(\mathbf{z} \in \mathbb{R}^k\)</span> where:</p>
+<p><span class="math display">\[\mathbf{z}[i] = \mathbf{h}^T \mathcal{W}[:, :, i] \mathbf{t} = \sum_{j=1}^d \sum_{l=1}^d \mathbf{h}[j] \mathcal{W}[j, l, i] \mathbf{t}[l]\]</span></p>
+<p>Each slice <span class="math inline">\(\mathcal{W}[:, :, i]\)</span> of the tensor is a matrix that captures a particular type of interaction between the embeddings.</p>
+</div>
+<div id="exm-ntn" class="theorem example">
+<p><span class="theorem-title"><strong>Example 7.5 (NTN example)</strong></span> Consider entity embeddings <span class="math inline">\(\mathbf{h}, \mathbf{t} \in \mathbb{R}^2\)</span> and a relation with tensor <span class="math inline">\(\mathcal{W}_r \in \mathbb{R}^{2 \times 2 \times 2}\)</span>, matrices <span class="math inline">\(\mathbf{V}_r \in \mathbb{R}^{2 \times 4}\)</span>, and vectors <span class="math inline">\(\mathbf{b}_r, \mathbf{u}_r \in \mathbb{R}^2\)</span>.</p>
+<p>For the tensor product term, if:</p>
+<ul>
+<li><span class="math inline">\(\mathbf{h} = [0.5, 0.8]\)</span></li>
+<li><span class="math inline">\(\mathbf{t} = [0.3, 0.6]\)</span></li>
+<li><span class="math inline">\(\mathcal{W}_r[:,:,0] = \begin{pmatrix} 0.1 &amp; 0.2 \\ 0.3 &amp; 0.4 \end{pmatrix}\)</span></li>
+<li><span class="math inline">\(\mathcal{W}_r[:,:,1] = \begin{pmatrix} 0.5 &amp; 0.6 \\ 0.7 &amp; 0.8 \end{pmatrix}\)</span></li>
+</ul>
+<p>Then: <span class="math inline">\(\mathbf{h}^T \mathcal{W}_r[:,:,0] \mathbf{t} = [0.5, 0.8] \begin{pmatrix} 0.1 &amp; 0.2 \\ 0.3 &amp; 0.4 \end{pmatrix} [0.3, 0.6]^T = [0.5 \cdot 0.1 + 0.8 \cdot 0.3, 0.5 \cdot 0.2 + 0.8 \cdot 0.4] [0.3, 0.6]^T = [0.05 + 0.24, 0.1 + 0.32] [0.3, 0.6]^T = [0.29, 0.42] [0.3, 0.6]^T = 0.29 \cdot 0.3 + 0.42 \cdot 0.6 = 0.087 + 0.252 = 0.339\)</span></p>
+<p>Similarly, for the second slice, <span class="math inline">\(\mathbf{h}^T \mathcal{W}_r[:,:,1] \mathbf{t} = 0.915\)</span></p>
+<p>This tensor product term is then combined with the bilinear term and bias, passed through a non-linear activation function, and weighted to produce the final score.</p>
+</div>
+</section>
+<section id="ntn-strengths-and-limitations" class="level3" data-number="7.7.2">
+<h3 data-number="7.7.2" class="anchored" data-anchor-id="ntn-strengths-and-limitations"><span class="header-section-number">7.7.2</span> NTN strengths and limitations</h3>
+<p>NTN offers several advantages:</p>
+<ol type="1">
+<li><strong>High expressiveness</strong>: The tensor product captures complex interactions between entity embeddings</li>
+<li><strong>Non-linearity</strong>: The activation function introduces non-linearity, enabling more complex relation modeling</li>
+<li><strong>Combined bilinear and tensor interactions</strong>: NTN incorporates both standard bilinear terms and more expressive tensor interactions</li>
+</ol>
+<p>However, NTN also has significant limitations:</p>
+<ol type="1">
+<li><strong>Parameter explosion</strong>: With <span class="math inline">\(O(|E|d + |R|kd^2 + |R|k(2d) + |R|k + |R|k) = O(|E|d + |R|kd^2)\)</span> parameters, NTN requires many more parameters than other models</li>
+<li><strong>Overfitting risk</strong>: The large number of parameters increases the risk of overfitting, especially for relations with few examples</li>
+<li><strong>Computational complexity</strong>: Computing the tensor product is computationally expensive, making NTN less scalable to large knowledge graphs</li>
+</ol>
+</section>
+</section>
+<section id="multi-layer-perceptron-mlp-models" class="level2" data-number="7.8">
+<h2 data-number="7.8" class="anchored" data-anchor-id="multi-layer-perceptron-mlp-models"><span class="header-section-number">7.8</span> Multi-Layer Perceptron (MLP) models</h2>
+<p>Several simpler neural models replace the tensor product with standard neural network layers:</p>
+<div id="def-mlp-models" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.14 (MLP-based knowledge graph embedding models)</strong></span> <strong>MLP-based knowledge graph embedding models</strong> use multilayer perceptrons to score triples:</p>
+<ol type="1">
+<li>Combine entity embeddings through concatenation, element-wise operations, or other means</li>
+<li>Process the combined representations through one or more fully connected layers</li>
+<li>Produce a score indicating the plausibility of the triple</li>
+</ol>
+<p>The general form is: <span class="math display">\[f_r(h, t) = \text{MLP}_r([\mathbf{h}; \mathbf{t}]) \text{ or } f_r(h, t) = \text{MLP}([\mathbf{h}; \mathbf{r}; \mathbf{t}])\]</span></p>
+<p>where <span class="math inline">\([\cdot; \cdot]\)</span> denotes concatenation, and <span class="math inline">\(\text{MLP}\)</span> is a multi-layer perceptron.</p>
+</div>
+<p>These models are more parameter-efficient than NTN while still leveraging the expressiveness of neural networks.</p>
+</section>
+<section id="convolutional-models" class="level2" data-number="7.9">
+<h2 data-number="7.9" class="anchored" data-anchor-id="convolutional-models"><span class="header-section-number">7.9</span> Convolutional models</h2>
+<p>Convolutional neural networks (CNNs) have also been applied to knowledge graph embeddings, leveraging their ability to capture local patterns and parameter sharing:</p>
+<div id="def-conve" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.15 (ConvE model)</strong></span> In the <strong>ConvE</strong> model, proposed by Dettmers et al.&nbsp;(2018):</p>
+<ol type="1">
+<li>Entity and relation embeddings are reshaped and concatenated to form a 2D “image”</li>
+<li>2D convolutional filters are applied to this image</li>
+<li>The result is flattened, passed through a fully connected layer, and scored against the tail entity</li>
+</ol>
+<p>The scoring function is: <span class="math display">\[f_r(h, t) = \mathbf{t}^T \text{ReLU}(\text{vec}(\text{ReLU}(\text{conv}([\overline{\mathbf{h}}; \overline{\mathbf{r}}]) * \Omega)) \mathbf{W})\]</span></p>
+<p>where <span class="math inline">\(\overline{\mathbf{h}}\)</span> and <span class="math inline">\(\overline{\mathbf{r}}\)</span> are the reshaped head entity and relation embeddings, <span class="math inline">\(\text{conv}\)</span> is the convolution operation with filters <span class="math inline">\(\Omega\)</span>, <span class="math inline">\(\text{vec}\)</span> flattens the output, and <span class="math inline">\(\mathbf{W}\)</span> is a weight matrix.</p>
+</div>
+<div id="exm-conve" class="theorem example">
+<p><span class="theorem-title"><strong>Example 7.6 (ConvE example)</strong></span> Consider entity and relation embeddings with dimension <span class="math inline">\(d = 100\)</span>. In ConvE:</p>
+<ol type="1">
+<li>Reshape the head entity embedding to a 10×10 matrix</li>
+<li>Reshape the relation embedding to a 10×10 matrix</li>
+<li>Stack these to create a 10×20 “image”</li>
+<li>Apply convolutional filters (e.g., 3×3 filters) to this image</li>
+<li>Apply ReLU activation, flatten, and project to the embedding dimension</li>
+<li>Compute the similarity with the tail entity embedding</li>
+</ol>
+<p>This approach leverages the parameter sharing and local pattern recognition capabilities of CNNs.</p>
+</div>
+<section id="convkb" class="level3" data-number="7.9.1">
+<h3 data-number="7.9.1" class="anchored" data-anchor-id="convkb"><span class="header-section-number">7.9.1</span> ConvKB</h3>
+<p>ConvKB, proposed by Nguyen et al.&nbsp;(2018), applies convolutions across the embedding dimension rather than to reshaped embeddings:</p>
+<div id="def-convkb" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.16 (ConvKB model)</strong></span> In the <strong>ConvKB</strong> model:</p>
+<ol type="1">
+<li>Entity and relation embeddings are stacked to form a 3×d matrix <span class="math inline">\(\mathbf{M} = [\mathbf{h}, \mathbf{r}, \mathbf{t}]\)</span></li>
+<li>1D convolutional filters with width 3 are applied across the embeddings</li>
+<li>The results are flattened and scored using a linear layer</li>
+</ol>
+<p>The scoring function is:</p>
+<p><span class="math display">\[f_r(h, t) = \text{concat}(\text{ReLU}(\text{conv}([\mathbf{h}, \mathbf{r}, \mathbf{t}]) * \Omega)) \cdot \mathbf{w}\]</span></p>
+<p>where <span class="math inline">\([\mathbf{h}, \mathbf{r}, \mathbf{t}]\)</span> is the stacked matrix of embeddings, <span class="math inline">\(\text{conv}\)</span> is the convolution operation with filters <span class="math inline">\(\Omega\)</span>, <span class="math inline">\(\text{concat}\)</span> concatenates the output, and <span class="math inline">\(\mathbf{w}\)</span> is a weight vector.</p>
+</div>
+<p>ConvKB applies convolutional filters directly to the triples, capturing interactions between corresponding dimensions of the head entity, relation, and tail entity embeddings.</p>
+</section>
+<section id="capse-capsule-network-for-kge" class="level3" data-number="7.9.2">
+<h3 data-number="7.9.2" class="anchored" data-anchor-id="capse-capsule-network-for-kge"><span class="header-section-number">7.9.2</span> CapsE: Capsule Network for KGE</h3>
+<p>CapsE, proposed by Nguyen et al.&nbsp;(2019), leverages capsule networks to better preserve spatial information in the embedding space:</p>
+<div id="def-capse" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.17 (CapsE model)</strong></span> In the <strong>CapsE</strong> model:</p>
+<ol type="1">
+<li>Entity and relation embeddings are stacked to form a 3×d matrix <span class="math inline">\(\mathbf{M} = [\mathbf{h}, \mathbf{r}, \mathbf{t}]\)</span></li>
+<li>Convolutional filters are applied to extract features</li>
+<li>A capsule network processes these features to preserve structural information</li>
+<li>Dynamic routing between capsules determines the final score</li>
+</ol>
+<p>Capsule networks use vectors (rather than scalars) to represent features and employ a dynamic routing mechanism that preserves hierarchical relationships.</p>
+</div>
+<p>CapsE aims to better capture the structural aspects of knowledge graph embeddings by preserving spatial information through capsule networks.</p>
+</section>
+</section>
+<section id="graph-neural-network-gnn-based-models" class="level2" data-number="7.10">
+<h2 data-number="7.10" class="anchored" data-anchor-id="graph-neural-network-gnn-based-models"><span class="header-section-number">7.10</span> Graph Neural Network (GNN) based models</h2>
+<p>Graph Neural Networks have emerged as powerful tools for modeling graph-structured data, including knowledge graphs:</p>
+<div id="def-gnn-kge" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.18 (GNN-based knowledge graph embedding)</strong></span> <strong>GNN-based knowledge graph embedding</strong> models apply graph neural networks to learn entity and relation representations:</p>
+<ol type="1">
+<li>Treat the knowledge graph as a labeled, directed graph</li>
+<li>Apply message passing between nodes (entities) along edges (relations)</li>
+<li>Update node representations based on aggregated messages</li>
+<li>Use the final node representations for link prediction</li>
+</ol>
+<p>These models leverage the graph structure directly, rather than treating each triple independently.</p>
+</div>
+<section id="r-gcn-relational-graph-convolutional-networks" class="level3" data-number="7.10.1">
+<h3 data-number="7.10.1" class="anchored" data-anchor-id="r-gcn-relational-graph-convolutional-networks"><span class="header-section-number">7.10.1</span> R-GCN: Relational Graph Convolutional Networks</h3>
+<p>R-GCN, proposed by Schlichtkrull et al.&nbsp;(2018), extends Graph Convolutional Networks (GCNs) to handle multi-relational data:</p>
+<div id="def-rgcn" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.19 (R-GCN model)</strong></span> In the <strong>R-GCN</strong> model:</p>
+<ol type="1">
+<li>Each entity (node) has an initial embedding <span class="math inline">\(\mathbf{h}_i^{(0)}\)</span></li>
+<li>In each layer <span class="math inline">\(l\)</span>, node embeddings are updated based on neighbors: <span class="math display">\[\mathbf{h}_i^{(l+1)} = \sigma\left(\sum_{r \in R} \sum_{j \in \mathcal{N}_i^r} \frac{1}{c_{i,r}} \mathbf{W}_r^{(l)} \mathbf{h}_j^{(l)} + \mathbf{W}_0^{(l)} \mathbf{h}_i^{(l)}\right)\]</span> where <span class="math inline">\(\mathcal{N}_i^r\)</span> is the set of neighbors of node <span class="math inline">\(i\)</span> connected through relation <span class="math inline">\(r\)</span>, <span class="math inline">\(c_{i,r}\)</span> is a normalization constant, <span class="math inline">\(\mathbf{W}_r^{(l)}\)</span> is a relation-specific transformation matrix, and <span class="math inline">\(\mathbf{W}_0^{(l)}\)</span> is a self-connection matrix</li>
+<li>After <span class="math inline">\(L\)</span> layers, the final node embeddings <span class="math inline">\(\mathbf{h}_i^{(L)}\)</span> are used for link prediction</li>
+</ol>
+<p>For link prediction, R-GCN is often combined with a scoring function like DistMult or ConvE to evaluate triple plausibility.</p>
+</div>
+<div id="exm-rgcn" class="theorem example">
+<p><span class="theorem-title"><strong>Example 7.7 (R-GCN example)</strong></span> Consider a small knowledge graph with entities “Alice,” “Bob,” and “Charlie” and relations “knows” and “works_with.”</p>
+<p>In R-GCN, the embedding update for Alice would involve:</p>
+<ol type="1">
+<li>Aggregating messages from neighbors connected through “knows” relations</li>
+<li>Aggregating messages from neighbors connected through “works_with” relations</li>
+<li>Applying relation-specific transformations to these messages</li>
+<li>Combining them with Alice’s current embedding</li>
+<li>Applying a non-linear activation function</li>
+</ol>
+<p>This process captures both the structure of the graph and the semantics of different relation types.</p>
+</div>
+</section>
+<section id="compgcn-compositional-graph-convolutional-networks" class="level3" data-number="7.10.2">
+<h3 data-number="7.10.2" class="anchored" data-anchor-id="compgcn-compositional-graph-convolutional-networks"><span class="header-section-number">7.10.2</span> CompGCN: Compositional Graph Convolutional Networks</h3>
+<p>CompGCN, proposed by Vashishth et al.&nbsp;(2020), extends R-GCN by incorporating compositional operators from translational approaches:</p>
+<div id="def-compgcn" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.20 (CompGCN model)</strong></span> In the <strong>CompGCN</strong> model:</p>
+<ol type="1">
+<li>Both entity and relation embeddings are updated in each layer</li>
+<li>Node embeddings are updated based on neighbors and composition operators: <span class="math display">\[\mathbf{h}_i^{(l+1)} = \sigma\left(\mathbf{W}_{\lambda(r)}^{(l)} \sum_{(j,r) \in \mathcal{N}_i} \frac{1}{|\mathcal{N}_i|} \phi(\mathbf{h}_j^{(l)}, \mathbf{r}) + \mathbf{W}_{\text{self}}^{(l)} \mathbf{h}_i^{(l)}\right)\]</span> where <span class="math inline">\(\phi\)</span> is a composition operator (like subtraction, multiplication, or circular correlation), <span class="math inline">\(\lambda(r)\)</span> indicates whether <span class="math inline">\(r\)</span> is incoming, outgoing, or a self-loop, and <span class="math inline">\(\mathbf{W}_{\lambda(r)}^{(l)}\)</span> is a direction-specific parameter matrix</li>
+<li>Relation embeddings are also updated: <span class="math display">\[\mathbf{r}^{(l+1)} = \mathbf{W}_{\text{rel}}^{(l)} \mathbf{r}^{(l)}\]</span></li>
+</ol>
+<p>CompGCN combines the message-passing framework of GNNs with the compositional operators of translational embedding models.</p>
+</div>
+<p>CompGCN unifies the translational and graph neural network approaches, leveraging the strengths of both paradigms.</p>
+</section>
+</section>
+<section id="attention-based-models" class="level2" data-number="7.11">
+<h2 data-number="7.11" class="anchored" data-anchor-id="attention-based-models"><span class="header-section-number">7.11</span> Attention-based models</h2>
+<p>Attention mechanisms, which have revolutionized natural language processing, have also been applied to knowledge graph embeddings:</p>
+<div id="def-attention-kge" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.21 (Attention-based knowledge graph embedding)</strong></span> <strong>Attention-based knowledge graph embedding</strong> models use attention mechanisms to:</p>
+<ol type="1">
+<li>Dynamically weight the importance of different aspects of entity and relation embeddings</li>
+<li>Focus on the most relevant parts of the embedding space for a given triple</li>
+<li>Capture complex, context-dependent relationships between entities</li>
+</ol>
+<p>Attention allows these models to adaptively focus on different features depending on the specific entities and relations involved.</p>
+</div>
+<section id="kbat-knowledge-base-attention-network" class="level3" data-number="7.11.1">
+<h3 data-number="7.11.1" class="anchored" data-anchor-id="kbat-knowledge-base-attention-network"><span class="header-section-number">7.11.1</span> KBAT: Knowledge Base Attention Network</h3>
+<p>KBAT, proposed by Nathani et al.&nbsp;(2019), applies multi-head attention to knowledge graph embedding:</p>
+<div id="def-kbat" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.22 (KBAT model)</strong></span> In the <strong>KBAT</strong> model:</p>
+<ol type="1">
+<li>For each entity, feature vectors are computed based on its local neighborhood</li>
+<li>Multi-head attention mechanisms are applied to these features: <span class="math display">\[\alpha_{ij} = \frac{\exp(f(\mathbf{W}\mathbf{h}_i, \mathbf{W}\mathbf{h}_j, \mathbf{r}_{ij}))}{\sum_{k \in \mathcal{N}_i} \exp(f(\mathbf{W}\mathbf{h}_i, \mathbf{W}\mathbf{h}_k, \mathbf{r}_{ik}))}\]</span> where <span class="math inline">\(f\)</span> is a scoring function, <span class="math inline">\(\mathbf{W}\)</span> is a projection matrix, and <span class="math inline">\(\mathbf{r}_{ij}\)</span> is the relation embedding</li>
+<li>Entity representations are updated using these attention weights: <span class="math display">\[\mathbf{h}_i' = \sigma\left(\sum_{j \in \mathcal{N}_i} \alpha_{ij} \mathbf{W}\mathbf{h}_j\right)\]</span></li>
+<li>The updated representations are used for link prediction</li>
+</ol>
+<p>KBAT combines the benefits of graph attention networks with knowledge graph embedding.</p>
+</div>
+</section>
+<section id="multihopkg-multi-hop-knowledge-graph-reasoning" class="level3" data-number="7.11.2">
+<h3 data-number="7.11.2" class="anchored" data-anchor-id="multihopkg-multi-hop-knowledge-graph-reasoning"><span class="header-section-number">7.11.2</span> MultiHopKG: Multi-hop Knowledge Graph Reasoning</h3>
+<p>MultiHopKG, proposed by Lin et al.&nbsp;(2018), uses attention for multi-hop reasoning over knowledge graphs:</p>
+<div id="def-multihopkg" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.23 (MultiHopKG model)</strong></span> In the <strong>MultiHopKG</strong> model:</p>
+<ol type="1">
+<li>A reinforcement learning agent traverses the knowledge graph to find paths</li>
+<li>At each step, the agent uses attention to decide which relation to follow: <span class="math display">\[\mathbf{a}_t = \text{Attention}(\mathbf{h}_{e_t}, \{\mathbf{r} | (e_t, r, e') \in \mathcal{G}\})\]</span> where <span class="math inline">\(\mathbf{h}_{e_t}\)</span> is the current entity representation, and <span class="math inline">\(\mathbf{r}\)</span> are relation embeddings</li>
+<li>The agent’s policy is trained to find paths that lead to the correct answer entities</li>
+<li>The final paths provide interpretable reasoning chains for link prediction</li>
+</ol>
+<p>MultiHopKG combines attention mechanisms with reinforcement learning for explainable link prediction.</p>
+</div>
+</section>
+</section>
+<section id="pre-trained-language-model-approaches" class="level2" data-number="7.12">
+<h2 data-number="7.12" class="anchored" data-anchor-id="pre-trained-language-model-approaches"><span class="header-section-number">7.12</span> Pre-trained language model approaches</h2>
+<p>Recent advances in pre-trained language models (PLMs) have opened new possibilities for knowledge graph embeddings:</p>
+<div id="def-plm-kge" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.24 (Pre-trained language model approaches to KGE)</strong></span> <strong>Pre-trained language model approaches</strong> leverage large language models to enhance knowledge graph embeddings:</p>
+<ol type="1">
+<li>Use PLMs to encode textual descriptions of entities and relations</li>
+<li>Fine-tune these models for knowledge graph completion tasks</li>
+<li>Combine the linguistic knowledge in PLMs with the structural information in knowledge graphs</li>
+</ol>
+<p>These approaches benefit from the rich semantic understanding captured by pre-trained language models.</p>
+</div>
+<section id="kg-bert" class="level3" data-number="7.12.1">
+<h3 data-number="7.12.1" class="anchored" data-anchor-id="kg-bert"><span class="header-section-number">7.12.1</span> KG-BERT</h3>
+<p>KG-BERT, proposed by Yao et al.&nbsp;(2019), fine-tunes BERT for knowledge graph completion:</p>
+<div id="def-kg-bert" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.25 (KG-BERT model)</strong></span> In the <strong>KG-BERT</strong> model:</p>
+<ol type="1">
+<li>Each triple <span class="math inline">\((h, r, t)\)</span> is converted to a text sequence: “[CLS] h [SEP] r [SEP] t [SEP]”</li>
+<li>BERT encodes this sequence into contextual embeddings</li>
+<li>The [CLS] token embedding is used to score the plausibility of the triple: <span class="math display">\[f_r(h, t) = \sigma(\mathbf{w}^T \mathbf{h}_{[CLS]})\]</span> where <span class="math inline">\(\mathbf{h}_{[CLS]}\)</span> is the [CLS] token embedding, and <span class="math inline">\(\mathbf{w}\)</span> is a weight vector</li>
+<li>The model is fine-tuned on the knowledge graph triples</li>
+</ol>
+<p>KG-BERT treats knowledge graph completion as a sequence classification task, leveraging BERT’s pre-trained language understanding capabilities.</p>
+</div>
+<div id="exm-kg-bert" class="theorem example">
+<p><span class="theorem-title"><strong>Example 7.8 (KG-BERT example)</strong></span> For the triple (Paris, is_capital_of, France), KG-BERT would:</p>
+<ol type="1">
+<li>Convert it to the text sequence: “[CLS] Paris [SEP] is capital of [SEP] France [SEP]”</li>
+<li>Process this sequence through BERT to get contextual embeddings</li>
+<li>Use the [CLS] token embedding to score the triple’s plausibility</li>
+<li>Compare this score with those of corrupted triples like (London, is_capital_of, France)</li>
+</ol>
+<p>This approach leverages BERT’s understanding of language to determine which triples make semantic sense.</p>
+</div>
+</section>
+<section id="kepler" class="level3" data-number="7.12.2">
+<h3 data-number="7.12.2" class="anchored" data-anchor-id="kepler"><span class="header-section-number">7.12.2</span> KEPLER</h3>
+<p>KEPLER, proposed by Wang et al.&nbsp;(2021), jointly trains knowledge embeddings and language representations:</p>
+<div id="def-kepler" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.26 (KEPLER model)</strong></span> In the <strong>KEPLER</strong> model:</p>
+<ol type="1">
+<li>Entities and relations are represented by their textual descriptions</li>
+<li>A pre-trained language model (e.g., RoBERTa) encodes these descriptions into embeddings</li>
+<li>A knowledge embedding objective (e.g., TransE) is combined with the language modeling objective: <span class="math display">\[L = L_{KE} + \lambda L_{MLM}\]</span> where <span class="math inline">\(L_{KE}\)</span> is the knowledge embedding loss, <span class="math inline">\(L_{MLM}\)</span> is the masked language modeling loss, and <span class="math inline">\(\lambda\)</span> is a weighting factor</li>
+<li>The model is jointly trained on both objectives</li>
+</ol>
+<p>KEPLER aligns the embedding space with linguistic semantics, enabling better generalization to unseen entities.</p>
+</div>
+</section>
+</section>
+<section id="hybrid-and-multi-modal-models" class="level2" data-number="7.13">
+<h2 data-number="7.13" class="anchored" data-anchor-id="hybrid-and-multi-modal-models"><span class="header-section-number">7.13</span> Hybrid and multi-modal models</h2>
+<p>Many recent approaches combine different model types or incorporate multiple modalities:</p>
+<div id="def-hybrid-models" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.27 (Hybrid knowledge graph embedding models)</strong></span> <strong>Hybrid knowledge graph embedding models</strong> combine different approaches to leverage their complementary strengths:</p>
+<ol type="1">
+<li><strong>Geometric + Neural</strong>: Combine geometric interpretations with neural processing</li>
+<li><strong>Structure + Text</strong>: Integrate graph structure with textual descriptions</li>
+<li><strong>Multiple Modalities</strong>: Incorporate images, numerical attributes, or other modalities</li>
+</ol>
+<p>These models aim to capture different aspects of entities and relations through diverse representations.</p>
+</div>
+<section id="ikrl-image-embodied-knowledge-representation-learning" class="level3" data-number="7.13.1">
+<h3 data-number="7.13.1" class="anchored" data-anchor-id="ikrl-image-embodied-knowledge-representation-learning"><span class="header-section-number">7.13.1</span> IKRL: Image-Embodied Knowledge Representation Learning</h3>
+<p>IKRL, proposed by Xie et al.&nbsp;(2017), incorporates visual information into knowledge graph embeddings:</p>
+<div id="def-ikrl" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.28 (IKRL model)</strong></span> In the <strong>IKRL</strong> model:</p>
+<ol type="1">
+<li>Each entity has both a structure-based embedding and an image-based embedding</li>
+<li>The image-based embedding is generated from visual features extracted by a CNN</li>
+<li>The model aligns the two embedding spaces and uses both for link prediction</li>
+<li>The scoring function combines both embeddings: <span class="math display">\[f_r(h, t) = -\|\mathbf{h}_s + \mathbf{r} - \mathbf{t}_s\| - \lambda \|\mathbf{h}_i + \mathbf{r} - \mathbf{t}_i\|\]</span> where <span class="math inline">\(\mathbf{h}_s, \mathbf{t}_s\)</span> are structure-based embeddings, <span class="math inline">\(\mathbf{h}_i, \mathbf{t}_i\)</span> are image-based embeddings, and <span class="math inline">\(\lambda\)</span> is a weighting factor</li>
+</ol>
+<p>IKRL enables visual reasoning within knowledge graph embeddings.</p>
+</div>
+</section>
+<section id="mmkb-multi-modal-knowledge-bases" class="level3" data-number="7.13.2">
+<h3 data-number="7.13.2" class="anchored" data-anchor-id="mmkb-multi-modal-knowledge-bases"><span class="header-section-number">7.13.2</span> MMKB: Multi-Modal Knowledge Bases</h3>
+<p>MMKB, proposed by Pezeshkpour et al.&nbsp;(2018), integrates text, images, and graph structure:</p>
+<div id="def-mmkb" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.29 (MMKB model)</strong></span> In the <strong>MMKB</strong> model:</p>
+<ol type="1">
+<li>Entities have embeddings from multiple modalities: graph structure, text descriptions, and images</li>
+<li>Each modality is processed by a specialized encoder (e.g., GNN for structure, BERT for text, CNN for images)</li>
+<li>The embeddings from different modalities are fused through attention mechanisms</li>
+<li>The fused embeddings are used for link prediction</li>
+</ol>
+<p>MMKB enables comprehensive entity representation through multiple complementary views.</p>
+</div>
+</section>
+</section>
+<section id="comparative-analysis" class="level2" data-number="7.14">
+<h2 data-number="7.14" class="anchored" data-anchor-id="comparative-analysis"><span class="header-section-number">7.14</span> Comparative analysis</h2>
+<p>Let’s analyze the different advanced models we’ve discussed in terms of their capabilities and characteristics:</p>
+<div id="def-model-comparison" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.30 (Comparative analysis of advanced models)</strong></span> &nbsp;</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Type</th>
+<th>Complexity</th>
+<th>Relation Patterns</th>
+<th>Expressiveness</th>
+<th>Interpretability</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>RotatE</td>
+<td>Rotational</td>
+<td>Medium</td>
+<td>Strong all-around</td>
+<td>High</td>
+<td>Medium</td>
+</tr>
+<tr class="even">
+<td>QuatE</td>
+<td>Rotational</td>
+<td>Medium</td>
+<td>Strong all-around</td>
+<td>Very High</td>
+<td>Medium</td>
+</tr>
+<tr class="odd">
+<td>NTN</td>
+<td>Neural Network</td>
+<td>Very High</td>
+<td>Strong all-around</td>
+<td>Very High</td>
+<td>Low</td>
+</tr>
+<tr class="even">
+<td>ConvE</td>
+<td>CNN-based</td>
+<td>High</td>
+<td>Strong all-around</td>
+<td>High</td>
+<td>Low</td>
+</tr>
+<tr class="odd">
+<td>R-GCN</td>
+<td>GNN-based</td>
+<td>High</td>
+<td>Strong structural</td>
+<td>High</td>
+<td>Medium</td>
+</tr>
+<tr class="even">
+<td>KBAT</td>
+<td>Attention</td>
+<td>High</td>
+<td>Strong contextual</td>
+<td>High</td>
+<td>Medium-Low</td>
+</tr>
+<tr class="odd">
+<td>KG-BERT</td>
+<td>PLM-based</td>
+<td>Very High</td>
+<td>Strong semantic</td>
+<td>Very High</td>
+<td>Medium-High</td>
+</tr>
+<tr class="even">
+<td>IKRL</td>
+<td>Multi-modal</td>
+<td>High</td>
+<td>Medium</td>
+<td>High</td>
+<td>Medium</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Each model category has different strengths and is suited to different types of knowledge graphs and applications.</p>
+<div id="exm-model-selection" class="theorem example">
+<p><span class="theorem-title"><strong>Example 7.9 (Model selection example)</strong></span> Consider different knowledge graph scenarios:</p>
+<ol type="1">
+<li><p><strong>General-purpose knowledge graph</strong> (like Freebase or DBpedia):</p>
+<ul>
+<li>RotatE or QuatE might offer the best balance of expressiveness and efficiency</li>
+<li>R-GCN could be valuable if the graph structure is particularly important</li>
+</ul></li>
+<li><p><strong>Specialized domain with rich textual descriptions</strong> (like a biomedical knowledge graph):</p>
+<ul>
+<li>KG-BERT or KEPLER would leverage the textual information effectively</li>
+<li>Hybrid models combining text and structure could perform particularly well</li>
+</ul></li>
+<li><p><strong>Visual knowledge graph</strong> (with many image entities):</p>
+<ul>
+<li>IKRL or other multi-modal models would be most appropriate</li>
+<li>Models that can incorporate both visual and textual information would have an advantage</li>
+</ul></li>
+<li><p><strong>Sparse knowledge graph</strong> (with limited training data):</p>
+<ul>
+<li>Models with fewer parameters (like RotatE) might perform better due to reduced overfitting risk</li>
+<li>Pre-trained approaches like KG-BERT could leverage external knowledge to compensate for sparsity</li>
+</ul></li>
+</ol>
+</div>
+</section>
+<section id="performance-analysis" class="level2" data-number="7.15">
+<h2 data-number="7.15" class="anchored" data-anchor-id="performance-analysis"><span class="header-section-number">7.15</span> Performance analysis</h2>
+<p>Let’s examine the empirical performance of advanced models on standard benchmark datasets:</p>
+<div id="def-performance-comparison" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.31 (Performance comparison (Hits@10 in %))</strong></span> &nbsp;</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>FB15k</th>
+<th>WN18</th>
+<th>FB15k-237</th>
+<th>WN18RR</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>RotatE</td>
+<td>83.1</td>
+<td>95.9</td>
+<td>47.6</td>
+<td>57.1</td>
+</tr>
+<tr class="even">
+<td>QuatE</td>
+<td>88.0</td>
+<td>95.9</td>
+<td>51.6</td>
+<td>53.3</td>
+</tr>
+<tr class="odd">
+<td>NTN</td>
+<td>70.4</td>
+<td>66.1</td>
+<td>42.1</td>
+<td>45.2</td>
+</tr>
+<tr class="even">
+<td>ConvE</td>
+<td>83.1</td>
+<td>95.5</td>
+<td>50.1</td>
+<td>52.8</td>
+</tr>
+<tr class="odd">
+<td>R-GCN</td>
+<td>82.5</td>
+<td>96.4</td>
+<td>51.7</td>
+<td>53.4</td>
+</tr>
+<tr class="even">
+<td>KBAT</td>
+<td>89.2</td>
+<td>98.0</td>
+<td>58.1</td>
+<td>62.8</td>
+</tr>
+<tr class="odd">
+<td>KG-BERT</td>
+<td>-</td>
+<td>-</td>
+<td>42.0</td>
+<td>52.4</td>
+</tr>
+<tr class="even">
+<td>CompGCN</td>
+<td>87.9</td>
+<td>95.3</td>
+<td>53.5</td>
+<td>54.6</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>These results show the evolution of performance as models have become more sophisticated. Attention-based and graph neural network models tend to perform particularly well on recent benchmarks like FB15k-237 and WN18RR.</p>
+<div id="exm-performance-analysis" class="theorem example">
+<p><span class="theorem-title"><strong>Example 7.10 (Performance analysis example)</strong></span> On FB15k-237 (a more challenging dataset without inverse relations):</p>
+<ol type="1">
+<li>Rotational models (RotatE, QuatE) perform well, showing their ability to capture complex relation patterns</li>
+<li>Graph-based models (R-GCN, CompGCN) achieve strong results by leveraging the graph structure</li>
+<li>Attention-based models (KBAT) achieve the best performance by dynamically focusing on relevant features</li>
+<li>Language model-based approaches (KG-BERT) perform reasonably but are computationally expensive</li>
+</ol>
+<p>This suggests that for challenging knowledge graph completion tasks, models that can adaptively focus on different aspects of the graph (through attention or graph propagation) have an advantage.</p>
+</div>
+</section>
+<section id="computational-efficiency" class="level2" data-number="7.16">
+<h2 data-number="7.16" class="anchored" data-anchor-id="computational-efficiency"><span class="header-section-number">7.16</span> Computational efficiency</h2>
+<p>While advanced models offer improved performance, they often come with increased computational costs:</p>
+<div id="def-computational-efficiency" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.32 (Computational efficiency comparison)</strong></span> &nbsp;</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 7%">
+<col style="width: 29%">
+<col style="width: 13%">
+<col style="width: 15%">
+<col style="width: 3%">
+<col style="width: 7%">
+<col style="width: 11%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Parameters</th>
+<th>Training Time</th>
+<th>Inference Time</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>RotatE</td>
+<td><span class="math inline">\(O(2                        | E             | d + 2          | R   | d)\)</span></td>
+<td>Medium</td>
+<td>Fast</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>QuatE</td>
+<td><span class="math inline">\(O(4                        | E             | d + 4          | R   | d)\)</span></td>
+<td>Medium-High</td>
+<td>Medium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>NTN</td>
+<td><span class="math inline">\(O(                         | E             | d +            | R   | kd^2)\)</span></td>
+<td>Very High</td>
+<td>High</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>ConvE</td>
+<td><span class="math inline">\(O(                         | E             | d +            | R   | d + c)\)</span></td>
+<td>High</td>
+<td>Medium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>R-GCN</td>
+<td><span class="math inline">\(O(                         | E             | d +            | R   | d^2)\)</span></td>
+<td>High</td>
+<td>Medium-High</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>KBAT</td>
+<td><span class="math inline">\(O(                         | E             | d +            | R   | d + a)\)</span></td>
+<td>High</td>
+<td>Medium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>KG-BERT</td>
+<td><span class="math inline">\(O(p)\)</span> (pre-trained params)</td>
+<td>Very High</td>
+<td>Very High</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>CompGCN</td>
+<td><span class="math inline">\(O(                         | E             | d +            | R   | d + g)\)</span></td>
+<td>High</td>
+<td>Medium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Where <span class="math inline">\(c\)</span>, <span class="math inline">\(a\)</span>, and <span class="math inline">\(g\)</span> are model-specific constants for convolutional, attention, and graph neural network parameters, respectively, and <span class="math inline">\(p\)</span> represents the parameters of the pre-trained language model.</p>
+<div id="exm-efficiency-tradeoffs" class="theorem example">
+<p><span class="theorem-title"><strong>Example 7.11 (Efficiency trade-off example)</strong></span> Consider deploying a knowledge graph embedding model in different scenarios:</p>
+<ol type="1">
+<li><p><strong>Resource-constrained environment</strong> (e.g., mobile device):</p>
+<ul>
+<li>RotatE would be most appropriate due to its balance of performance and efficiency</li>
+<li>Models with many parameters or expensive operations would be impractical</li>
+</ul></li>
+<li><p><strong>Batch processing system</strong> (where inference time is less critical):</p>
+<ul>
+<li>More complex models like R-GCN or KBAT could be used</li>
+<li>Training could be performed on powerful hardware, with inference done in batches</li>
+</ul></li>
+<li><p><strong>Large-scale web service</strong> (requiring both accuracy and speed):</p>
+<ul>
+<li>Models would need to be carefully optimized or distilled</li>
+<li>Hybrid approaches might be used, with expensive models for offline processing and simpler models for real-time queries</li>
+</ul></li>
+</ol>
+</div>
+</section>
+<section id="implementation-considerations" class="level2" data-number="7.17">
+<h2 data-number="7.17" class="anchored" data-anchor-id="implementation-considerations"><span class="header-section-number">7.17</span> Implementation considerations</h2>
+<p>When implementing advanced knowledge graph embedding models, several practical considerations are important:</p>
+<section id="initialization-strategies" class="level3" data-number="7.17.1">
+<h3 data-number="7.17.1" class="anchored" data-anchor-id="initialization-strategies"><span class="header-section-number">7.17.1</span> Initialization strategies</h3>
+<p>Proper initialization is crucial, especially for complex models:</p>
+<div id="def-advanced-initialization" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.33 (Initialization strategies for advanced models)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><p><strong>Rotational models</strong>:</p>
+<ul>
+<li>Complex embeddings: Initialize real and imaginary parts separately</li>
+<li>Quaternion embeddings: Use quaternion-specific initialization methods</li>
+<li>Constrain initial relation embeddings to have unit modulus</li>
+</ul></li>
+<li><p><strong>Neural network models</strong>:</p>
+<ul>
+<li>Use Xavier/Glorot or He initialization for neural network weights</li>
+<li>Pre-train simpler embeddings (e.g., TransE) and use them to initialize more complex models</li>
+<li>Layer-wise initialization based on network depth</li>
+</ul></li>
+<li><p><strong>Pre-trained language models</strong>:</p>
+<ul>
+<li>Start with pre-trained weights and carefully fine-tune</li>
+<li>Use adapter modules to efficiently adapt pre-trained models to knowledge graph tasks</li>
+</ul></li>
+</ol>
+</div>
+</section>
+<section id="hardware-acceleration" class="level3" data-number="7.17.2">
+<h3 data-number="7.17.2" class="anchored" data-anchor-id="hardware-acceleration"><span class="header-section-number">7.17.2</span> Hardware acceleration</h3>
+<p>Advanced models benefit from hardware acceleration:</p>
+<div id="def-hardware-acceleration" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.34 (Hardware acceleration techniques)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><p><strong>GPU acceleration</strong>:</p>
+<ul>
+<li>Batch processing of triples</li>
+<li>Efficient implementation of complex operations (quaternion multiplication, tensor products)</li>
+<li>Mixed-precision training to reduce memory requirements</li>
+</ul></li>
+<li><p><strong>Distributed training</strong>:</p>
+<ul>
+<li>Parameter sharding for very large models</li>
+<li>Data parallelism for large knowledge graphs</li>
+<li>Model parallelism for models with many parameters (e.g., NTN)</li>
+</ul></li>
+<li><p><strong>Optimization techniques</strong>:</p>
+<ul>
+<li>Gradient accumulation for large batch training</li>
+<li>Gradient checkpointing to reduce memory usage</li>
+<li>Efficient negative sampling strategies</li>
+</ul></li>
+</ol>
+</div>
+</section>
+<section id="regularization-and-training-stability" class="level3" data-number="7.17.3">
+<h3 data-number="7.17.3" class="anchored" data-anchor-id="regularization-and-training-stability"><span class="header-section-number">7.17.3</span> Regularization and training stability</h3>
+<p>Advanced models often require careful regularization:</p>
+<div id="def-advanced-regularization" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.35 (Regularization for advanced models)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><strong>Weight decay</strong>: Apply L2 regularization to prevent overfitting</li>
+<li><strong>Dropouts</strong>: Use dropout in neural network layers</li>
+<li><strong>Batch normalization</strong>: Stabilize training of deep networks</li>
+<li><strong>Gradient clipping</strong>: Prevent exploding gradients</li>
+<li><strong>Label smoothing</strong>: Avoid overconfident predictions</li>
+<li><strong>Self-adversarial negative sampling</strong>: Focus training on hard negative examples</li>
+</ol>
+</div>
+</section>
+</section>
+<section id="applications-of-advanced-models" class="level2" data-number="7.18">
+<h2 data-number="7.18" class="anchored" data-anchor-id="applications-of-advanced-models"><span class="header-section-number">7.18</span> Applications of advanced models</h2>
+<p>Advanced knowledge graph embedding models enable sophisticated applications:</p>
+<section id="complex-question-answering" class="level3" data-number="7.18.1">
+<h3 data-number="7.18.1" class="anchored" data-anchor-id="complex-question-answering"><span class="header-section-number">7.18.1</span> Complex question answering</h3>
+<p>Advanced models support multi-hop and complex question answering:</p>
+<div id="def-complex-qa" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.36 (Complex question answering)</strong></span> Advanced models enable answering complex questions that require:</p>
+<ol type="1">
+<li><strong>Multi-hop reasoning</strong>: Following paths through the knowledge graph</li>
+<li><strong>Constraint satisfaction</strong>: Finding entities that satisfy multiple conditions</li>
+<li><strong>Uncertainty handling</strong>: Providing confidence scores for answers</li>
+<li><strong>Explanation generation</strong>: Providing reasoning chains for answers</li>
+</ol>
+<p>Models like R-GCN, KBAT, and MultiHopKG are particularly well-suited for these tasks.</p>
+</div>
+<div id="exm-complex-qa" class="theorem example">
+<p><span class="theorem-title"><strong>Example 7.12 (Complex question answering example)</strong></span> Consider the question: “What medications might interact with drugs that treat hypertension?”</p>
+<p>This requires:</p>
+<ol type="1">
+<li>Identifying drugs that treat hypertension</li>
+<li>Finding other medications that interact with these drugs</li>
+<li>Providing a ranked list of potential interactions</li>
+</ol>
+<p>Advanced models can perform this multi-hop reasoning by effectively navigating the knowledge graph structure.</p>
+</div>
+</section>
+<section id="entity-typing-and-hierarchical-reasoning" class="level3" data-number="7.18.2">
+<h3 data-number="7.18.2" class="anchored" data-anchor-id="entity-typing-and-hierarchical-reasoning"><span class="header-section-number">7.18.2</span> Entity typing and hierarchical reasoning</h3>
+<p>Advanced models can perform entity typing and hierarchical reasoning:</p>
+<div id="def-entity-typing" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.37 (Entity typing and hierarchical reasoning)</strong></span> Advanced models enable:</p>
+<ol type="1">
+<li><strong>Fine-grained entity typing</strong>: Predicting the types of entities at multiple levels of granularity</li>
+<li><strong>Hierarchical inference</strong>: Reasoning over type hierarchies (e.g., if X is a Dog, X is also a Mammal)</li>
+<li><strong>Zero-shot classification</strong>: Classifying entities into previously unseen categories</li>
+</ol>
+<p>Models that capture compositional patterns (like QuatE) or leverage textual information (like KG-BERT) excel at these tasks.</p>
+</div>
+</section>
+<section id="explainable-recommendations" class="level3" data-number="7.18.3">
+<h3 data-number="7.18.3" class="anchored" data-anchor-id="explainable-recommendations"><span class="header-section-number">7.18.3</span> Explainable recommendations</h3>
+<p>Advanced models enable explainable recommendation systems:</p>
+<div id="def-explainable-recommendations" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.38 (Explainable recommendations)</strong></span> Advanced models support:</p>
+<ol type="1">
+<li><strong>Path-based recommendations</strong>: Finding meaningful paths connecting users to recommended items</li>
+<li><strong>Multi-relational reasoning</strong>: Considering multiple types of interactions between users and items</li>
+<li><strong>Textual explanations</strong>: Generating natural language explanations for recommendations</li>
+</ol>
+<p>GNN-based and attention-based models are particularly effective for these applications.</p>
+</div>
+<div id="exm-explainable-recommendation" class="theorem example">
+<p><span class="theorem-title"><strong>Example 7.13 (Explainable recommendation example)</strong></span> A movie recommendation system might explain a recommendation as: “We recommend ‘Inception’ because:</p>
+<ol type="1">
+<li>You liked ‘Interstellar’, which was directed by Christopher Nolan</li>
+<li>Christopher Nolan also directed ‘Inception’</li>
+<li>Both movies are in the science fiction genre, which you frequently watch”</li>
+</ol>
+<p>This explanation is derived from paths in the knowledge graph, identified using advanced embedding models.</p>
+</div>
+</section>
+</section>
+<section id="future-directions" class="level2" data-number="7.19">
+<h2 data-number="7.19" class="anchored" data-anchor-id="future-directions"><span class="header-section-number">7.19</span> Future directions</h2>
+<p>Advanced knowledge graph embedding models continue to evolve, with several promising research directions:</p>
+<section id="inductive-learning" class="level3" data-number="7.19.1">
+<h3 data-number="7.19.1" class="anchored" data-anchor-id="inductive-learning"><span class="header-section-number">7.19.1</span> Inductive learning</h3>
+<p>Enabling inductive learning is a key research direction:</p>
+<div id="def-inductive-learning" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.39 (Inductive knowledge graph embedding)</strong></span> <strong>Inductive knowledge graph embedding</strong> aims to handle previously unseen entities and relations:</p>
+<ol type="1">
+<li><strong>Text-based induction</strong>: Using textual descriptions to generate embeddings for new entities</li>
+<li><strong>Structure-based induction</strong>: Leveraging local graph patterns to embed new entities</li>
+<li><strong>Zero-shot relation learning</strong>: Generalizing to entirely new relation types</li>
+</ol>
+<p>Pre-trained language model approaches and graph neural networks are particularly promising for inductive learning.</p>
+</div>
+</section>
+<section id="temporal-knowledge-graphs" class="level3" data-number="7.19.2">
+<h3 data-number="7.19.2" class="anchored" data-anchor-id="temporal-knowledge-graphs"><span class="header-section-number">7.19.2</span> Temporal knowledge graphs</h3>
+<p>Incorporating temporal information is another important direction:</p>
+<div id="def-temporal-kge" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.40 (Temporal knowledge graph embedding)</strong></span> <strong>Temporal knowledge graph embedding</strong> models the evolution of knowledge over time:</p>
+<ol type="1">
+<li><strong>Time-aware embeddings</strong>: Incorporating time as an additional dimension in embeddings</li>
+<li><strong>Evolutionary models</strong>: Modeling how entity and relation embeddings evolve over time</li>
+<li><strong>Forecasting</strong>: Predicting future states of the knowledge graph</li>
+</ol>
+<p>Extensions of rotational and neural models to handle time are active areas of research.</p>
+</div>
+</section>
+<section id="neuro-symbolic-approaches" class="level3" data-number="7.19.3">
+<h3 data-number="7.19.3" class="anchored" data-anchor-id="neuro-symbolic-approaches"><span class="header-section-number">7.19.3</span> Neuro-symbolic approaches</h3>
+<p>Combining neural embeddings with symbolic reasoning is a promising direction:</p>
+<div id="def-neuro-symbolic" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 7.41 (Neuro-symbolic knowledge graph embedding)</strong></span> <strong>Neuro-symbolic approaches</strong> combine neural embeddings with logical reasoning:</p>
+<ol type="1">
+<li><strong>Rule injection</strong>: Incorporating logical rules into the embedding learning process</li>
+<li><strong>Embedding distillation</strong>: Extracting symbolic knowledge from learned embeddings</li>
+<li><strong>Joint reasoning</strong>: Combining embedding-based and rule-based inference</li>
+</ol>
+<p>These approaches aim to leverage the complementary strengths of neural and symbolic AI.</p>
+</div>
+</section>
+</section>
+<section id="summary" class="level2" data-number="7.20">
+<h2 data-number="7.20" class="anchored" data-anchor-id="summary"><span class="header-section-number">7.20</span> Summary</h2>
+<p>In this chapter, we’ve explored advanced knowledge graph embedding models, focusing on rotational models and neural network-based approaches.</p>
+<p>Rotational models like RotatE and QuatE leverage complex or quaternion embeddings to represent relations as rotations in the embedding space. These models capture various relation patterns, including symmetry, antisymmetry, inversion, and composition, while maintaining parameter efficiency.</p>
+<p>Neural network-based models, on the other hand, use various architectures to model interactions between entities and relations. These include the Neural Tensor Network with its tensor product operations, convolutional models like ConvE and ConvKB, graph neural networks like R-GCN and CompGCN, and attention-based models like KBAT.</p>
+<p>We also examined approaches that leverage pre-trained language models (KG-BERT, KEPLER) and multi-modal information (IKRL, MMKB), showing how external knowledge can enhance knowledge graph embeddings.</p>
+<p>Throughout the chapter, we analyzed the strengths and limitations of these models, their computational requirements, and their performance on benchmark datasets. We also discussed practical implementation considerations and applications of advanced models to complex tasks like multi-hop question answering and explainable recommendations.</p>
+<p>Advanced knowledge graph embedding models represent the cutting edge of the field, pushing the boundaries of what can be modeled and predicted in knowledge graphs. By understanding these models and their capabilities, you can select the appropriate approach for your specific knowledge graph and application requirements.</p>
+</section>
+<section id="further-reading" class="level2" data-number="7.21">
+<h2 data-number="7.21" class="anchored" data-anchor-id="further-reading"><span class="header-section-number">7.21</span> Further reading</h2>
+<section id="rotational-models" class="level3" data-number="7.21.1">
+<h3 data-number="7.21.1" class="anchored" data-anchor-id="rotational-models"><span class="header-section-number">7.21.1</span> Rotational models</h3>
+<ul>
+<li>Sun, Z., Deng, Z. H., Nie, J. Y., &amp; Tang, J. (2019). RotatE: Knowledge Graph Embedding by Relational Rotation in Complex Space. In International Conference on Learning Representations.</li>
+<li>Zhang, S., Tay, Y., Yao, L., &amp; Liu, Q. (2019). Quaternion Knowledge Graph Embeddings. In Advances in Neural Information Processing Systems (pp.&nbsp;2731-2741).</li>
+<li>Li, Y., Guan, J., Xiong, D., &amp; Yang, B. (2020). DensE: Knowledge Graph Embedding via Highly Irregular Density in Spinor Space. In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (pp.&nbsp;4037-4048).</li>
+</ul>
+</section>
+<section id="neural-network-models" class="level3" data-number="7.21.2">
+<h3 data-number="7.21.2" class="anchored" data-anchor-id="neural-network-models"><span class="header-section-number">7.21.2</span> Neural network models</h3>
+<ul>
+<li>Socher, R., Chen, D., Manning, C. D., &amp; Ng, A. (2013). Reasoning with Neural Tensor Networks for Knowledge Base Completion. In Advances in Neural Information Processing Systems (pp.&nbsp;926-934).</li>
+<li>Dettmers, T., Minervini, P., Stenetorp, P., &amp; Riedel, S. (2018). Convolutional 2D Knowledge Graph Embeddings. In AAAI Conference on Artificial Intelligence (pp.&nbsp;1811-1818).</li>
+<li>Nguyen, D. Q., Nguyen, T. D., Nguyen, D. Q., &amp; Phung, D. (2018). A Novel Embedding Model for Knowledge Base Completion Based on Convolutional Neural Network. In Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics (pp.&nbsp;327-333).</li>
+<li>Schlichtkrull, M., Kipf, T. N., Bloem, P., van den Berg, R., Titov, I., &amp; Welling, M. (2018). Modeling Relational Data with Graph Convolutional Networks. In European Semantic Web Conference (pp.&nbsp;593-607).</li>
+</ul>
+</section>
+<section id="attention-and-language-model-approaches" class="level3" data-number="7.21.3">
+<h3 data-number="7.21.3" class="anchored" data-anchor-id="attention-and-language-model-approaches"><span class="header-section-number">7.21.3</span> Attention and language model approaches</h3>
+<ul>
+<li>Nathani, D., Chauhan, J., Sharma, C., &amp; Kaul, M. (2019). Learning Attention-based Embeddings for Relation Prediction in Knowledge Graphs. In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics (pp.&nbsp;4710-4723).</li>
+<li>Yao, L., Mao, C., &amp; Luo, Y. (2019). KG-BERT: BERT for Knowledge Graph Completion. arXiv preprint arXiv:1909.03193.</li>
+<li>Wang, X., Gao, T., Zhu, Z., Zhang, Z., Liu, Z., Li, J., &amp; Tang, J. (2021). KEPLER: A Unified Model for Knowledge Embedding and Pre-trained Language Representation. Transactions of the Association for Computational Linguistics, 9, 176-194.</li>
+</ul>
+</section>
+<section id="multi-modal-and-hybrid-approaches" class="level3" data-number="7.21.4">
+<h3 data-number="7.21.4" class="anchored" data-anchor-id="multi-modal-and-hybrid-approaches"><span class="header-section-number">7.21.4</span> Multi-modal and hybrid approaches</h3>
+<ul>
+<li>Xie, R., Liu, Z., Jia, H., Luan, H., &amp; Sun, M. (2017). Representation Learning of Knowledge Graphs with Entity Descriptions. In AAAI Conference on Artificial Intelligence (pp.&nbsp;2659-2665).</li>
+<li>Pezeshkpour, P., Chen, L., &amp; Singh, S. (2018). Embedding Multimodal Relational Data for Knowledge Base Completion. In Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing (pp.&nbsp;3208-3218).</li>
+<li>Vashishth, S., Sanyal, S., Nitin, V., &amp; Talukdar, P. (2020). Composition-based Multi-Relational Graph Convolutional Networks. In International Conference on Learning Representations.</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation column-body">
+  <div class="nav-page nav-page-previous">
+      <a href="../content/semantic-matching.html" class="pagination-link" aria-label="Semantic Matching Models">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Semantic Matching Models</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../content/training.html" class="pagination-link" aria-label="Training and Optimization Techniques">
+        <span class="nav-page-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Training and Optimization Techniques</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="https://tuedsci.github.io/">© Tue Nguyen</a></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

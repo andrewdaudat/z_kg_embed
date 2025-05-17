@@ -1,0 +1,2036 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.43">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>14&nbsp; Advanced Topics and Research Frontiers – Knowledge Graph Embeddings for Link Prediction and Reasoning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../content/appendix-a.html" rel="next">
+<link href="../content/implementation.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-d4d76bf8491c20bad77d141916dc28e1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-bdec3157979715d7154bb60f5aa24e58.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../content/frontier.html"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Advanced Topics and Research Frontiers</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Knowledge Graph Embeddings for Link Prediction and Reasoning</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/summary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Summary</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/outline.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Outline</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Introduction to Knowledge Graphs and Representations</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/embedding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Fundamentals of Vector Space Representations</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/translation-based.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Translation-Based Embedding Models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/semantic-matching.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Semantic Matching Models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/rotation-nn.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Advanced Models: Rotations and Neural Networks</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/training.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Training and Optimization Techniques</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/evaluation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Evaluation Methodologies and Benchmarks</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/additional-knowledge.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Incorporating Additional Information</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/reasoning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Reasoning with Knowledge Graph Embeddings</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/applications.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Practical Applications and Case Studies</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/implementation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Implementing Knowledge Graph Embedding Systems</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/frontier.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Advanced Topics and Research Frontiers</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/appendix-a.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Appendix A: Mathematical Foundations</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/appendix-b.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Appendix B: Resources and Tools</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="-1">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#inductive-knowledge-graph-embeddings" id="toc-inductive-knowledge-graph-embeddings" class="nav-link active" data-scroll-target="#inductive-knowledge-graph-embeddings"><span class="header-section-number">14.1</span> Inductive knowledge graph embeddings</a>
+  <ul class="collapse">
+  <li><a href="#challenges-of-inductive-learning" id="toc-challenges-of-inductive-learning" class="nav-link" data-scroll-target="#challenges-of-inductive-learning"><span class="header-section-number">14.1.1</span> Challenges of inductive learning</a></li>
+  <li><a href="#approaches-to-inductive-learning" id="toc-approaches-to-inductive-learning" class="nav-link" data-scroll-target="#approaches-to-inductive-learning"><span class="header-section-number">14.1.2</span> Approaches to inductive learning</a></li>
+  <li><a href="#inductive-link-prediction-models" id="toc-inductive-link-prediction-models" class="nav-link" data-scroll-target="#inductive-link-prediction-models"><span class="header-section-number">14.1.3</span> Inductive link prediction models</a></li>
+  <li><a href="#meta-learning-approaches" id="toc-meta-learning-approaches" class="nav-link" data-scroll-target="#meta-learning-approaches"><span class="header-section-number">14.1.4</span> Meta-learning approaches</a></li>
+  </ul></li>
+  <li><a href="#uncertainty-quantification-and-confidence" id="toc-uncertainty-quantification-and-confidence" class="nav-link" data-scroll-target="#uncertainty-quantification-and-confidence"><span class="header-section-number">14.2</span> Uncertainty quantification and confidence</a>
+  <ul class="collapse">
+  <li><a href="#types-of-uncertainty" id="toc-types-of-uncertainty" class="nav-link" data-scroll-target="#types-of-uncertainty"><span class="header-section-number">14.2.1</span> Types of uncertainty</a></li>
+  <li><a href="#probabilistic-embedding-models" id="toc-probabilistic-embedding-models" class="nav-link" data-scroll-target="#probabilistic-embedding-models"><span class="header-section-number">14.2.2</span> Probabilistic embedding models</a></li>
+  <li><a href="#bayesian-approaches" id="toc-bayesian-approaches" class="nav-link" data-scroll-target="#bayesian-approaches"><span class="header-section-number">14.2.3</span> Bayesian approaches</a></li>
+  <li><a href="#ensemble-methods" id="toc-ensemble-methods" class="nav-link" data-scroll-target="#ensemble-methods"><span class="header-section-number">14.2.4</span> Ensemble methods</a></li>
+  <li><a href="#calibration-techniques" id="toc-calibration-techniques" class="nav-link" data-scroll-target="#calibration-techniques"><span class="header-section-number">14.2.5</span> Calibration techniques</a></li>
+  <li><a href="#applications-of-uncertainty-quantification" id="toc-applications-of-uncertainty-quantification" class="nav-link" data-scroll-target="#applications-of-uncertainty-quantification"><span class="header-section-number">14.2.6</span> Applications of uncertainty quantification</a></li>
+  </ul></li>
+  <li><a href="#explainability-and-interpretability" id="toc-explainability-and-interpretability" class="nav-link" data-scroll-target="#explainability-and-interpretability"><span class="header-section-number">14.3</span> Explainability and interpretability</a>
+  <ul class="collapse">
+  <li><a href="#path-based-explanations" id="toc-path-based-explanations" class="nav-link" data-scroll-target="#path-based-explanations"><span class="header-section-number">14.3.1</span> Path-based explanations</a></li>
+  <li><a href="#rule-based-explanations" id="toc-rule-based-explanations" class="nav-link" data-scroll-target="#rule-based-explanations"><span class="header-section-number">14.3.2</span> Rule-based explanations</a></li>
+  <li><a href="#model-specific-interpretability" id="toc-model-specific-interpretability" class="nav-link" data-scroll-target="#model-specific-interpretability"><span class="header-section-number">14.3.3</span> Model-specific interpretability</a></li>
+  <li><a href="#attention-mechanisms-for-explainability" id="toc-attention-mechanisms-for-explainability" class="nav-link" data-scroll-target="#attention-mechanisms-for-explainability"><span class="header-section-number">14.3.4</span> Attention mechanisms for explainability</a></li>
+  <li><a href="#counterfactual-explanations" id="toc-counterfactual-explanations" class="nav-link" data-scroll-target="#counterfactual-explanations"><span class="header-section-number">14.3.5</span> Counterfactual explanations</a></li>
+  <li><a href="#evaluation-of-explanations" id="toc-evaluation-of-explanations" class="nav-link" data-scroll-target="#evaluation-of-explanations"><span class="header-section-number">14.3.6</span> Evaluation of explanations</a></li>
+  </ul></li>
+  <li><a href="#temporal-knowledge-graphs" id="toc-temporal-knowledge-graphs" class="nav-link" data-scroll-target="#temporal-knowledge-graphs"><span class="header-section-number">14.4</span> Temporal knowledge graphs</a>
+  <ul class="collapse">
+  <li><a href="#challenges-in-temporal-knowledge-graph-embedding" id="toc-challenges-in-temporal-knowledge-graph-embedding" class="nav-link" data-scroll-target="#challenges-in-temporal-knowledge-graph-embedding"><span class="header-section-number">14.4.1</span> Challenges in temporal knowledge graph embedding</a></li>
+  <li><a href="#temporal-embedding-approaches" id="toc-temporal-embedding-approaches" class="nav-link" data-scroll-target="#temporal-embedding-approaches"><span class="header-section-number">14.4.2</span> Temporal embedding approaches</a></li>
+  <li><a href="#temporal-reasoning-and-forecasting" id="toc-temporal-reasoning-and-forecasting" class="nav-link" data-scroll-target="#temporal-reasoning-and-forecasting"><span class="header-section-number">14.4.3</span> Temporal reasoning and forecasting</a></li>
+  </ul></li>
+  <li><a href="#hierarchical-and-ontological-knowledge-graphs" id="toc-hierarchical-and-ontological-knowledge-graphs" class="nav-link" data-scroll-target="#hierarchical-and-ontological-knowledge-graphs"><span class="header-section-number">14.5</span> Hierarchical and ontological knowledge graphs</a>
+  <ul class="collapse">
+  <li><a href="#challenges-in-hierarchical-embedding" id="toc-challenges-in-hierarchical-embedding" class="nav-link" data-scroll-target="#challenges-in-hierarchical-embedding"><span class="header-section-number">14.5.1</span> Challenges in hierarchical embedding</a></li>
+  <li><a href="#hierarchical-embedding-approaches" id="toc-hierarchical-embedding-approaches" class="nav-link" data-scroll-target="#hierarchical-embedding-approaches"><span class="header-section-number">14.5.2</span> Hierarchical embedding approaches</a></li>
+  <li><a href="#ontology-embedding" id="toc-ontology-embedding" class="nav-link" data-scroll-target="#ontology-embedding"><span class="header-section-number">14.5.3</span> Ontology embedding</a></li>
+  <li><a href="#applications-of-hierarchical-embeddings" id="toc-applications-of-hierarchical-embeddings" class="nav-link" data-scroll-target="#applications-of-hierarchical-embeddings"><span class="header-section-number">14.5.4</span> Applications of hierarchical embeddings</a></li>
+  </ul></li>
+  <li><a href="#multi-modal-knowledge-graphs" id="toc-multi-modal-knowledge-graphs" class="nav-link" data-scroll-target="#multi-modal-knowledge-graphs"><span class="header-section-number">14.6</span> Multi-modal knowledge graphs</a>
+  <ul class="collapse">
+  <li><a href="#challenges-in-multi-modal-embedding" id="toc-challenges-in-multi-modal-embedding" class="nav-link" data-scroll-target="#challenges-in-multi-modal-embedding"><span class="header-section-number">14.6.1</span> Challenges in multi-modal embedding</a></li>
+  <li><a href="#multi-modal-embedding-approaches" id="toc-multi-modal-embedding-approaches" class="nav-link" data-scroll-target="#multi-modal-embedding-approaches"><span class="header-section-number">14.6.2</span> Multi-modal embedding approaches</a></li>
+  <li><a href="#multi-task-learning-for-multi-modal-knowledge-graphs" id="toc-multi-task-learning-for-multi-modal-knowledge-graphs" class="nav-link" data-scroll-target="#multi-task-learning-for-multi-modal-knowledge-graphs"><span class="header-section-number">14.6.3</span> Multi-task learning for multi-modal knowledge graphs</a></li>
+  <li><a href="#applications-of-multi-modal-knowledge-graphs" id="toc-applications-of-multi-modal-knowledge-graphs" class="nav-link" data-scroll-target="#applications-of-multi-modal-knowledge-graphs"><span class="header-section-number">14.6.4</span> Applications of multi-modal knowledge graphs</a></li>
+  </ul></li>
+  <li><a href="#knowledge-graph-embeddings-and-large-language-models" id="toc-knowledge-graph-embeddings-and-large-language-models" class="nav-link" data-scroll-target="#knowledge-graph-embeddings-and-large-language-models"><span class="header-section-number">14.7</span> Knowledge graph embeddings and large language models</a>
+  <ul class="collapse">
+  <li><a href="#llms-for-knowledge-graph-construction" id="toc-llms-for-knowledge-graph-construction" class="nav-link" data-scroll-target="#llms-for-knowledge-graph-construction"><span class="header-section-number">14.7.1</span> LLMs for knowledge graph construction</a></li>
+  <li><a href="#knowledge-enhanced-language-models" id="toc-knowledge-enhanced-language-models" class="nav-link" data-scroll-target="#knowledge-enhanced-language-models"><span class="header-section-number">14.7.2</span> Knowledge-enhanced language models</a></li>
+  <li><a href="#joint-embedding-models-2" id="toc-joint-embedding-models-2" class="nav-link" data-scroll-target="#joint-embedding-models-2"><span class="header-section-number">14.7.3</span> Joint embedding models</a></li>
+  <li><a href="#neuro-symbolic-integration" id="toc-neuro-symbolic-integration" class="nav-link" data-scroll-target="#neuro-symbolic-integration"><span class="header-section-number">14.7.4</span> Neuro-symbolic integration</a></li>
+  <li><a href="#fact-verification-and-hallucination-reduction" id="toc-fact-verification-and-hallucination-reduction" class="nav-link" data-scroll-target="#fact-verification-and-hallucination-reduction"><span class="header-section-number">14.7.5</span> Fact verification and hallucination reduction</a></li>
+  </ul></li>
+  <li><a href="#future-research-directions" id="toc-future-research-directions" class="nav-link" data-scroll-target="#future-research-directions"><span class="header-section-number">14.8</span> Future research directions</a>
+  <ul class="collapse">
+  <li><a href="#few-shot-and-zero-shot-learning" id="toc-few-shot-and-zero-shot-learning" class="nav-link" data-scroll-target="#few-shot-and-zero-shot-learning"><span class="header-section-number">14.8.1</span> Few-shot and zero-shot learning</a></li>
+  <li><a href="#graph-foundation-models" id="toc-graph-foundation-models" class="nav-link" data-scroll-target="#graph-foundation-models"><span class="header-section-number">14.8.2</span> Graph foundation models</a></li>
+  <li><a href="#ethical-considerations-and-bias-mitigation" id="toc-ethical-considerations-and-bias-mitigation" class="nav-link" data-scroll-target="#ethical-considerations-and-bias-mitigation"><span class="header-section-number">14.8.3</span> Ethical considerations and bias mitigation</a></li>
+  <li><a href="#integration-with-scientific-discovery" id="toc-integration-with-scientific-discovery" class="nav-link" data-scroll-target="#integration-with-scientific-discovery"><span class="header-section-number">14.8.4</span> Integration with scientific discovery</a></li>
+  <li><a href="#federated-and-decentralized-knowledge-graphs" id="toc-federated-and-decentralized-knowledge-graphs" class="nav-link" data-scroll-target="#federated-and-decentralized-knowledge-graphs"><span class="header-section-number">14.8.5</span> Federated and decentralized knowledge graphs</a></li>
+  <li><a href="#quantum-computing-for-knowledge-graph-embeddings" id="toc-quantum-computing-for-knowledge-graph-embeddings" class="nav-link" data-scroll-target="#quantum-computing-for-knowledge-graph-embeddings"><span class="header-section-number">14.8.6</span> Quantum computing for knowledge graph embeddings</a></li>
+  </ul></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">14.9</span> Summary</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading"><span class="header-section-number">14.10</span> Further reading</a>
+  <ul class="collapse">
+  <li><a href="#inductive-learning-and-uncertainty" id="toc-inductive-learning-and-uncertainty" class="nav-link" data-scroll-target="#inductive-learning-and-uncertainty"><span class="header-section-number">14.10.1</span> Inductive learning and uncertainty</a></li>
+  <li><a href="#explainability-and-hierarchical-embedding" id="toc-explainability-and-hierarchical-embedding" class="nav-link" data-scroll-target="#explainability-and-hierarchical-embedding"><span class="header-section-number">14.10.2</span> Explainability and hierarchical embedding</a></li>
+  <li><a href="#temporal-and-multi-modal-knowledge-graphs" id="toc-temporal-and-multi-modal-knowledge-graphs" class="nav-link" data-scroll-target="#temporal-and-multi-modal-knowledge-graphs"><span class="header-section-number">14.10.3</span> Temporal and multi-modal knowledge graphs</a></li>
+  <li><a href="#llms-and-future-directions" id="toc-llms-and-future-directions" class="nav-link" data-scroll-target="#llms-and-future-directions"><span class="header-section-number">14.10.4</span> LLMs and future directions</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-body" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Advanced Topics and Research Frontiers</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta column-body">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>As we reach the final chapter of our monograph on knowledge graph embeddings, we turn our attention to the cutting edge of the field. Knowledge graph embedding research continues to evolve rapidly, with new approaches emerging to address existing limitations and extend capabilities. This chapter explores advanced topics and research frontiers that are shaping the future of knowledge graph embeddings.</p>
+<p>We’ll begin by examining the challenge of inductive learning, which aims to handle previously unseen entities and relations—a significant limitation of traditional embedding approaches. We’ll then explore uncertainty quantification and explainability, crucial aspects for deploying knowledge graph embeddings in real-world applications. Next, we’ll delve into specialized embedding approaches for temporal, hierarchical, and multi-modal knowledge graphs. Finally, we’ll discuss how knowledge graph embeddings are being integrated with large language models and other advanced AI systems.</p>
+<p>By the end of this chapter, you’ll have a comprehensive understanding of current research directions in knowledge graph embeddings and be well-positioned to contribute to this dynamic field.</p>
+<section id="inductive-knowledge-graph-embeddings" class="level2" data-number="14.1">
+<h2 data-number="14.1" class="anchored" data-anchor-id="inductive-knowledge-graph-embeddings"><span class="header-section-number">14.1</span> Inductive knowledge graph embeddings</h2>
+<p>Traditional knowledge graph embedding models are transductive, meaning they can only make predictions about entities and relations seen during training. Inductive models aim to overcome this limitation by generalizing to unseen entities and relations.</p>
+<div id="def-inductive-learning" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.1 (Inductive learning)</strong></span> <strong>Inductive learning</strong> for knowledge graph embeddings refers to the ability to:</p>
+<ol type="1">
+<li>Generate embeddings for previously unseen entities or relations</li>
+<li>Make predictions involving these new elements</li>
+<li>Generalize patterns learned from existing data to new instances</li>
+</ol>
+<p>Unlike transductive learning, which requires all entities to be present during training, inductive learning enables the model to handle dynamic and evolving knowledge graphs.</p>
+</div>
+<section id="challenges-of-inductive-learning" class="level3" data-number="14.1.1">
+<h3 data-number="14.1.1" class="anchored" data-anchor-id="challenges-of-inductive-learning"><span class="header-section-number">14.1.1</span> Challenges of inductive learning</h3>
+<p>Inductive learning for knowledge graph embeddings presents several challenges:</p>
+<div id="def-inductive-challenges" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.2 (Challenges of inductive learning)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><strong>Cold-start problem</strong>: Generating meaningful representations for entities with no or few connections</li>
+<li><strong>Transferability</strong>: Ensuring that patterns learned from existing entities transfer to new ones</li>
+<li><strong>Scalability</strong>: Processing new entities efficiently without retraining the entire model</li>
+<li><strong>Generalizability</strong>: Creating embeddings that maintain semantic consistency with existing ones</li>
+<li><strong>Cross-domain adaptation</strong>: Handling entities from domains different from those in the training data</li>
+</ol>
+</div>
+<div id="exm-inductive-challenge" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.1 (Inductive learning challenge example)</strong></span> Consider a knowledge graph about movies, actors, and directors. After training an embedding model, new movies are released and need to be added to the graph.</p>
+<p>A transductive model would require retraining from scratch to incorporate these new entities. In contrast, an inductive model would generate embeddings for the new movies based on their connections to existing entities (actors, directors, genres) or their textual descriptions, allowing immediate prediction of missing links without retraining.</p>
+</div>
+</section>
+<section id="approaches-to-inductive-learning" class="level3" data-number="14.1.2">
+<h3 data-number="14.1.2" class="anchored" data-anchor-id="approaches-to-inductive-learning"><span class="header-section-number">14.1.2</span> Approaches to inductive learning</h3>
+<p>Several approaches have been developed to enable inductive learning for knowledge graph embeddings:</p>
+<section id="attribute-based-approaches" class="level4">
+<h4 class="anchored" data-anchor-id="attribute-based-approaches">Attribute-based approaches</h4>
+<div id="def-attribute-based" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.3 (Attribute-based inductive learning)</strong></span> <strong>Attribute-based approaches</strong> leverage entity attributes or features to generate embeddings:</p>
+<ol type="1">
+<li>Represent entities based on their textual descriptions or other attributes</li>
+<li>Use text encoders (e.g., BERT, RoBERTa) to process these descriptions</li>
+<li>Project the resulting representations into the embedding space</li>
+<li>Use these attribute-derived embeddings for link prediction</li>
+</ol>
+<p>This approach allows embedding new entities based solely on their attributes, without requiring graph connectivity.</p>
+</div>
+<div id="exm-attribute-based" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.2 (Attribute-based inductive learning example)</strong></span> A new entity “COVID-19 vaccine” appears in a biomedical knowledge graph. An attribute-based inductive model would:</p>
+<ol type="1">
+<li>Process its textual description: “A vaccine designed to provide acquired immunity against SARS-CoV-2, the virus causing COVID-19”</li>
+<li>Use a pre-trained text encoder to convert this description into a vector</li>
+<li>Project this vector into the knowledge graph embedding space</li>
+<li>Use the resulting embedding to predict relations with existing entities (e.g., prevents COVID-19, requires refrigeration)</li>
+</ol>
+<p>This allows meaningful predictions about the new entity without retraining the entire model.</p>
+</div>
+</section>
+<section id="graph-structure-based-approaches" class="level4">
+<h4 class="anchored" data-anchor-id="graph-structure-based-approaches">Graph structure-based approaches</h4>
+<div id="def-structure-based" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.4 (Graph structure-based inductive learning)</strong></span> <strong>Graph structure-based approaches</strong> use local graph patterns to generate embeddings:</p>
+<ol type="1">
+<li>Learn a function that maps an entity’s neighborhood to its embedding</li>
+<li>Apply this function to new entities based on their connections</li>
+<li>Update embeddings through message passing or aggregation functions</li>
+<li>Use the generated embeddings for link prediction</li>
+</ol>
+<p>Graph Neural Networks (GNNs) are particularly well-suited for this approach, as they naturally generate embeddings based on local graph structure.</p>
+</div>
+<div id="exm-structure-based" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.3 (Graph structure-based inductive learning example)</strong></span> Consider a GNN-based model applied to a citation network. When a new paper is published and cites several existing papers, the model would:</p>
+<ol type="1">
+<li>Aggregate information from the embeddings of the cited papers</li>
+<li>Apply learned transformation functions to this aggregated information</li>
+<li>Generate an embedding for the new paper</li>
+<li>Use this embedding to predict other papers it might cite or topics it covers</li>
+</ol>
+<p>This approach leverages the new entity’s connections to existing entities without requiring retraining.</p>
+</div>
+</section>
+<section id="rule-based-approaches" class="level4">
+<h4 class="anchored" data-anchor-id="rule-based-approaches">Rule-based approaches</h4>
+<div id="def-rule-based" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.5 (Rule-based inductive learning)</strong></span> <strong>Rule-based approaches</strong> combine symbolic rules with embedding methods:</p>
+<ol type="1">
+<li>Extract logical rules from the knowledge graph (e.g., <span class="math inline">\(\text{locatedIn}(x, y) \land \text{capitalOf}(y, z) \Rightarrow \text{locatedIn}(x, z)\)</span>)</li>
+<li>Apply these rules to derive facts about new entities</li>
+<li>Use the derived facts to position new entities in the embedding space</li>
+<li>Refine embeddings using both rules and existing graph structure</li>
+</ol>
+<p>This approach combines the generalization capabilities of logical rules with the flexibility of embeddings.</p>
+</div>
+<div id="exm-rule-based" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.4 (Rule-based inductive learning example)</strong></span> A new city “New Metropolis” is added to a geographical knowledge graph with the fact (New_Metropolis, locatedIn, Canada).</p>
+<p>A rule-based inductive system would:</p>
+<ol type="1">
+<li>Apply the rule <span class="math inline">\(\text{locatedIn}(x, \text{Canada}) \Rightarrow \text{hasContinent}(x, \text{North America})\)</span></li>
+<li>Infer the new fact (New_Metropolis, hasContinent, North_America)</li>
+<li>Use this derived fact along with the original one to position New_Metropolis in the embedding space</li>
+<li>Make further predictions based on this embedding</li>
+</ol>
+</div>
+</section>
+</section>
+<section id="inductive-link-prediction-models" class="level3" data-number="14.1.3">
+<h3 data-number="14.1.3" class="anchored" data-anchor-id="inductive-link-prediction-models"><span class="header-section-number">14.1.3</span> Inductive link prediction models</h3>
+<p>Several specific models have been proposed for inductive knowledge graph completion:</p>
+<div id="def-grail" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.6 (GraIL model)</strong></span> <strong>GraIL</strong> (Graph Neural Network for Inductive Link Prediction), proposed by Teru et al.&nbsp;(2020):</p>
+<ol type="1">
+<li>Extracts enclosing subgraphs around the target link</li>
+<li>Applies a relational Graph Neural Network to the subgraph</li>
+<li>Uses node labeling to capture structural information</li>
+<li>Makes predictions based only on graph structure, independent of specific entity identities</li>
+</ol>
+<p>GraIL can predict links involving previously unseen entities based solely on their local graph neighborhoods.</p>
+</div>
+<div id="def-drum" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.7 (DRUM model)</strong></span> <strong>DRUM</strong> (Deep Rule Mining), proposed by Sadeghian et al.&nbsp;(2019):</p>
+<ol type="1">
+<li>Learns logical rules through a differentiable rule mining framework</li>
+<li>Applies rules to derive new facts</li>
+<li>Combines rule-based inference with embedding-based scoring</li>
+<li>Makes predictions for new entities by applying learned rules</li>
+</ol>
+<p>DRUM leverages the generalization capabilities of logical rules for inductive reasoning.</p>
+</div>
+<div id="def-lace" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.8 (LACE model)</strong></span> <strong>LACE</strong> (Low-rank Alignment of Continuous Embeddings), proposed by Wang et al.&nbsp;(2022):</p>
+<ol type="1">
+<li>Uses entity descriptions and textual information</li>
+<li>Aligns text embeddings with graph embeddings through a low-rank transformation</li>
+<li>Generates embeddings for new entities from their textual descriptions</li>
+<li>Makes predictions using these aligned embeddings</li>
+</ol>
+<p>LACE bridges textual and graph-based representations for effective inductive learning.</p>
+</div>
+</section>
+<section id="meta-learning-approaches" class="level3" data-number="14.1.4">
+<h3 data-number="14.1.4" class="anchored" data-anchor-id="meta-learning-approaches"><span class="header-section-number">14.1.4</span> Meta-learning approaches</h3>
+<p>Meta-learning, or “learning to learn,” has been applied to inductive knowledge graph embedding:</p>
+<div id="def-meta-learning" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.9 (Meta-learning for knowledge graph embeddings)</strong></span> <strong>Meta-learning approaches</strong> aim to learn how to quickly adapt to new entities and relations:</p>
+<ol type="1">
+<li>Train the model on a variety of subgraphs or tasks</li>
+<li>Learn initialization parameters that can quickly adapt to new entities</li>
+<li>Use few-shot learning techniques to generalize from limited examples</li>
+<li>Apply the learned adaptation procedure to new entities or relations</li>
+</ol>
+<p>Meta-learning is particularly useful for cold-start scenarios with minimal information about new entities.</p>
+</div>
+<div id="exm-meta-learning" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.5 (Meta-learning example)</strong></span> A meta-learning approach for knowledge graph completion might:</p>
+<ol type="1">
+<li>Train on many “episodes,” each involving predicting links for a subset of entities</li>
+<li>Learn how entity embeddings should change based on new connections</li>
+<li>When a new entity appears, apply the learned adaptation procedure to generate its initial embedding</li>
+<li>Refine this embedding as more connections are observed</li>
+</ol>
+<p>This approach allows the model to generalize patterns of adaptation across different entities and relations.</p>
+</div>
+</section>
+</section>
+<section id="uncertainty-quantification-and-confidence" class="level2" data-number="14.2">
+<h2 data-number="14.2" class="anchored" data-anchor-id="uncertainty-quantification-and-confidence"><span class="header-section-number">14.2</span> Uncertainty quantification and confidence</h2>
+<p>In many real-world applications, it’s crucial not just to make predictions but also to quantify uncertainty about those predictions.</p>
+<div id="def-uncertainty-quantification" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.10 (Uncertainty quantification)</strong></span> <strong>Uncertainty quantification</strong> in knowledge graph embeddings refers to:</p>
+<ol type="1">
+<li>Estimating the confidence or reliability of predicted links</li>
+<li>Distinguishing between different types of uncertainty (aleatoric vs.&nbsp;epistemic)</li>
+<li>Providing calibrated probability estimates for predictions</li>
+<li>Identifying when the model is likely to make errors</li>
+</ol>
+<p>Effective uncertainty quantification enables more reliable decision-making and identifies areas where human intervention may be needed.</p>
+</div>
+<section id="types-of-uncertainty" class="level3" data-number="14.2.1">
+<h3 data-number="14.2.1" class="anchored" data-anchor-id="types-of-uncertainty"><span class="header-section-number">14.2.1</span> Types of uncertainty</h3>
+<p>Two main types of uncertainty are relevant for knowledge graph embeddings:</p>
+<div id="def-uncertainty-types" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.11 (Types of uncertainty)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><p><strong>Aleatoric uncertainty</strong>: Inherent randomness or noise in the data that cannot be reduced by collecting more data</p>
+<ul>
+<li>Example: Ambiguity in relation definitions or genuinely probabilistic relationships</li>
+</ul></li>
+<li><p><strong>Epistemic uncertainty</strong>: Uncertainty due to limited knowledge or data that can be reduced with more information</p>
+<ul>
+<li>Example: Uncertainty about entities with few connections or from domains underrepresented in the training data</li>
+</ul></li>
+</ol>
+</div>
+</section>
+<section id="probabilistic-embedding-models" class="level3" data-number="14.2.2">
+<h3 data-number="14.2.2" class="anchored" data-anchor-id="probabilistic-embedding-models"><span class="header-section-number">14.2.2</span> Probabilistic embedding models</h3>
+<p>Several approaches incorporate probabilistic reasoning into knowledge graph embeddings:</p>
+<div id="def-probabilistic-embeddings" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.12 (Probabilistic embedding models)</strong></span> <strong>Probabilistic embedding models</strong> represent entities and relations as probability distributions rather than point vectors:</p>
+<ol type="1">
+<li><strong>KG2E</strong> (He et al., 2015): Models entities and relations as Gaussian distributions</li>
+<li><strong>TransG</strong> (Xiao et al., 2016): Uses Gaussian mixtures to model multiple relation semantics</li>
+<li><strong>UKGE</strong> (Chen et al., 2019): Incorporates uncertainty through Bayesian methods</li>
+<li><strong>BayesKGE</strong> (Zhou et al., 2020): Applies Bayesian inference to knowledge graph embedding</li>
+</ol>
+<p>These models naturally quantify uncertainty through the variance or spread of the distributions.</p>
+</div>
+<div id="exm-probabilistic-embedding" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.6 (Probabilistic embedding example)</strong></span> In KG2E, each entity and relation is represented as a Gaussian distribution in the embedding space:</p>
+<ul>
+<li>Entity: <span class="math inline">\(e \sim \mathcal{N}(\boldsymbol{\mu}_e, \boldsymbol{\Sigma}_e)\)</span></li>
+<li>Relation: <span class="math inline">\(r \sim \mathcal{N}(\boldsymbol{\mu}_r, \boldsymbol{\Sigma}_r)\)</span></li>
+</ul>
+<p>For a triple <span class="math inline">\((h, r, t)\)</span>, the model computes the probability of the translation <span class="math inline">\(h + r \approx t\)</span> by measuring the similarity between the distributions of <span class="math inline">\(h + r\)</span> and <span class="math inline">\(t\)</span>.</p>
+<p>The variance of these distributions naturally captures uncertainty: higher variance indicates less confidence in the embedding.</p>
+</div>
+</section>
+<section id="bayesian-approaches" class="level3" data-number="14.2.3">
+<h3 data-number="14.2.3" class="anchored" data-anchor-id="bayesian-approaches"><span class="header-section-number">14.2.3</span> Bayesian approaches</h3>
+<p>Bayesian methods provide a principled framework for uncertainty quantification:</p>
+<div id="def-bayesian-kge" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.13 (Bayesian knowledge graph embeddings)</strong></span> <strong>Bayesian knowledge graph embedding</strong> models:</p>
+<ol type="1">
+<li>Define prior distributions over entity and relation embeddings</li>
+<li>Update these distributions based on observed triples</li>
+<li>Use the posterior distributions to make predictions with uncertainty estimates</li>
+<li>Apply Bayesian inference techniques like MCMC or variational inference</li>
+</ol>
+<p>Bayesian approaches naturally balance fitting the observed data with generalization to unseen data.</p>
+</div>
+<div id="exm-bayesian-approach" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.7 (Bayesian approach example)</strong></span> A Bayesian version of TransE might:</p>
+<ol type="1">
+<li>Define prior distributions for entity and relation embeddings: <span class="math inline">\(p(\mathbf{E})\)</span> and <span class="math inline">\(p(\mathbf{R})\)</span></li>
+<li>Define a likelihood function based on the TransE scoring function: <span class="math inline">\(p(T|\mathbf{E},\mathbf{R})\)</span></li>
+<li>Compute the posterior distribution: <span class="math inline">\(p(\mathbf{E},\mathbf{R}|T) \propto p(T|\mathbf{E},\mathbf{R})p(\mathbf{E})p(\mathbf{R})\)</span></li>
+<li>Use the posterior to make predictions with uncertainty estimates</li>
+</ol>
+<p>For a query <span class="math inline">\((h, r, ?)\)</span>, the model would provide not just the most likely tail entity but also a probability distribution over possible answers.</p>
+</div>
+</section>
+<section id="ensemble-methods" class="level3" data-number="14.2.4">
+<h3 data-number="14.2.4" class="anchored" data-anchor-id="ensemble-methods"><span class="header-section-number">14.2.4</span> Ensemble methods</h3>
+<p>Ensemble methods combine multiple models to improve predictions and quantify uncertainty:</p>
+<div id="def-ensemble-methods" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.14 (Ensemble methods for uncertainty quantification)</strong></span> <strong>Ensemble approaches</strong> for knowledge graph embeddings:</p>
+<ol type="1">
+<li>Train multiple embedding models with different initializations or architectures</li>
+<li>Combine their predictions through averaging or voting</li>
+<li>Measure disagreement between models as an uncertainty estimate</li>
+<li>Identify predictions where the ensemble has high consensus or divergent opinions</li>
+</ol>
+<p>Ensemble methods provide a practical approach to uncertainty quantification without requiring fundamental changes to the embedding models.</p>
+</div>
+<div id="exm-ensemble-method" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.8 (Ensemble method example)</strong></span> An ensemble approach for link prediction might:</p>
+<ol type="1">
+<li>Train 10 instances of RotatE with different random initializations</li>
+<li>For a query <span class="math inline">\((h, r, ?)\)</span>, get ranked lists of tail entities from each model</li>
+<li>Combine these rankings through Borda counting or another rank aggregation method</li>
+<li>Measure uncertainty based on the variance in rankings across models</li>
+</ol>
+<p>High variance would indicate uncertain predictions, while low variance would suggest more confident ones.</p>
+</div>
+</section>
+<section id="calibration-techniques" class="level3" data-number="14.2.5">
+<h3 data-number="14.2.5" class="anchored" data-anchor-id="calibration-techniques"><span class="header-section-number">14.2.5</span> Calibration techniques</h3>
+<p>Even when models provide confidence scores, these may not be well-calibrated probabilities:</p>
+<div id="def-calibration" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.15 (Calibration techniques)</strong></span> <strong>Calibration techniques</strong> for knowledge graph embeddings:</p>
+<ol type="1">
+<li><strong>Temperature scaling</strong>: Apply a learned temperature parameter to soften or sharpen model outputs</li>
+<li><strong>Isotonic regression</strong>: Learn a monotonic function to map model scores to calibrated probabilities</li>
+<li><strong>Platt scaling</strong>: Apply logistic regression to transform model scores into probabilities</li>
+<li><strong>Quantile regression</strong>: Predict confidence intervals rather than point estimates</li>
+</ol>
+<p>Well-calibrated models ensure that when the model assigns 80% confidence to a prediction, it is correct approximately 80% of the time.</p>
+</div>
+</section>
+<section id="applications-of-uncertainty-quantification" class="level3" data-number="14.2.6">
+<h3 data-number="14.2.6" class="anchored" data-anchor-id="applications-of-uncertainty-quantification"><span class="header-section-number">14.2.6</span> Applications of uncertainty quantification</h3>
+<p>Uncertainty quantification enables several important applications:</p>
+<div id="def-uncertainty-applications" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.16 (Applications of uncertainty quantification)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><strong>Active learning</strong>: Identify the most uncertain predictions to prioritize for human annotation</li>
+<li><strong>Decision support</strong>: Provide confidence levels to guide human decision-making</li>
+<li><strong>Robust reasoning</strong>: Incorporate uncertainty into multi-hop reasoning chains</li>
+<li><strong>Knowledge graph refinement</strong>: Identify potentially erroneous triples in the knowledge graph</li>
+<li><strong>Domain adaptation</strong>: Recognize when predictions involve domains with high uncertainty</li>
+</ol>
+</div>
+<div id="exm-uncertainty-application" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.9 (Uncertainty application example)</strong></span> In a medical knowledge graph application:</p>
+<ol type="1">
+<li>The model predicts potential drug interactions with associated confidence scores</li>
+<li>High-confidence predictions are automatically added to the knowledge base</li>
+<li>Medium-confidence predictions are flagged for expert review</li>
+<li>Low-confidence predictions trigger additional research or data collection</li>
+</ol>
+<p>This approach balances automation with expert oversight based on prediction confidence.</p>
+</div>
+</section>
+</section>
+<section id="explainability-and-interpretability" class="level2" data-number="14.3">
+<h2 data-number="14.3" class="anchored" data-anchor-id="explainability-and-interpretability"><span class="header-section-number">14.3</span> Explainability and interpretability</h2>
+<p>As knowledge graph embeddings are increasingly used in critical applications, the need for explainable and interpretable models grows.</p>
+<div id="def-explainability" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.17 (Explainability and interpretability)</strong></span> <strong>Explainability</strong> refers to the ability to provide human-understandable justifications for model predictions.</p>
+<p><strong>Interpretability</strong> refers to the inherent transparency of the model’s reasoning process.</p>
+<p>For knowledge graph embeddings, these concepts involve:</p>
+<ol type="1">
+<li>Explaining why a particular triple is predicted to be true or false</li>
+<li>Identifying supporting evidence in the knowledge graph</li>
+<li>Providing reasoning paths or rules that justify predictions</li>
+<li>Offering insights into how the embedding space is structured</li>
+</ol>
+</div>
+<section id="path-based-explanations" class="level3" data-number="14.3.1">
+<h3 data-number="14.3.1" class="anchored" data-anchor-id="path-based-explanations"><span class="header-section-number">14.3.1</span> Path-based explanations</h3>
+<p>One approach to explainability is to identify paths in the knowledge graph that support a prediction:</p>
+<div id="def-path-explanations" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.18 (Path-based explanations)</strong></span> <strong>Path-based explanation methods</strong>:</p>
+<ol type="1">
+<li>Identify paths between the head and tail entities that explain the predicted relation</li>
+<li>Score paths based on their relevance or importance to the prediction</li>
+<li>Present the most relevant paths as explanations</li>
+<li>May incorporate attention mechanisms to weight different paths</li>
+</ol>
+<p>These methods provide concrete evidence from the knowledge graph to support predictions.</p>
+</div>
+<div id="exm-path-explanation" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.10 (Path-based explanation example)</strong></span> For the predicted triple (Albert_Einstein, citizenship, United_States), a path-based explanation might be:</p>
+<p>(Albert_Einstein) –born_in–&gt; (Germany) –emigrated_to–&gt; (United_States) –granted_citizenship_to–&gt; (Albert_Einstein)</p>
+<p>This path demonstrates a logical sequence of relations that explains why Einstein had US citizenship, making the prediction more trustworthy and understandable.</p>
+</div>
+</section>
+<section id="rule-based-explanations" class="level3" data-number="14.3.2">
+<h3 data-number="14.3.2" class="anchored" data-anchor-id="rule-based-explanations"><span class="header-section-number">14.3.2</span> Rule-based explanations</h3>
+<p>Logical rules provide another form of explanation:</p>
+<div id="def-rule-explanations" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.19 (Rule-based explanations)</strong></span> <strong>Rule-based explanation methods</strong>:</p>
+<ol type="1">
+<li>Extract or learn logical rules from the knowledge graph</li>
+<li>Identify rules that support a particular prediction</li>
+<li>Present these rules as explanations</li>
+<li>May combine multiple rules with different weights or confidence levels</li>
+</ol>
+<p>Rules provide compact, generalizable explanations that can apply to many different instances.</p>
+</div>
+<div id="exm-rule-explanation" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.11 (Rule-based explanation example)</strong></span> For the predicted triple (Paris, located_in, Europe), a rule-based explanation might be:</p>
+<p>located_in(X, France) ∧ located_in(France, Europe) → located_in(X, Europe) [confidence: 0.95]</p>
+<p>Given the known facts (Paris, located_in, France) and (France, located_in, Europe), this rule logically implies the prediction.</p>
+</div>
+</section>
+<section id="model-specific-interpretability" class="level3" data-number="14.3.3">
+<h3 data-number="14.3.3" class="anchored" data-anchor-id="model-specific-interpretability"><span class="header-section-number">14.3.3</span> Model-specific interpretability</h3>
+<p>Some embedding models are inherently more interpretable than others:</p>
+<div id="def-model-interpretability" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.20 (Model-specific interpretability approaches)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><strong>TransE and variants</strong>: Interpret relations as translations in the embedding space</li>
+<li><strong>DistMult</strong>: Interpret relation dimensions as important features for specific relations</li>
+<li><strong>RotatE</strong>: Interpret relations as rotations with specific angles</li>
+<li><strong>Rule-enhanced models</strong>: Extract explicit rules that complement embedding predictions</li>
+</ol>
+<p>More complex neural models like R-GCN or ConvE typically require additional explanation mechanisms.</p>
+</div>
+<div id="exm-model-interpretability" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.12 (Model interpretability example)</strong></span> In RotatE, a relation “is_parent_of” might be represented as a rotation by approximately 180 degrees in certain dimensions of the complex embedding space.</p>
+<p>This geometric interpretation makes it clear why the model considers “is_parent_of” and “is_child_of” to be inverse relations (they rotate in opposite directions) and why “is_sibling_of” might be symmetric (it rotates by either 0 or 360 degrees).</p>
+</div>
+</section>
+<section id="attention-mechanisms-for-explainability" class="level3" data-number="14.3.4">
+<h3 data-number="14.3.4" class="anchored" data-anchor-id="attention-mechanisms-for-explainability"><span class="header-section-number">14.3.4</span> Attention mechanisms for explainability</h3>
+<p>Attention mechanisms can highlight important elements for predictions:</p>
+<div id="def-attention-explainability" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.21 (Attention mechanisms for explainability)</strong></span> <strong>Attention-based explanation methods</strong>:</p>
+<ol type="1">
+<li>Use attention weights to identify important entities or relations for a prediction</li>
+<li>Visualize attention patterns across the knowledge graph</li>
+<li>Generate explanations based on elements with high attention scores</li>
+<li>May incorporate hierarchical attention for multi-step reasoning</li>
+</ol>
+<p>Attention provides a natural way to identify which parts of the knowledge graph are most relevant for a prediction.</p>
+</div>
+<div id="exm-attention-explanation" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.13 (Attention explanation example)</strong></span> In a multi-hop reasoning task to answer “What medications might interact with drugs that treat diabetes?”, an attention-based model might:</p>
+<ol type="1">
+<li>First attend strongly to entities like “Metformin” and “Insulin” (common diabetes medications)</li>
+<li>Then shift attention to entities connected via “interacts_with” relations</li>
+<li>Finally highlight “Warfarin” as having strong potential interactions</li>
+</ol>
+<p>The attention weights reveal the reasoning process: identify diabetes medications → find interaction relationships → highlight specific interacting drugs.</p>
+</div>
+</section>
+<section id="counterfactual-explanations" class="level3" data-number="14.3.5">
+<h3 data-number="14.3.5" class="anchored" data-anchor-id="counterfactual-explanations"><span class="header-section-number">14.3.5</span> Counterfactual explanations</h3>
+<p>Counterfactual explanations explore how predictions would change if certain facts were different:</p>
+<div id="def-counterfactual" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.22 (Counterfactual explanations)</strong></span> <strong>Counterfactual explanation methods</strong>:</p>
+<ol type="1">
+<li>Identify minimal changes to the knowledge graph that would alter a prediction</li>
+<li>Generate “what-if” scenarios to explain prediction boundaries</li>
+<li>Highlight critical facts that support or contradict a prediction</li>
+<li>May involve adversarial perturbations to test prediction robustness</li>
+</ol>
+<p>Counterfactual explanations help users understand which facts are most crucial for a prediction.</p>
+</div>
+<div id="exm-counterfactual" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.14 (Counterfactual explanation example)</strong></span> For the predicted triple (Company_X, headquartered_in, United_States), a counterfactual explanation might be:</p>
+<p>“This prediction would change to ‘Japan’ if:</p>
+<ol type="1">
+<li>The founder’s nationality were Japanese instead of American</li>
+<li>The company’s largest office were in Tokyo instead of New York</li>
+<li>The company were incorporated in Japan instead of Delaware”</li>
+</ol>
+<p>This explains both why the current prediction is “United States” and what evidence would need to change to get a different prediction.</p>
+</div>
+</section>
+<section id="evaluation-of-explanations" class="level3" data-number="14.3.6">
+<h3 data-number="14.3.6" class="anchored" data-anchor-id="evaluation-of-explanations"><span class="header-section-number">14.3.6</span> Evaluation of explanations</h3>
+<p>Explanations should be evaluated on multiple dimensions:</p>
+<div id="def-explanation-evaluation" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.23 (Explanation evaluation criteria)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><strong>Faithfulness</strong>: How accurately the explanation reflects the model’s actual reasoning</li>
+<li><strong>Plausibility</strong>: How convincing the explanation is to humans</li>
+<li><strong>Specificity</strong>: How precisely the explanation identifies relevant factors</li>
+<li><strong>Coherence</strong>: How logically connected and consistent the explanation is</li>
+<li><strong>Simplicity</strong>: How easy the explanation is to understand</li>
+<li><strong>Actionability</strong>: How useful the explanation is for decision-making or model improvement</li>
+</ol>
+</div>
+<div id="exm-explanation-evaluation" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.15 (Explanation evaluation example)</strong></span> Consider two explanations for the prediction (Patient_A, has_disease, Diabetes):</p>
+<p>Explanation 1: “Patient_A has high blood glucose levels and a family history of diabetes.” Explanation 2: “Based on 47 features including age, BMI, blood pressure, and family history, our model calculates a 78% probability of diabetes.”</p>
+<p>Explanation 1 is more specific and actionable, highlighting the most relevant factors, while Explanation 2 mentions many features without clarifying their importance.</p>
+</div>
+</section>
+</section>
+<section id="temporal-knowledge-graphs" class="level2" data-number="14.4">
+<h2 data-number="14.4" class="anchored" data-anchor-id="temporal-knowledge-graphs"><span class="header-section-number">14.4</span> Temporal knowledge graphs</h2>
+<p>Real-world knowledge evolves over time, making temporal knowledge graphs an important extension of standard knowledge graphs.</p>
+<div id="def-temporal-kg" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.24 (Temporal knowledge graph)</strong></span> A <strong>temporal knowledge graph</strong> extends traditional knowledge graphs by incorporating time information:</p>
+<ol type="1">
+<li>Triples are expanded to quadruples <span class="math inline">\((h, r, t, \tau)\)</span>, where <span class="math inline">\(\tau\)</span> represents a time point or interval</li>
+<li>Relations can have different validity periods</li>
+<li>Entities and their properties can change over time</li>
+<li>Queries can include temporal constraints or questions about temporal patterns</li>
+</ol>
+<p>Temporal knowledge graphs enable reasoning about how facts and relationships evolve over time.</p>
+</div>
+<div id="exm-temporal-kg" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.16 (Temporal knowledge graph example)</strong></span> In a temporal knowledge graph about politicians:</p>
+<ul>
+<li>(Joe_Biden, president_of, United_States, [2021-01-20, present])</li>
+<li>(Donald_Trump, president_of, United_States, [2017-01-20, 2021-01-20])</li>
+<li>(Barack_Obama, president_of, United_States, [2009-01-20, 2017-01-20])</li>
+</ul>
+<p>These quadruples capture the time-dependent nature of the “president_of” relation, allowing queries about who was president during a specific time period or how long someone served as president.</p>
+</div>
+<section id="challenges-in-temporal-knowledge-graph-embedding" class="level3" data-number="14.4.1">
+<h3 data-number="14.4.1" class="anchored" data-anchor-id="challenges-in-temporal-knowledge-graph-embedding"><span class="header-section-number">14.4.1</span> Challenges in temporal knowledge graph embedding</h3>
+<p>Embedding temporal knowledge graphs presents several unique challenges:</p>
+<div id="def-temporal-challenges" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.25 (Challenges in temporal knowledge graph embedding)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><strong>Representation complexity</strong>: How to incorporate time into the embedding framework</li>
+<li><strong>Temporal reasoning</strong>: Modeling order, duration, and temporal relations</li>
+<li><strong>Evolution patterns</strong>: Capturing how entities and relations evolve over time</li>
+<li><strong>Sparsity</strong>: Handling time periods with limited data</li>
+<li><strong>Efficiency</strong>: Managing the increased computational complexity</li>
+<li><strong>Forecasting</strong>: Predicting future facts based on historical patterns</li>
+</ol>
+</div>
+</section>
+<section id="temporal-embedding-approaches" class="level3" data-number="14.4.2">
+<h3 data-number="14.4.2" class="anchored" data-anchor-id="temporal-embedding-approaches"><span class="header-section-number">14.4.2</span> Temporal embedding approaches</h3>
+<p>Several approaches have been developed for embedding temporal knowledge graphs:</p>
+<section id="time-as-an-additional-dimension" class="level4">
+<h4 class="anchored" data-anchor-id="time-as-an-additional-dimension">Time as an additional dimension</h4>
+<div id="def-time-dimension" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.26 (Time as an additional dimension)</strong></span> <strong>Time-as-dimension approaches</strong> extend existing embedding models by:</p>
+<ol type="1">
+<li>Representing time as an additional embedding dimension</li>
+<li>Learning time-specific embeddings for entities and relations</li>
+<li>Adjusting scoring functions to incorporate temporal information</li>
+<li>Modeling temporal patterns as trajectories in the embedding space</li>
+</ol>
+<p>Examples include TTransE (Leblay &amp; Chekol, 2018) and TimePlex (Jain et al., 2020).</p>
+</div>
+<div id="exm-time-dimension" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.17 (Time-as-dimension example)</strong></span> TTransE extends the TransE model by:</p>
+<ol type="1">
+<li>Learning a time embedding <span class="math inline">\(\mathbf{\tau}\)</span> for each timestamp</li>
+<li>Modifying the scoring function to: <span class="math inline">\(f_r(h, t, \tau) = -\|\mathbf{h} + \mathbf{r} + \mathbf{\tau} - \mathbf{t}\|\)</span></li>
+<li>This allows entities to “move” through the embedding space over time</li>
+<li>The relation translation is adjusted based on the timestamp</li>
+</ol>
+<p>For example, the embedding of “United_States” would move to different positions depending on which timestamp is added, reflecting changes in its properties and relationships over time.</p>
+</div>
+</section>
+<section id="temporal-attention-mechanisms" class="level4">
+<h4 class="anchored" data-anchor-id="temporal-attention-mechanisms">Temporal attention mechanisms</h4>
+<div id="def-temporal-attention" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.27 (Temporal attention mechanisms)</strong></span> <strong>Temporal attention approaches</strong> use attention to focus on relevant time periods:</p>
+<ol type="1">
+<li>Assign attention weights to different time steps</li>
+<li>Aggregate information across time with weighted averaging</li>
+<li>Adapt attention based on the query and context</li>
+<li>Model complex temporal dependencies and patterns</li>
+</ol>
+<p>Examples include TART (García-Durán et al., 2018) and TComplEx (Lacroix et al., 2020).</p>
+</div>
+<div id="exm-temporal-attention" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.18 (Temporal attention example)</strong></span> In a temporal attention model:</p>
+<ol type="1">
+<li>For a query (Barack_Obama, was_president_of, United_States, ?), the model would attend strongly to the time period 2009-2017</li>
+<li>For a query about Obama’s early career, attention would shift to earlier time periods</li>
+<li>The attention mechanism learns which time periods are most relevant for different types of queries</li>
+<li>This allows the model to focus on the most informative temporal context for each prediction</li>
+</ol>
+</div>
+</section>
+<section id="diachronic-embeddings" class="level4">
+<h4 class="anchored" data-anchor-id="diachronic-embeddings">Diachronic embeddings</h4>
+<div id="def-diachronic" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.28 (Diachronic embeddings)</strong></span> <strong>Diachronic embedding approaches</strong> make entity embeddings time-dependent functions:</p>
+<ol type="1">
+<li>Represent entities as functions of time: <span class="math inline">\(\mathbf{e}(t)\)</span> rather than static embeddings <span class="math inline">\(\mathbf{e}\)</span></li>
+<li>Model how entity representations evolve continuously</li>
+<li>Use different functional forms (linear, periodic, neural) to capture temporal patterns</li>
+<li>Maintain relation embeddings as static or also make them time-dependent</li>
+</ol>
+<p>Examples include DE-SimplE (Goel et al., 2020) and TeLM (Xu et al., 2020).</p>
+</div>
+<div id="exm-diachronic" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.19 (Diachronic embedding example)</strong></span> In DE-SimplE, entity embeddings are defined as: <span class="math inline">\(\mathbf{e}(t) = [\mathbf{e}_s; \mathbf{e}_t(t)]\)</span> where <span class="math inline">\(\mathbf{e}_s\)</span> is a static component and <span class="math inline">\(\mathbf{e}_t(t)\)</span> is a temporal component defined as: <span class="math inline">\(\mathbf{e}_t(t)[i] = \begin{cases}
+a_i \sin(\omega_i t + b_i) &amp; \text{if } i \leq k \\
+0 &amp; \text{otherwise}
+\end{cases}\)</span></p>
+<p>This allows some dimensions of the embedding to oscillate with time while others remain static, capturing both stable and dynamic aspects of entities.</p>
+</div>
+</section>
+</section>
+<section id="temporal-reasoning-and-forecasting" class="level3" data-number="14.4.3">
+<h3 data-number="14.4.3" class="anchored" data-anchor-id="temporal-reasoning-and-forecasting"><span class="header-section-number">14.4.3</span> Temporal reasoning and forecasting</h3>
+<p>An important application of temporal knowledge graph embeddings is reasoning about the future:</p>
+<div id="def-temporal-reasoning" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.29 (Temporal reasoning and forecasting)</strong></span> <strong>Temporal reasoning and forecasting approaches</strong>:</p>
+<ol type="1">
+<li>Learn patterns of temporal evolution from historical data</li>
+<li>Project these patterns forward to predict future facts</li>
+<li>Model recurring patterns, trends, and seasonal variations</li>
+<li>Account for uncertainty that increases with prediction distance</li>
+</ol>
+<p>Examples include Know-Evolve (Trivedi et al., 2017) and RE-NET (Jin et al., 2020).</p>
+</div>
+<div id="exm-temporal-forecasting" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.20 (Temporal forecasting example)</strong></span> A forecasting model might predict:</p>
+<ul>
+<li>(Company_X, will_acquire, Company_Y, [2025-Q3])</li>
+<li>(Country_A, will_sign_treaty_with, Country_B, [2026])</li>
+</ul>
+<p>These predictions would be based on patterns such as:</p>
+<ol type="1">
+<li>Similar companies make acquisitions after reaching certain growth milestones</li>
+<li>Countries with increasing diplomatic interactions tend to formalize relationships with treaties</li>
+<li>Seasonal patterns in business activities or international relations</li>
+</ol>
+</div>
+</section>
+</section>
+<section id="hierarchical-and-ontological-knowledge-graphs" class="level2" data-number="14.5">
+<h2 data-number="14.5" class="anchored" data-anchor-id="hierarchical-and-ontological-knowledge-graphs"><span class="header-section-number">14.5</span> Hierarchical and ontological knowledge graphs</h2>
+<p>Many knowledge graphs incorporate hierarchical structures and ontological information, which can be exploited to improve embeddings.</p>
+<div id="def-hierarchical-kg" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.30 (Hierarchical knowledge graph)</strong></span> A <strong>hierarchical knowledge graph</strong> explicitly represents:</p>
+<ol type="1">
+<li>Type hierarchies (e.g., Dog isA Mammal isA Animal)</li>
+<li>Part-whole relationships (e.g., Engine partOf Car)</li>
+<li>Subsumption relationships between concepts</li>
+<li>Levels of abstraction and specificity</li>
+</ol>
+<p>Ontological knowledge graphs extend this with formal specifications of conceptualizations, including axioms, constraints, and logical rules.</p>
+</div>
+<div id="exm-hierarchical-kg" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.21 (Hierarchical knowledge graph example)</strong></span> A hierarchical knowledge graph about animals might include:</p>
+<ul>
+<li>(Tiger, isA, Feline)</li>
+<li>(Feline, isA, Mammal)</li>
+<li>(Mammal, isA, Animal)</li>
+<li>(Tiger, has_part, Claw)</li>
+<li>(Claw, has_property, Sharp)</li>
+</ul>
+<p>This hierarchical structure allows inferring that tigers are animals and have sharp claws, even if these facts aren’t explicitly stated.</p>
+</div>
+<section id="challenges-in-hierarchical-embedding" class="level3" data-number="14.5.1">
+<h3 data-number="14.5.1" class="anchored" data-anchor-id="challenges-in-hierarchical-embedding"><span class="header-section-number">14.5.1</span> Challenges in hierarchical embedding</h3>
+<p>Embedding hierarchical knowledge presents several challenges:</p>
+<div id="def-hierarchical-challenges" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.31 (Challenges in hierarchical embedding)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><strong>Transitive reasoning</strong>: Capturing hierarchical relationships that extend through multiple levels</li>
+<li><strong>Asymmetry</strong>: Properly representing the directional nature of hierarchical relationships</li>
+<li><strong>Level awareness</strong>: Accounting for different levels of abstraction</li>
+<li><strong>Completeness</strong>: Handling incomplete hierarchies with missing links</li>
+<li><strong>Consistency</strong>: Ensuring embeddings respect hierarchical constraints</li>
+</ol>
+</div>
+</section>
+<section id="hierarchical-embedding-approaches" class="level3" data-number="14.5.2">
+<h3 data-number="14.5.2" class="anchored" data-anchor-id="hierarchical-embedding-approaches"><span class="header-section-number">14.5.2</span> Hierarchical embedding approaches</h3>
+<p>Several approaches have been developed to embed hierarchical knowledge:</p>
+<section id="geometric-approaches" class="level4">
+<h4 class="anchored" data-anchor-id="geometric-approaches">Geometric approaches</h4>
+<div id="def-geometric-hierarchical" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.32 (Geometric approaches for hierarchical embedding)</strong></span> <strong>Geometric approaches</strong> leverage specific geometric structures for hierarchies:</p>
+<ol type="1">
+<li><strong>Hyperbolic embeddings</strong>: Use hyperbolic space, which naturally accommodates tree-like structures</li>
+<li><strong>Order embeddings</strong>: Define partial ordering relationships in the embedding space</li>
+<li><strong>Box embeddings</strong>: Represent concepts as n-dimensional boxes (hyperrectangles)</li>
+<li><strong>Cone embeddings</strong>: Represent concepts as cones in a vector space</li>
+</ol>
+<p>These approaches incorporate the hierarchical structure directly into the geometry of the embedding space.</p>
+</div>
+<div id="exm-hyperbolic" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.22 (Hyperbolic embedding example)</strong></span> In hyperbolic embeddings (e.g., Poincaré embeddings), concepts are arranged in a hyperbolic space where:</p>
+<ol type="1">
+<li>More general concepts (e.g., “Animal”) are placed near the origin</li>
+<li>More specific concepts (e.g., “Bengal Tiger”) are placed toward the boundary</li>
+<li>The distance from the origin reflects the concept’s specificity or depth in the hierarchy</li>
+<li>The direction from the origin reflects the branch of the hierarchy</li>
+</ol>
+<p>This naturally captures tree-like hierarchies because hyperbolic space has exponentially more “room” as you move away from the origin, accommodating the exponential growth in the number of nodes at each level of a tree.</p>
+</div>
+</section>
+<section id="type-enhanced-embeddings" class="level4">
+<h4 class="anchored" data-anchor-id="type-enhanced-embeddings">Type-enhanced embeddings</h4>
+<div id="def-type-enhanced" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.33 (Type-enhanced embeddings)</strong></span> <strong>Type-enhanced embedding approaches</strong>:</p>
+<ol type="1">
+<li>Incorporate entity type information into the embedding model</li>
+<li>Learn separate embeddings for types and entities</li>
+<li>Ensure that entity embeddings respect type constraints</li>
+<li>Use type information to restrict the range of predictions</li>
+</ol>
+<p>Examples include TKRL (Xie et al., 2016) and TransC (Lv et al., 2018).</p>
+</div>
+<div id="exm-type-enhanced" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.23 (Type-enhanced embedding example)</strong></span> In TransC, both entities and concepts (types) are embedded as spheres:</p>
+<ol type="1">
+<li>Entities are represented as small spheres in the embedding space</li>
+<li>Concepts are represented as larger spheres that contain their instances</li>
+<li>The hierarchy of concepts is modeled through sphere inclusion</li>
+<li>The scoring function accounts for both entity-entity and entity-concept relationships</li>
+</ol>
+<p>For instance, the “Mammal” sphere would contain the “Dog” sphere, which in turn would contain individual dog entities like “Lassie” and “Rover.”</p>
+</div>
+</section>
+<section id="logic-based-approaches" class="level4">
+<h4 class="anchored" data-anchor-id="logic-based-approaches">Logic-based approaches</h4>
+<div id="def-logic-hierarchical" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.34 (Logic-based approaches for hierarchical embedding)</strong></span> <strong>Logic-based approaches</strong> incorporate logical rules for hierarchies:</p>
+<ol type="1">
+<li>Represent hierarchical relationships using logical formulas</li>
+<li>Use logical inference alongside embedding-based prediction</li>
+<li>Ensure consistency with hierarchical constraints</li>
+<li>Penalize predictions that violate logical constraints</li>
+<li>Learn embeddings that respect logical axioms and rules</li>
+</ol>
+<p>Examples include KALE (Guo et al., 2016) and RUGE (Guo et al., 2018).</p>
+</div>
+<div id="exm-logic-based" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.24 (Logic-based approach example)</strong></span> In a logic-enhanced model for a medical knowledge graph:</p>
+<ol type="1">
+<li>The rule “If disease X is a subtype of disease Y, and treatment Z is effective for Y, then Z may be effective for X” is encoded</li>
+<li>When the model knows (Melanoma, isA, Skin_Cancer) and (Immunotherapy, treats, Skin_Cancer)</li>
+<li>It can infer (Immunotherapy, treats, Melanoma) with some confidence</li>
+<li>The embeddings are trained to be consistent with such logical inferences</li>
+</ol>
+<p>This combines the flexibility of embeddings with the precision of logical reasoning.</p>
+</div>
+</section>
+</section>
+<section id="ontology-embedding" class="level3" data-number="14.5.3">
+<h3 data-number="14.5.3" class="anchored" data-anchor-id="ontology-embedding"><span class="header-section-number">14.5.3</span> Ontology embedding</h3>
+<p>Ontology embedding extends hierarchical embedding to capture richer semantic relationships:</p>
+<div id="def-ontology-embedding" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.35 (Ontology embedding)</strong></span> <strong>Ontology embedding</strong> approaches:</p>
+<ol type="1">
+<li>Represent concepts, properties, and axioms in a vector space</li>
+<li>Preserve semantic relationships defined in formal ontologies</li>
+<li>Support complex reasoning tasks beyond simple hierarchies</li>
+<li>Often incorporate description logic or OWL semantics</li>
+</ol>
+<p>Examples include OWL2Vec* (Chen et al., 2021) and EL Embeddings (Kulmanov et al., 2019).</p>
+</div>
+<div id="exm-ontology-embedding" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.25 (Ontology embedding example)</strong></span> In an ontology embedding for a biomedical knowledge graph:</p>
+<ol type="1">
+<li>The concept “Pneumonia” is defined as “Inflammation located in the Lung”</li>
+<li>The embedding model captures this compositional definition</li>
+<li>When querying for “Inflammation located in the Lung,” the model returns “Pneumonia” as a match</li>
+<li>When querying for diseases affecting respiratory organs, it identifies “Pneumonia” due to the ontological relationship between lungs and respiratory organs</li>
+</ol>
+<p>This captures the rich semantic information in biomedical ontologies, enabling more sophisticated reasoning.</p>
+</div>
+</section>
+<section id="applications-of-hierarchical-embeddings" class="level3" data-number="14.5.4">
+<h3 data-number="14.5.4" class="anchored" data-anchor-id="applications-of-hierarchical-embeddings"><span class="header-section-number">14.5.4</span> Applications of hierarchical embeddings</h3>
+<p>Hierarchical embeddings enable several important applications:</p>
+<div id="def-hierarchical-applications" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.36 (Applications of hierarchical embeddings)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><strong>Zero-shot learning</strong>: Generalizing to new entities based on their position in a hierarchy</li>
+<li><strong>Taxonomy completion</strong>: Predicting missing links in hierarchical structures</li>
+<li><strong>Instance classification</strong>: Assigning entities to the correct categories</li>
+<li><strong>Concept similarity</strong>: Measuring semantic similarity based on hierarchical relationships</li>
+<li><strong>Analogical reasoning</strong>: Finding entities that occupy similar positions in different hierarchical branches</li>
+</ol>
+</div>
+<div id="exm-hierarchical-application" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.26 (Hierarchical application example)</strong></span> In a product knowledge graph for e-commerce:</p>
+<ol type="1">
+<li>A new product is added with minimal information</li>
+<li>Hierarchical embeddings place it in the correct product category based on its features</li>
+<li>The system predicts likely attributes and relationships based on similar products in the same category</li>
+<li>Recommendations are generated by finding products in similar positions in the hierarchy but different branches (e.g., suggesting a premium notebook when someone is viewing a premium tablet)</li>
+</ol>
+<p>This leverages the hierarchical structure to make effective predictions even with limited information.</p>
+</div>
+</section>
+</section>
+<section id="multi-modal-knowledge-graphs" class="level2" data-number="14.6">
+<h2 data-number="14.6" class="anchored" data-anchor-id="multi-modal-knowledge-graphs"><span class="header-section-number">14.6</span> Multi-modal knowledge graphs</h2>
+<p>Multi-modal knowledge graphs incorporate multiple types of data beyond textual descriptions, such as images, numerical values, and time series.</p>
+<div id="def-multimodal-kg" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.37 (Multi-modal knowledge graph)</strong></span> A <strong>multi-modal knowledge graph</strong> integrates:</p>
+<ol type="1">
+<li>Traditional relation triples between entities</li>
+<li>Visual information (images, videos)</li>
+<li>Numerical attributes and values</li>
+<li>Temporal data and time series</li>
+<li>Textual descriptions and documents</li>
+<li>Audio or other sensory data</li>
+</ol>
+<p>This richer representation enables more comprehensive modeling of entities and relationships.</p>
+</div>
+<div id="exm-multimodal-kg" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.27 (Multi-modal knowledge graph example)</strong></span> A multi-modal knowledge graph about landmarks might include:</p>
+<ul>
+<li>Traditional triples: (Eiffel_Tower, located_in, Paris)</li>
+<li>Images: Photos of the Eiffel Tower from different angles</li>
+<li>Numerical attributes: Height: 330m, Year_built: 1889</li>
+<li>Temporal data: Visitor statistics over time</li>
+<li>Textual descriptions: “The Eiffel Tower is a wrought-iron lattice tower on the Champ de Mars in Paris, France…”</li>
+<li>Audio: Sound recordings from the vicinity</li>
+</ul>
+<p>This multi-faceted representation provides a much richer understanding of the entity than traditional knowledge graph triples alone.</p>
+</div>
+<section id="challenges-in-multi-modal-embedding" class="level3" data-number="14.6.1">
+<h3 data-number="14.6.1" class="anchored" data-anchor-id="challenges-in-multi-modal-embedding"><span class="header-section-number">14.6.1</span> Challenges in multi-modal embedding</h3>
+<p>Embedding multi-modal knowledge graphs presents several challenges:</p>
+<div id="def-multimodal-challenges" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.38 (Challenges in multi-modal embedding)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><strong>Heterogeneity</strong>: Handling fundamentally different types of data</li>
+<li><strong>Alignment</strong>: Aligning embeddings across different modalities</li>
+<li><strong>Missing modalities</strong>: Dealing with entities that lack certain types of data</li>
+<li><strong>Modality importance</strong>: Determining the relative importance of different modalities</li>
+<li><strong>Efficiency</strong>: Managing the increased computational requirements</li>
+<li><strong>Evaluation</strong>: Assessing performance across different modalities and tasks</li>
+</ol>
+</div>
+</section>
+<section id="multi-modal-embedding-approaches" class="level3" data-number="14.6.2">
+<h3 data-number="14.6.2" class="anchored" data-anchor-id="multi-modal-embedding-approaches"><span class="header-section-number">14.6.2</span> Multi-modal embedding approaches</h3>
+<p>Several approaches have been developed for embedding multi-modal knowledge graphs:</p>
+<section id="joint-embedding-models" class="level4">
+<h4 class="anchored" data-anchor-id="joint-embedding-models">Joint embedding models</h4>
+<div id="def-joint-embedding" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.39 (Joint embedding models)</strong></span> <strong>Joint embedding approaches</strong>:</p>
+<ol type="1">
+<li>Encode each modality with a specialized encoder (e.g., CNN for images, BERT for text)</li>
+<li>Project these encodings into a shared embedding space</li>
+<li>Learn to align the different modalities</li>
+<li>Use the joint embeddings for various downstream tasks</li>
+</ol>
+<p>Examples include IKRL (Xie et al., 2017) and MMKG (Pezeshkpour et al., 2018).</p>
+</div>
+<div id="exm-joint-embedding" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.28 (Joint embedding example)</strong></span> In IKRL (Image-embodied Knowledge Representation Learning):</p>
+<ol type="1">
+<li>Each entity has both a structure-based embedding from the knowledge graph structure</li>
+<li>And an image-based embedding derived from its associated images</li>
+<li>The model learns to align these two embeddings</li>
+<li>During inference, it can use either or both types of embeddings depending on availability</li>
+</ol>
+<p>This allows the model to leverage visual information when available while still functioning for entities without images.</p>
+</div>
+</section>
+<section id="cross-modal-attention" class="level4">
+<h4 class="anchored" data-anchor-id="cross-modal-attention">Cross-modal attention</h4>
+<div id="def-crossmodal-attention" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.40 (Cross-modal attention)</strong></span> <strong>Cross-modal attention approaches</strong>:</p>
+<ol type="1">
+<li>Use attention mechanisms to dynamically weight different modalities</li>
+<li>Focus on the most relevant modalities for specific tasks or queries</li>
+<li>Enable information flow between modalities</li>
+<li>Learn cross-modal relationships and dependencies</li>
+</ol>
+<p>Examples include MKBE (Pezeshkpour et al., 2018) and MMEA (Shi et al., 2020).</p>
+</div>
+<div id="exm-crossmodal-attention" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.29 (Cross-modal attention example)</strong></span> For a query about the architectural style of a building, a cross-modal attention model might:</p>
+<ol type="1">
+<li>Attend strongly to image features showing the building’s facade</li>
+<li>Also attend to text descriptions discussing architectural elements</li>
+<li>Pay less attention to numerical attributes like construction date or size</li>
+<li>Integrate the most relevant information from each modality to make the prediction</li>
+</ol>
+<p>The attention weights would be different for a query about the building’s age, focusing more on numerical attributes and historical text.</p>
+</div>
+</section>
+<section id="numerical-attribute-embedding" class="level4">
+<h4 class="anchored" data-anchor-id="numerical-attribute-embedding">Numerical attribute embedding</h4>
+<div id="def-numerical-embedding" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.41 (Numerical attribute embedding)</strong></span> <strong>Numerical attribute embedding approaches</strong>:</p>
+<ol type="1">
+<li>Incorporate numerical values and attributes into entity representations</li>
+<li>May use specialized encodings for different types of numerical data</li>
+<li>Account for the scale and distribution of different attributes</li>
+<li>Enable numerical reasoning and comparison</li>
+</ol>
+<p>Examples include TransEA (Chen et al., 2018) and KBLN (García-Durán &amp; Niepert, 2017).</p>
+</div>
+<div id="exm-numerical-embedding" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.30 (Numerical attribute example)</strong></span> In a knowledge graph of companies with numerical attributes:</p>
+<ol type="1">
+<li>Revenue, employee count, and founding year are encoded as numerical features</li>
+<li>The model learns to transform these values into the embedding space</li>
+<li>This allows queries like “companies with revenue greater than $1B” or “tech companies founded after 2010”</li>
+<li>The model can perform both numerical comparisons and semantic reasoning</li>
+</ol>
+<p>For example, when predicting potential acquisition targets, the model might consider both semantic relationships (industry sector, product compatibility) and numerical attributes (revenue growth rate, employee count, market valuation).</p>
+</div>
+</section>
+</section>
+<section id="multi-task-learning-for-multi-modal-knowledge-graphs" class="level3" data-number="14.6.3">
+<h3 data-number="14.6.3" class="anchored" data-anchor-id="multi-task-learning-for-multi-modal-knowledge-graphs"><span class="header-section-number">14.6.3</span> Multi-task learning for multi-modal knowledge graphs</h3>
+<p>Multi-task learning is often applied to multi-modal knowledge graphs:</p>
+<div id="def-multitask-kg" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.42 (Multi-task learning for multi-modal knowledge graphs)</strong></span> <strong>Multi-task learning approaches</strong>:</p>
+<ol type="1">
+<li>Train the embedding model on multiple related tasks simultaneously</li>
+<li>Share parameters across tasks to improve generalization</li>
+<li>Use task-specific components where needed</li>
+<li>Balance performance across different tasks and modalities</li>
+</ol>
+<p>Tasks might include link prediction, image classification, attribute prediction, and text generation.</p>
+</div>
+<div id="exm-multitask" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.31 (Multi-task learning example)</strong></span> A multi-task learning approach for a product knowledge graph might simultaneously train on:</p>
+<ol type="1">
+<li>Link prediction between products and categories</li>
+<li>Image classification for product photos</li>
+<li>Prediction of numerical attributes like price and dimensions</li>
+<li>Generation of product descriptions from features</li>
+</ol>
+<p>By learning these tasks jointly, the model develops representations that capture the relationships between different aspects of products, improving performance on all tasks.</p>
+</div>
+</section>
+<section id="applications-of-multi-modal-knowledge-graphs" class="level3" data-number="14.6.4">
+<h3 data-number="14.6.4" class="anchored" data-anchor-id="applications-of-multi-modal-knowledge-graphs"><span class="header-section-number">14.6.4</span> Applications of multi-modal knowledge graphs</h3>
+<p>Multi-modal knowledge graphs enable several advanced applications:</p>
+<div id="def-multimodal-applications" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.43 (Applications of multi-modal knowledge graphs)</strong></span> &nbsp;</p>
+<ol type="1">
+<li><strong>Visual question answering</strong>: Answering questions about visual content using knowledge graph context</li>
+<li><strong>Multi-modal recommendation</strong>: Recommending items based on visual, numerical, and relational features</li>
+<li><strong>Cross-modal retrieval</strong>: Finding relevant content across different modalities</li>
+<li><strong>Enhanced entity resolution</strong>: Identifying entity mentions across different data sources and formats</li>
+<li><strong>Rich content generation</strong>: Creating text, images, or other content based on knowledge graph entities</li>
+</ol>
+</div>
+<div id="exm-multimodal-application" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.32 (Multi-modal application example)</strong></span> In a multi-modal e-commerce application:</p>
+<ol type="1">
+<li>A user uploads a photo of a dress they like</li>
+<li>The system identifies the dress and its attributes from the image</li>
+<li>The knowledge graph provides information about designer, materials, and price</li>
+<li>The system recommends similar dresses in different colors or at lower price points</li>
+<li>It generates natural language explanations for the recommendations</li>
+</ol>
+<p>This combines visual processing with knowledge graph reasoning for a rich, informative user experience.</p>
+</div>
+</section>
+</section>
+<section id="knowledge-graph-embeddings-and-large-language-models" class="level2" data-number="14.7">
+<h2 data-number="14.7" class="anchored" data-anchor-id="knowledge-graph-embeddings-and-large-language-models"><span class="header-section-number">14.7</span> Knowledge graph embeddings and large language models</h2>
+<p>Recent advances in large language models (LLMs) have opened new possibilities for knowledge graph embeddings, creating opportunities for synergy between these two approaches.</p>
+<div id="def-kg-llm" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.44 (Knowledge graphs and large language models)</strong></span> The integration of knowledge graphs and large language models involves:</p>
+<ol type="1">
+<li>Using LLMs to improve knowledge graph construction and completion</li>
+<li>Enhancing LLMs with structured knowledge from knowledge graphs</li>
+<li>Combining the reasoning capabilities of both approaches</li>
+<li>Developing joint models that leverage both structured and unstructured data</li>
+</ol>
+<p>This integration aims to combine the structured, explicit knowledge in KGs with the broad, implicit knowledge in LLMs.</p>
+</div>
+<section id="llms-for-knowledge-graph-construction" class="level3" data-number="14.7.1">
+<h3 data-number="14.7.1" class="anchored" data-anchor-id="llms-for-knowledge-graph-construction"><span class="header-section-number">14.7.1</span> LLMs for knowledge graph construction</h3>
+<p>Large language models can help build and enhance knowledge graphs:</p>
+<div id="def-llm-construction" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.45 (LLMs for knowledge graph construction)</strong></span> <strong>Using LLMs for knowledge graph construction</strong>:</p>
+<ol type="1">
+<li><strong>Relation extraction</strong>: Identifying relationships between entities in text</li>
+<li><strong>Entity linking</strong>: Matching entity mentions to knowledge graph entries</li>
+<li><strong>Graph completion</strong>: Suggesting missing relationships based on text understanding</li>
+<li><strong>Consistency checking</strong>: Identifying potential errors or contradictions in the knowledge graph</li>
+</ol>
+<p>LLMs can process vast amounts of text to extract structured knowledge for knowledge graphs.</p>
+</div>
+<div id="exm-llm-construction" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.33 (LLM knowledge graph construction example)</strong></span> Given a corpus of news articles about tech companies, an LLM-based system might:</p>
+<ol type="1">
+<li>Extract entities like companies, executives, products, and locations</li>
+<li>Identify relationships like “X acquired Y” or “X launched product Z”</li>
+<li>Link these to existing entities in a knowledge graph</li>
+<li>Add temporal information based on publication dates</li>
+<li>Generate confidence scores for extracted facts</li>
+</ol>
+<p>This automated process can rapidly populate a knowledge graph with current information from unstructured text.</p>
+</div>
+</section>
+<section id="knowledge-enhanced-language-models" class="level3" data-number="14.7.2">
+<h3 data-number="14.7.2" class="anchored" data-anchor-id="knowledge-enhanced-language-models"><span class="header-section-number">14.7.2</span> Knowledge-enhanced language models</h3>
+<p>Knowledge graphs can enhance large language models:</p>
+<div id="def-knowledge-enhanced" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.46 (Knowledge-enhanced language models)</strong></span> <strong>Knowledge-enhanced language models</strong>:</p>
+<ol type="1">
+<li>Incorporate knowledge graph information during pre-training or fine-tuning</li>
+<li>Use knowledge graphs to provide factual grounding for language generation</li>
+<li>Retrieve relevant knowledge from KGs based on textual context</li>
+<li>Augment attention mechanisms with knowledge graph structure</li>
+</ol>
+<p>Examples include ERNIE (Zhang et al., 2019), KG-BERT (Yao et al., 2019), and K-ADAPTER (Wang et al., 2021).</p>
+</div>
+<div id="exm-knowledge-enhanced" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.34 (Knowledge-enhanced language model example)</strong></span> A knowledge-enhanced language model might:</p>
+<ol type="1">
+<li>Retrieve facts from a knowledge graph when generating text about specific entities</li>
+<li>Use entity types and relations to guide the generation process</li>
+<li>Check generated statements against the knowledge graph for factual accuracy</li>
+<li>Ground references to entities in the knowledge graph to ensure consistency</li>
+</ol>
+<p>For example, when generating a biography of a scientist, the model would retrieve and incorporate accurate facts about their birth date, education, discoveries, and awards from the knowledge graph.</p>
+</div>
+</section>
+<section id="joint-embedding-models-2" class="level3" data-number="14.7.3">
+<h3 data-number="14.7.3" class="anchored" data-anchor-id="joint-embedding-models-2"><span class="header-section-number">14.7.3</span> Joint embedding models</h3>
+<p>Joint embedding models integrate language models and knowledge graphs:</p>
+<div id="def-joint-llm-kg" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.47 (Joint language model and knowledge graph embeddings)</strong></span> <strong>Joint embedding approaches</strong>:</p>
+<ol type="1">
+<li>Learn representations that capture both linguistic and structural knowledge</li>
+<li>Align embeddings between language models and knowledge graphs</li>
+<li>Enable transfer learning between the two domains</li>
+<li>Support both language understanding and graph reasoning tasks</li>
+</ol>
+<p>Examples include KEPLER (Wang et al., 2021) and StAR (Wang et al., 2021).</p>
+</div>
+<div id="exm-joint-embedding-llm" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.35 (Joint embedding example)</strong></span> The KEPLER model:</p>
+<ol type="1">
+<li>Uses a language model (RoBERTa) as the text encoder</li>
+<li>Encodes entity descriptions to produce entity embeddings</li>
+<li>Trains jointly on both a masked language modeling objective and a knowledge embedding objective (TransE)</li>
+<li>Results in embeddings that work well for both NLP tasks and knowledge graph completion</li>
+</ol>
+<p>This allows the model to leverage both the broad knowledge in the language model and the structured information in the knowledge graph.</p>
+</div>
+</section>
+<section id="neuro-symbolic-integration" class="level3" data-number="14.7.4">
+<h3 data-number="14.7.4" class="anchored" data-anchor-id="neuro-symbolic-integration"><span class="header-section-number">14.7.4</span> Neuro-symbolic integration</h3>
+<p>Neuro-symbolic approaches combine neural language models with symbolic knowledge graph reasoning:</p>
+<div id="def-neuro-symbolic" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.48 (Neuro-symbolic integration)</strong></span> <strong>Neuro-symbolic approaches</strong>:</p>
+<ol type="1">
+<li>Combine neural components (LLMs) with symbolic components (knowledge graphs and logical reasoning)</li>
+<li>Use neural models for perception and pattern recognition</li>
+<li>Use symbolic systems for explicit reasoning and consistency</li>
+<li>Integrate the strengths of both paradigms</li>
+</ol>
+<p>Examples include Neural LP (Yang et al., 2017) and NeuralLog (Weber et al., 2019).</p>
+</div>
+<div id="exm-neuro-symbolic" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.36 (Neuro-symbolic example)</strong></span> In a medical diagnosis system:</p>
+<ol type="1">
+<li>An LLM processes patient descriptions and medical records to extract symptoms and conditions</li>
+<li>These are mapped to entities in a medical knowledge graph</li>
+<li>Symbolic reasoning over the knowledge graph identifies potential diagnoses based on known relationships between symptoms and diseases</li>
+<li>The LLM generates natural language explanations of the reasoning process and diagnostic recommendations</li>
+</ol>
+<p>This combines the language understanding capabilities of the LLM with the precise, rule-based reasoning of the knowledge graph.</p>
+</div>
+</section>
+<section id="fact-verification-and-hallucination-reduction" class="level3" data-number="14.7.5">
+<h3 data-number="14.7.5" class="anchored" data-anchor-id="fact-verification-and-hallucination-reduction"><span class="header-section-number">14.7.5</span> Fact verification and hallucination reduction</h3>
+<p>Knowledge graphs can help address the hallucination problem in large language models:</p>
+<div id="def-fact-verification" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.49 (Fact verification and hallucination reduction)</strong></span> <strong>Using knowledge graphs for fact verification</strong>:</p>
+<ol type="1">
+<li>Check LLM-generated statements against a trusted knowledge graph</li>
+<li>Identify and correct factual errors in generated content</li>
+<li>Ground LLM outputs in verified knowledge</li>
+<li>Provide citations or sources for generated facts</li>
+</ol>
+<p>This approach helps mitigate the tendency of LLMs to generate plausible but incorrect information.</p>
+</div>
+<div id="exm-fact-verification" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.37 (Fact verification example)</strong></span> When an LLM generates the statement “Albert Einstein won the Nobel Prize in Physics in 1921 for his theory of relativity,” a fact verification system would:</p>
+<ol type="1">
+<li>Break this into atomic claims (Einstein won Nobel Prize, it was in Physics, it was in 1921, it was for theory of relativity)</li>
+<li>Check each claim against the knowledge graph</li>
+<li>Identify that Einstein did win the Nobel Prize in Physics in 1921, but it was for his explanation of the photoelectric effect, not for relativity</li>
+<li>Correct the statement with the accurate information</li>
+</ol>
+<p>This process ensures that generated content remains factually accurate, even for complex statements with multiple components.</p>
+</div>
+</section>
+</section>
+<section id="future-research-directions" class="level2" data-number="14.8">
+<h2 data-number="14.8" class="anchored" data-anchor-id="future-research-directions"><span class="header-section-number">14.8</span> Future research directions</h2>
+<p>Knowledge graph embedding research continues to evolve rapidly. Here, we highlight some promising future directions:</p>
+<section id="few-shot-and-zero-shot-learning" class="level3" data-number="14.8.1">
+<h3 data-number="14.8.1" class="anchored" data-anchor-id="few-shot-and-zero-shot-learning"><span class="header-section-number">14.8.1</span> Few-shot and zero-shot learning</h3>
+<p>Developing models that can generalize from limited examples is a key research area:</p>
+<div id="def-few-shot" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.50 (Few-shot and zero-shot learning)</strong></span> <strong>Few-shot and zero-shot approaches</strong>:</p>
+<ol type="1">
+<li><strong>Few-shot learning</strong>: Learning from a small number of examples for new relations or entity types</li>
+<li><strong>Zero-shot learning</strong>: Generalizing to entirely new relations or entity types without any direct examples</li>
+<li><strong>Meta-learning</strong>: Learning how to learn from limited data</li>
+<li><strong>Transfer learning</strong>: Applying knowledge from well-represented areas to sparse areas</li>
+</ol>
+<p>These approaches aim to address the cold-start problem and enable more flexible knowledge graph applications.</p>
+</div>
+<div id="exm-few-shot" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.38 (Few-shot learning example)</strong></span> A few-shot learning approach might:</p>
+<ol type="1">
+<li>Learn a new relation type “discovered_by” from just 5 examples of scientist-discovery pairs</li>
+<li>Apply this knowledge to correctly identify hundreds of other scientist-discovery relationships</li>
+<li>Leverage similarities to known relation types like “invented_by” or “created_by”</li>
+<li>Use textual descriptions of relations to understand their semantics</li>
+</ol>
+<p>This would allow rapid extension of knowledge graphs to new domains without requiring extensive manual annotation.</p>
+</div>
+</section>
+<section id="graph-foundation-models" class="level3" data-number="14.8.2">
+<h3 data-number="14.8.2" class="anchored" data-anchor-id="graph-foundation-models"><span class="header-section-number">14.8.2</span> Graph foundation models</h3>
+<p>Building on the success of foundation models in NLP and vision, graph foundation models are emerging:</p>
+<div id="def-graph-foundation" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.51 (Graph foundation models)</strong></span> <strong>Graph foundation models</strong>:</p>
+<ol type="1">
+<li>Pre-train on large-scale graph data across multiple domains</li>
+<li>Learn general graph representations that transfer across tasks and domains</li>
+<li>Support fine-tuning for specific downstream applications</li>
+<li>Integrate multiple modalities and knowledge types</li>
+</ol>
+<p>These models aim to provide a general-purpose foundation for graph-based tasks, similar to how models like GPT and BERT serve as foundations for NLP tasks.</p>
+</div>
+<div id="exm-graph-foundation" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.39 (Graph foundation model example)</strong></span> A graph foundation model might:</p>
+<ol type="1">
+<li>Pre-train on a diverse collection of knowledge graphs from different domains</li>
+<li>Learn general patterns of entity relationships and graph structure</li>
+<li>Fine-tune for specific tasks like drug discovery, social network analysis, or recommendation systems</li>
+<li>Transfer knowledge between domains (e.g., applying patterns learned from social networks to protein interaction networks)</li>
+</ol>
+<p>This approach would reduce the need for domain-specific model development and leverage cross-domain knowledge.</p>
+</div>
+</section>
+<section id="ethical-considerations-and-bias-mitigation" class="level3" data-number="14.8.3">
+<h3 data-number="14.8.3" class="anchored" data-anchor-id="ethical-considerations-and-bias-mitigation"><span class="header-section-number">14.8.3</span> Ethical considerations and bias mitigation</h3>
+<p>Addressing ethical concerns in knowledge graph embeddings is increasingly important:</p>
+<div id="def-ethical-kg" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.52 (Ethical considerations and bias mitigation)</strong></span> <strong>Ethical research directions</strong>:</p>
+<ol type="1">
+<li><strong>Bias detection</strong>: Identifying and measuring biases in knowledge graph embeddings</li>
+<li><strong>Fairness-aware embeddings</strong>: Developing embedding methods that reduce or eliminate harmful biases</li>
+<li><strong>Transparency</strong>: Creating more interpretable models with explainable predictions</li>
+<li><strong>Privacy-preserving embeddings</strong>: Protecting sensitive information while maintaining utility</li>
+<li><strong>Accountability</strong>: Establishing mechanisms for monitoring and addressing issues in deployed systems</li>
+</ol>
+</div>
+<div id="exm-ethical-kg" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.40 (Ethical considerations example)</strong></span> A fairness-aware knowledge graph embedding approach might:</p>
+<ol type="1">
+<li>Detect that certain professions are stereotypically associated with specific genders in the embedding space</li>
+<li>Apply debiasing techniques to reduce these associations</li>
+<li>Evaluate the impact of debiasing on both fairness metrics and task performance</li>
+<li>Provide transparent explanations of how the debiasing process works</li>
+</ol>
+<p>This ensures that knowledge graph applications don’t perpetuate or amplify existing societal biases.</p>
+</div>
+</section>
+<section id="integration-with-scientific-discovery" class="level3" data-number="14.8.4">
+<h3 data-number="14.8.4" class="anchored" data-anchor-id="integration-with-scientific-discovery"><span class="header-section-number">14.8.4</span> Integration with scientific discovery</h3>
+<p>Knowledge graph embeddings are increasingly used for scientific discovery:</p>
+<div id="def-scientific-discovery" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.53 (Knowledge graph embeddings for scientific discovery)</strong></span> <strong>Scientific discovery applications</strong>:</p>
+<ol type="1">
+<li><strong>Drug discovery</strong>: Predicting novel drug-target interactions</li>
+<li><strong>Materials science</strong>: Identifying new materials with desired properties</li>
+<li><strong>Disease understanding</strong>: Uncovering relationships between genes, proteins, and diseases</li>
+<li><strong>Literature-based discovery</strong>: Finding implicit connections across scientific publications</li>
+<li><strong>Hypothesis generation</strong>: Suggesting promising research directions based on existing knowledge</li>
+</ol>
+</div>
+<div id="exm-scientific-discovery" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.41 (Scientific discovery example)</strong></span> In drug repurposing:</p>
+<ol type="1">
+<li>A knowledge graph contains information about drugs, diseases, proteins, biological pathways, and side effects</li>
+<li>Knowledge graph embedding models learn the complex relationships between these entities</li>
+<li>The model predicts potential interactions between existing drugs and previously untreated diseases</li>
+<li>These predictions guide experimental validation, potentially leading to new therapeutic applications</li>
+</ol>
+<p>This approach has already led to several successful drug repurposing discoveries, accelerating the traditional drug development process.</p>
+</div>
+</section>
+<section id="federated-and-decentralized-knowledge-graphs" class="level3" data-number="14.8.5">
+<h3 data-number="14.8.5" class="anchored" data-anchor-id="federated-and-decentralized-knowledge-graphs"><span class="header-section-number">14.8.5</span> Federated and decentralized knowledge graphs</h3>
+<p>Decentralized approaches to knowledge graphs are gaining attention:</p>
+<div id="def-federated-kg" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.54 (Federated and decentralized knowledge graphs)</strong></span> <strong>Federated and decentralized approaches</strong>:</p>
+<ol type="1">
+<li><strong>Federated learning</strong>: Training embedding models across distributed knowledge graphs without centralizing data</li>
+<li><strong>Decentralized knowledge graphs</strong>: Creating interoperable networks of knowledge graphs</li>
+<li><strong>Privacy-preserving collaboration</strong>: Enabling organizations to collaborate without sharing sensitive data</li>
+<li><strong>Blockchain integration</strong>: Using distributed ledger technology to track provenance and updates</li>
+</ol>
+<p>These approaches enable broader knowledge sharing while addressing privacy and ownership concerns.</p>
+</div>
+<div id="exm-federated-kg" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.42 (Federated knowledge graph example)</strong></span> In healthcare:</p>
+<ol type="1">
+<li>Multiple hospitals maintain their own patient knowledge graphs with privacy restrictions</li>
+<li>A federated learning approach trains a shared embedding model without transferring patient data</li>
+<li>Each hospital benefits from the collective knowledge while keeping its data local</li>
+<li>The resulting model can identify patterns (e.g., drug interactions, treatment outcomes) across a much larger and more diverse patient population than any single hospital could access</li>
+</ol>
+<p>This enables knowledge sharing for public benefit while protecting patient privacy.</p>
+</div>
+</section>
+<section id="quantum-computing-for-knowledge-graph-embeddings" class="level3" data-number="14.8.6">
+<h3 data-number="14.8.6" class="anchored" data-anchor-id="quantum-computing-for-knowledge-graph-embeddings"><span class="header-section-number">14.8.6</span> Quantum computing for knowledge graph embeddings</h3>
+<p>Quantum computing offers potential advantages for knowledge graph embeddings:</p>
+<div id="def-quantum-kg" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 14.55 (Quantum computing for knowledge graph embeddings)</strong></span> <strong>Quantum approaches</strong>:</p>
+<ol type="1">
+<li><strong>Quantum embeddings</strong>: Representing entities and relations as quantum states</li>
+<li><strong>Quantum algorithms</strong>: Using quantum algorithms for more efficient training and inference</li>
+<li><strong>Quantum superposition</strong>: Leveraging superposition to represent multiple relationship paths simultaneously</li>
+<li><strong>Quantum entanglement</strong>: Modeling complex dependencies between entities</li>
+</ol>
+<p>While still largely theoretical, quantum approaches could eventually offer significant advantages for large-scale knowledge graphs.</p>
+</div>
+<div id="exm-quantum-kg" class="theorem example">
+<p><span class="theorem-title"><strong>Example 14.43 (Quantum knowledge graph example)</strong></span> A quantum approach to knowledge graph embedding might:</p>
+<ol type="1">
+<li>Represent entities as quantum states in a high-dimensional Hilbert space</li>
+<li>Model relations as quantum operations that transform these states</li>
+<li>Use quantum parallelism to evaluate multiple relationship paths simultaneously</li>
+<li>Leverage quantum algorithms like Grover’s search for more efficient queries</li>
+</ol>
+<p>This could potentially enable handling of much larger and more complex knowledge graphs than classical approaches.</p>
+</div>
+</section>
+</section>
+<section id="summary" class="level2" data-number="14.9">
+<h2 data-number="14.9" class="anchored" data-anchor-id="summary"><span class="header-section-number">14.9</span> Summary</h2>
+<p>In this chapter, we’ve explored advanced topics and research frontiers in knowledge graph embeddings, showcasing the dynamic and evolving nature of this field.</p>
+<p>We began by examining inductive learning approaches that enable generalization to previously unseen entities and relations, addressing a key limitation of traditional transductive models. We then discussed uncertainty quantification and explainability, which are crucial for deploying knowledge graph embeddings in real-world applications where transparency and reliability are essential.</p>
+<p>We explored specialized embedding approaches for temporal, hierarchical, and multi-modal knowledge graphs, showing how these models can capture more complex forms of knowledge. We also examined the growing integration between knowledge graph embeddings and large language models, highlighting the complementary strengths of these approaches and how they can be combined.</p>
+<p>Finally, we surveyed promising future research directions, including few-shot learning, graph foundation models, ethical considerations, scientific discovery applications, federated approaches, and potential quantum computing applications.</p>
+<p>These advanced topics represent the cutting edge of knowledge graph embedding research and point toward a future where knowledge graph embeddings will play an increasingly important role in AI systems, scientific discovery, and many other domains.</p>
+</section>
+<section id="further-reading" class="level2" data-number="14.10">
+<h2 data-number="14.10" class="anchored" data-anchor-id="further-reading"><span class="header-section-number">14.10</span> Further reading</h2>
+<section id="inductive-learning-and-uncertainty" class="level3" data-number="14.10.1">
+<h3 data-number="14.10.1" class="anchored" data-anchor-id="inductive-learning-and-uncertainty"><span class="header-section-number">14.10.1</span> Inductive learning and uncertainty</h3>
+<ul>
+<li>Teru, K., Denis, E., &amp; Hamilton, W. (2020). Inductive Relation Prediction by Subgraph Reasoning. In International Conference on Machine Learning (pp.&nbsp;9448-9457).</li>
+<li>Chen, M., Zhang, W., Zhang, W., Chen, Q., &amp; Chen, H. (2019). Meta Relational Learning for Few-Shot Link Prediction in Knowledge Graphs. In Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing (pp.&nbsp;4216-4225).</li>
+<li>He, S., Liu, K., Ji, G., &amp; Zhao, J. (2015). Learning to Represent Knowledge Graphs with Gaussian Embedding. In Proceedings of the 24th ACM International Conference on Information and Knowledge Management (pp.&nbsp;623-632).</li>
+<li>Chen, X., Chen, M., Shi, W., Sun, Y., &amp; Zaniolo, C. (2019). Embedding Uncertain Knowledge Graphs. In AAAI Conference on Artificial Intelligence (pp.&nbsp;3363-3370).</li>
+</ul>
+</section>
+<section id="explainability-and-hierarchical-embedding" class="level3" data-number="14.10.2">
+<h3 data-number="14.10.2" class="anchored" data-anchor-id="explainability-and-hierarchical-embedding"><span class="header-section-number">14.10.2</span> Explainability and hierarchical embedding</h3>
+<ul>
+<li>Zhang, Z., Wang, X., Zhang, P., Chen, Z., &amp; Li, Z. (2020). Autosf: Searching scoring functions for knowledge graph embedding. In International Conference on Data Engineering (pp.&nbsp;433-444).</li>
+<li>Lin, Y., Liu, Z., Luan, H., Sun, M., Rao, S., &amp; Liu, S. (2015). Modeling Relation Paths for Representation Learning of Knowledge Bases. In Proceedings of the 2015 Conference on Empirical Methods in Natural Language Processing (pp.&nbsp;705-714).</li>
+<li>Nickel, M., &amp; Kiela, D. (2017). Poincaré Embeddings for Learning Hierarchical Representations. In Advances in Neural Information Processing Systems (pp.&nbsp;6338-6347).</li>
+<li>Chen, J., Zhang, H., Chen, X., Deng, O., Chen, Z., &amp; Ye, Z. (2021). OWL2Vec*: Embedding of OWL Ontologies. Machine Learning, 110, 1813-1845.</li>
+</ul>
+</section>
+<section id="temporal-and-multi-modal-knowledge-graphs" class="level3" data-number="14.10.3">
+<h3 data-number="14.10.3" class="anchored" data-anchor-id="temporal-and-multi-modal-knowledge-graphs"><span class="header-section-number">14.10.3</span> Temporal and multi-modal knowledge graphs</h3>
+<ul>
+<li>Lacroix, T., Obozinski, G., &amp; Usunier, N. (2020). Tensor Decompositions for Temporal Knowledge Base Completion. In International Conference on Learning Representations.</li>
+<li>Goel, R., Kazemi, S. M., Brubaker, M., &amp; Poupart, P. (2020). Diachronic Embedding for Temporal Knowledge Graph Completion. In AAAI Conference on Artificial Intelligence (pp.&nbsp;3988-3995).</li>
+<li>Xie, R., Liu, Z., Jia, H., Luan, H., &amp; Sun, M. (2017). Representation Learning of Knowledge Graphs with Entity Descriptions. In AAAI Conference on Artificial Intelligence (pp.&nbsp;2659-2665).</li>
+<li>Pezeshkpour, P., Chen, L., &amp; Singh, S. (2018). Embedding Multimodal Relational Data for Knowledge Base Completion. In Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing (pp.&nbsp;3208-3218).</li>
+</ul>
+</section>
+<section id="llms-and-future-directions" class="level3" data-number="14.10.4">
+<h3 data-number="14.10.4" class="anchored" data-anchor-id="llms-and-future-directions"><span class="header-section-number">14.10.4</span> LLMs and future directions</h3>
+<ul>
+<li>Wang, X., Gao, T., Zhu, Z., Zhang, Z., Liu, Z., Li, J., &amp; Tang, J. (2021). KEPLER: A Unified Model for Knowledge Embedding and Pre-trained Language Representation. Transactions of the Association for Computational Linguistics, 9, 176-194.</li>
+<li>Zhang, Z., Han, X., Liu, Z., Jiang, X., Sun, M., &amp; Liu, Q. (2019). ERNIE: Enhanced Language Representation with Informative Entities. In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics (pp.&nbsp;1441-1451).</li>
+<li>Wang, B., Xu, T., Dong, J., Xu, Z., Feng, J., Zhao, D., &amp; Wang, Y. (2022). Graph Neural Networks for Link Prediction with Subgraph Sketching. In Proceedings of the AAAI Conference on Artificial Intelligence (pp.&nbsp;4151-4159).</li>
+<li>Ji, S., Pan, S., Cambria, E., Marttinen, P., &amp; Yu, P. S. (2021). A Survey on Knowledge Graphs: Representation, Acquisition, and Applications. IEEE Transactions on Neural Networks and Learning Systems, 33(2), 494-514.</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation column-body">
+  <div class="nav-page nav-page-previous">
+      <a href="../content/implementation.html" class="pagination-link" aria-label="Implementing Knowledge Graph Embedding Systems">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Implementing Knowledge Graph Embedding Systems</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../content/appendix-a.html" class="pagination-link" aria-label="Appendix A: Mathematical Foundations">
+        <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Appendix A: Mathematical Foundations</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="https://tuedsci.github.io/">© Tue Nguyen</a></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

@@ -824,8 +824,6 @@ Consider different knowledge graph scenarios:
 
 Let's examine the empirical performance of advanced models on standard benchmark datasets:
 
-::: {#def-performance-comparison}
-
 ## Performance comparison (Hits@10 in %)
 
 | Model   | FB15k | WN18 | FB15k-237 | WN18RR |
@@ -838,8 +836,6 @@ Let's examine the empirical performance of advanced models on standard benchmark
 | KBAT    | 89.2  | 98.0 | 58.1      | 62.8   |
 | KG-BERT | -     | -    | 42.0      | 52.4   |
 | CompGCN | 87.9  | 95.3 | 53.5      | 54.6   |
-
-:::
 
 These results show the evolution of performance as models have become more sophisticated. Attention-based and graph neural network models tend to perform particularly well on recent benchmarks like FB15k-237 and WN18RR.
 
@@ -862,8 +858,6 @@ This suggests that for challenging knowledge graph completion tasks, models that
 
 While advanced models offer improved performance, they often come with increased computational costs:
 
-::: {#def-computational-efficiency}
-
 ## Computational efficiency comparison
 
 | Model   | Parameters                  | Training Time | Inference Time |
@@ -876,8 +870,6 @@ While advanced models offer improved performance, they often come with increased
 | KBAT    | $O(                         | E             | d +            | R   | d + a)$ | High        | Medium      |
 | KG-BERT | $O(p)$ (pre-trained params) | Very High     | Very High      |
 | CompGCN | $O(                         | E             | d +            | R   | d + g)$ | High        | Medium      |
-
-:::
 
 Where $c$, $a$, and $g$ are model-specific constants for convolutional, attention, and graph neural network parameters, respectively, and $p$ represents the parameters of the pre-trained language model.
 

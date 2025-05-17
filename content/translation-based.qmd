@@ -596,8 +596,6 @@ This evolution shows how each model addressed limitations of its predecessors.
 
 Different translation-based models have different capabilities for modeling relation patterns:
 
-::: {#def-pattern-capabilities}
-
 ## Model capabilities for relation patterns
 
 | Relation Pattern | TransE | TransH | TransR | TransD | RotatE |
@@ -610,8 +608,6 @@ Different translation-based models have different capabilities for modeling rela
 | Antisymmetry     | Strong | Strong | Strong | Strong | Strong |
 | Inversion        | Medium | Medium | Medium | Medium | Strong |
 | Composition      | Medium | Medium | Medium | Medium | Strong |
-
-:::
 
 Understanding these capabilities helps in selecting the appropriate model for specific knowledge graphs based on the prevalent relation patterns.
 
@@ -805,8 +801,6 @@ If the model ranks Paris as the 3rd entity (with Rome and Berlin incorrectly ran
 
 Based on published results, here's a comparison of translation-based models on benchmark datasets:
 
-::: {#def-comparative-results}
-
 ## Performance comparison (Hits@10 in %)
 
 | Model  | FB15k | WN18 | FB15k-237 | WN18RR |
@@ -816,8 +810,6 @@ Based on published results, here's a comparison of translation-based models on b
 | TransR | 68.7  | 92.0 | 40.8      | 43.2   |
 | TransD | 77.3  | 92.2 | 41.2      | 43.5   |
 | RotatE | 83.1  | 95.9 | 47.6      | 57.1   |
-
-:::
 
 These results show a general trend of improved performance with more sophisticated models, with RotatE achieving the best results across datasets.
 

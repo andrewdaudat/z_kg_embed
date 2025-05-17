@@ -23,22 +23,22 @@ book:
   # Chapters
   chapters:
     - index.qmd
-    # - content/summary.qmd
-    # - content/outline.qmd
+    - content/summary.qmd
+    - content/outline.qmd
     - content/intro.qmd
-    # - content/embedding.qmd
-    # - content/translation-based.qmd
-    # - content/semantic-matching.qmd
-    # - content/rotation-nn.qmd
-    # - content/training.qmd
-    # - content/evaluation.qmd
-    # - content/additional-knowledge.qmd
-    # - content/reasoning.qmd
-    # - content/applications.qmd
-    # - content/implementation.qmd
-    # - content/frontier.qmd
-    # - content/appendix-a.qmd
-    # - content/appendix-b.qmd
+    - content/embedding.qmd
+    - content/translation-based.qmd
+    - content/semantic-matching.qmd
+    - content/rotation-nn.qmd
+    - content/training.qmd
+    - content/evaluation.qmd
+    - content/additional-knowledge.qmd
+    - content/reasoning.qmd
+    - content/applications.qmd
+    - content/implementation.qmd
+    - content/frontier.qmd
+    - content/appendix-a.qmd
+    - content/appendix-b.qmd
 
 format:
   html:

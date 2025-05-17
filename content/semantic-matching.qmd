@@ -344,9 +344,17 @@ Consider a relation `"is_part_of"` with a complex embedding $\mathbf{r}_{\text{i
 
 For symmetric parts of the relation, the imaginary components would be close to zero, while for antisymmetric parts, the imaginary components would have larger magnitudes.
 
-When computing the score of (Hand, is*part_of, Body), the complex conjugate of the tail entity introduces asymmetry: $f*{\text{is_part_of}}(\text{Hand}, \text{Body}) = \text{Re}(\langle \mathbf{Hand}, \mathbf{is_part_of}, \overline{\mathbf{Body}} \rangle)$
+When computing the score of `(Hand, is_part_of, Body)`, the complex conjugate of the tail entity introduces asymmetry:
 
-This score would be different from: $f_{\text{is\_part\_of}}(\text{Body}, \text{Hand}) = \text{Re}(\langle \mathbf{Body}, \mathbf{is\_part\_of}, \overline{\mathbf{Hand}} \rangle)$
+$$
+f_{\text{is_part_of}}(\text{Hand}, \text{Body}) = \text{Re}(\langle \mathbf{Hand}, \mathbf{is_part_of}, \overline{\mathbf{Body}} \rangle)
+$$
+
+This score would be different from:
+
+$$
+f_{\text{is\_part\_of}}(\text{Body}, \text{Hand}) = \text{Re}(\langle \mathbf{Body}, \mathbf{is\_part\_of}, \overline{\mathbf{Hand}} \rangle)
+$$
 
 allowing the model to distinguish between these two cases.
 

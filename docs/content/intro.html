@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>3&nbsp; Introduction to Knowledge Graphs and Representations – Knowledge Graph Embeddings for Link Prediction and Reasoning</title>
+<title>1&nbsp; Introduction to Knowledge Graphs and Representations – Knowledge Graph Embeddings for Link Prediction and Reasoning</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,8 +30,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../content/embedding.html" rel="next">
-<link href="../content/outline.html" rel="prev">
+<link href="../index.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -70,6 +69,35 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -82,7 +110,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../content/intro.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Introduction to Knowledge Graphs and Representations</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../content/intro.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Knowledge Graphs and Representations</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -115,98 +143,8 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../content/summary.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Summary</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../content/outline.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Outline</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../content/intro.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Introduction to Knowledge Graphs and Representations</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../content/embedding.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Fundamentals of Vector Space Representations</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../content/translation-based.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Translation-Based Embedding Models</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../content/semantic-matching.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Semantic Matching Models</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../content/rotation-nn.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Advanced Models: Rotations and Neural Networks</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../content/training.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Training and Optimization Techniques</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../content/evaluation.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Evaluation Methodologies and Benchmarks</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../content/additional-knowledge.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Incorporating Additional Information</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../content/reasoning.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Reasoning with Knowledge Graph Embeddings</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../content/applications.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Practical Applications and Case Studies</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../content/implementation.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Implementing Knowledge Graph Embedding Systems</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../content/frontier.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Advanced Topics and Research Frontiers</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../content/appendix-a.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Appendix A: Mathematical Foundations</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../content/appendix-b.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Appendix B: Resources and Tools</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Knowledge Graphs and Representations</span></span></a>
   </div>
 </li>
     </ul>
@@ -219,53 +157,53 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#what-are-graphs" id="toc-what-are-graphs" class="nav-link active" data-scroll-target="#what-are-graphs"><span class="header-section-number">3.1</span> What are graphs?</a>
+  <li><a href="#what-are-graphs" id="toc-what-are-graphs" class="nav-link active" data-scroll-target="#what-are-graphs"><span class="header-section-number">1.1</span> What are graphs?</a>
   <ul class="collapse">
-  <li><a href="#types-of-graphs" id="toc-types-of-graphs" class="nav-link" data-scroll-target="#types-of-graphs"><span class="header-section-number">3.1.1</span> Types of graphs</a></li>
+  <li><a href="#types-of-graphs" id="toc-types-of-graphs" class="nav-link" data-scroll-target="#types-of-graphs"><span class="header-section-number">1.1.1</span> Types of graphs</a></li>
   </ul></li>
-  <li><a href="#knowledge-graphs-definition-and-components" id="toc-knowledge-graphs-definition-and-components" class="nav-link" data-scroll-target="#knowledge-graphs-definition-and-components"><span class="header-section-number">3.2</span> Knowledge graphs: definition and components</a>
+  <li><a href="#knowledge-graphs-definition-and-components" id="toc-knowledge-graphs-definition-and-components" class="nav-link" data-scroll-target="#knowledge-graphs-definition-and-components"><span class="header-section-number">1.2</span> Knowledge graphs: definition and components</a>
   <ul class="collapse">
-  <li><a href="#special-types-of-knowledge-graphs" id="toc-special-types-of-knowledge-graphs" class="nav-link" data-scroll-target="#special-types-of-knowledge-graphs"><span class="header-section-number">3.2.1</span> Special types of knowledge graphs</a></li>
+  <li><a href="#special-types-of-knowledge-graphs" id="toc-special-types-of-knowledge-graphs" class="nav-link" data-scroll-target="#special-types-of-knowledge-graphs"><span class="header-section-number">1.2.1</span> Special types of knowledge graphs</a></li>
   </ul></li>
-  <li><a href="#real-world-knowledge-graphs" id="toc-real-world-knowledge-graphs" class="nav-link" data-scroll-target="#real-world-knowledge-graphs"><span class="header-section-number">3.3</span> Real-world knowledge graphs</a>
+  <li><a href="#real-world-knowledge-graphs" id="toc-real-world-knowledge-graphs" class="nav-link" data-scroll-target="#real-world-knowledge-graphs"><span class="header-section-number">1.3</span> Real-world knowledge graphs</a>
   <ul class="collapse">
-  <li><a href="#public-knowledge-graphs" id="toc-public-knowledge-graphs" class="nav-link" data-scroll-target="#public-knowledge-graphs"><span class="header-section-number">3.3.1</span> Public knowledge graphs</a></li>
-  <li><a href="#commercial-knowledge-graphs" id="toc-commercial-knowledge-graphs" class="nav-link" data-scroll-target="#commercial-knowledge-graphs"><span class="header-section-number">3.3.2</span> Commercial knowledge graphs</a></li>
+  <li><a href="#public-knowledge-graphs" id="toc-public-knowledge-graphs" class="nav-link" data-scroll-target="#public-knowledge-graphs"><span class="header-section-number">1.3.1</span> Public knowledge graphs</a></li>
+  <li><a href="#commercial-knowledge-graphs" id="toc-commercial-knowledge-graphs" class="nav-link" data-scroll-target="#commercial-knowledge-graphs"><span class="header-section-number">1.3.2</span> Commercial knowledge graphs</a></li>
   </ul></li>
-  <li><a href="#applications-of-knowledge-graphs" id="toc-applications-of-knowledge-graphs" class="nav-link" data-scroll-target="#applications-of-knowledge-graphs"><span class="header-section-number">3.4</span> Applications of knowledge graphs</a>
+  <li><a href="#applications-of-knowledge-graphs" id="toc-applications-of-knowledge-graphs" class="nav-link" data-scroll-target="#applications-of-knowledge-graphs"><span class="header-section-number">1.4</span> Applications of knowledge graphs</a>
   <ul class="collapse">
-  <li><a href="#search-and-question-answering" id="toc-search-and-question-answering" class="nav-link" data-scroll-target="#search-and-question-answering"><span class="header-section-number">3.4.1</span> Search and question answering</a></li>
-  <li><a href="#recommendation-systems" id="toc-recommendation-systems" class="nav-link" data-scroll-target="#recommendation-systems"><span class="header-section-number">3.4.2</span> Recommendation systems</a></li>
-  <li><a href="#virtual-assistants-and-conversational-ai" id="toc-virtual-assistants-and-conversational-ai" class="nav-link" data-scroll-target="#virtual-assistants-and-conversational-ai"><span class="header-section-number">3.4.3</span> Virtual assistants and conversational AI</a></li>
-  <li><a href="#data-integration" id="toc-data-integration" class="nav-link" data-scroll-target="#data-integration"><span class="header-section-number">3.4.4</span> Data integration</a></li>
+  <li><a href="#search-and-question-answering" id="toc-search-and-question-answering" class="nav-link" data-scroll-target="#search-and-question-answering"><span class="header-section-number">1.4.1</span> Search and question answering</a></li>
+  <li><a href="#recommendation-systems" id="toc-recommendation-systems" class="nav-link" data-scroll-target="#recommendation-systems"><span class="header-section-number">1.4.2</span> Recommendation systems</a></li>
+  <li><a href="#virtual-assistants-and-conversational-ai" id="toc-virtual-assistants-and-conversational-ai" class="nav-link" data-scroll-target="#virtual-assistants-and-conversational-ai"><span class="header-section-number">1.4.3</span> Virtual assistants and conversational AI</a></li>
+  <li><a href="#data-integration" id="toc-data-integration" class="nav-link" data-scroll-target="#data-integration"><span class="header-section-number">1.4.4</span> Data integration</a></li>
   </ul></li>
-  <li><a href="#the-challenge-of-incomplete-knowledge-graphs" id="toc-the-challenge-of-incomplete-knowledge-graphs" class="nav-link" data-scroll-target="#the-challenge-of-incomplete-knowledge-graphs"><span class="header-section-number">3.5</span> The challenge of incomplete knowledge graphs</a></li>
-  <li><a href="#link-prediction-in-knowledge-graphs" id="toc-link-prediction-in-knowledge-graphs" class="nav-link" data-scroll-target="#link-prediction-in-knowledge-graphs"><span class="header-section-number">3.6</span> Link prediction in knowledge graphs</a></li>
-  <li><a href="#approaches-to-knowledge-graph-completion" id="toc-approaches-to-knowledge-graph-completion" class="nav-link" data-scroll-target="#approaches-to-knowledge-graph-completion"><span class="header-section-number">3.7</span> Approaches to knowledge graph completion</a>
+  <li><a href="#the-challenge-of-incomplete-knowledge-graphs" id="toc-the-challenge-of-incomplete-knowledge-graphs" class="nav-link" data-scroll-target="#the-challenge-of-incomplete-knowledge-graphs"><span class="header-section-number">1.5</span> The challenge of incomplete knowledge graphs</a></li>
+  <li><a href="#link-prediction-in-knowledge-graphs" id="toc-link-prediction-in-knowledge-graphs" class="nav-link" data-scroll-target="#link-prediction-in-knowledge-graphs"><span class="header-section-number">1.6</span> Link prediction in knowledge graphs</a></li>
+  <li><a href="#approaches-to-knowledge-graph-completion" id="toc-approaches-to-knowledge-graph-completion" class="nav-link" data-scroll-target="#approaches-to-knowledge-graph-completion"><span class="header-section-number">1.7</span> Approaches to knowledge graph completion</a>
   <ul class="collapse">
-  <li><a href="#rule-based-methods" id="toc-rule-based-methods" class="nav-link" data-scroll-target="#rule-based-methods"><span class="header-section-number">3.7.1</span> Rule-based methods</a></li>
-  <li><a href="#graph-based-methods" id="toc-graph-based-methods" class="nav-link" data-scroll-target="#graph-based-methods"><span class="header-section-number">3.7.2</span> Graph-based methods</a></li>
-  <li><a href="#embedding-based-methods" id="toc-embedding-based-methods" class="nav-link" data-scroll-target="#embedding-based-methods"><span class="header-section-number">3.7.3</span> Embedding-based methods</a></li>
+  <li><a href="#rule-based-methods" id="toc-rule-based-methods" class="nav-link" data-scroll-target="#rule-based-methods"><span class="header-section-number">1.7.1</span> Rule-based methods</a></li>
+  <li><a href="#graph-based-methods" id="toc-graph-based-methods" class="nav-link" data-scroll-target="#graph-based-methods"><span class="header-section-number">1.7.2</span> Graph-based methods</a></li>
+  <li><a href="#embedding-based-methods" id="toc-embedding-based-methods" class="nav-link" data-scroll-target="#embedding-based-methods"><span class="header-section-number">1.7.3</span> Embedding-based methods</a></li>
   </ul></li>
-  <li><a href="#representing-knowledge-symbolic-vs.-distributed-approaches" id="toc-representing-knowledge-symbolic-vs.-distributed-approaches" class="nav-link" data-scroll-target="#representing-knowledge-symbolic-vs.-distributed-approaches"><span class="header-section-number">3.8</span> Representing knowledge: symbolic vs.&nbsp;distributed approaches</a>
+  <li><a href="#representing-knowledge-symbolic-vs.-distributed-approaches" id="toc-representing-knowledge-symbolic-vs.-distributed-approaches" class="nav-link" data-scroll-target="#representing-knowledge-symbolic-vs.-distributed-approaches"><span class="header-section-number">1.8</span> Representing knowledge: symbolic vs.&nbsp;distributed approaches</a>
   <ul class="collapse">
-  <li><a href="#symbolic-representations" id="toc-symbolic-representations" class="nav-link" data-scroll-target="#symbolic-representations"><span class="header-section-number">3.8.1</span> Symbolic representations</a></li>
-  <li><a href="#distributed-representations" id="toc-distributed-representations" class="nav-link" data-scroll-target="#distributed-representations"><span class="header-section-number">3.8.2</span> Distributed representations</a></li>
+  <li><a href="#symbolic-representations" id="toc-symbolic-representations" class="nav-link" data-scroll-target="#symbolic-representations"><span class="header-section-number">1.8.1</span> Symbolic representations</a></li>
+  <li><a href="#distributed-representations" id="toc-distributed-representations" class="nav-link" data-scroll-target="#distributed-representations"><span class="header-section-number">1.8.2</span> Distributed representations</a></li>
   </ul></li>
-  <li><a href="#embedding-space-properties" id="toc-embedding-space-properties" class="nav-link" data-scroll-target="#embedding-space-properties"><span class="header-section-number">3.9</span> Embedding space properties</a>
+  <li><a href="#embedding-space-properties" id="toc-embedding-space-properties" class="nav-link" data-scroll-target="#embedding-space-properties"><span class="header-section-number">1.9</span> Embedding space properties</a>
   <ul class="collapse">
-  <li><a href="#dimensionality" id="toc-dimensionality" class="nav-link" data-scroll-target="#dimensionality"><span class="header-section-number">3.9.1</span> Dimensionality</a></li>
-  <li><a href="#distance-and-similarity-measures" id="toc-distance-and-similarity-measures" class="nav-link" data-scroll-target="#distance-and-similarity-measures"><span class="header-section-number">3.9.2</span> Distance and similarity measures</a></li>
-  <li><a href="#geometric-transformations" id="toc-geometric-transformations" class="nav-link" data-scroll-target="#geometric-transformations"><span class="header-section-number">3.9.3</span> Geometric transformations</a></li>
+  <li><a href="#dimensionality" id="toc-dimensionality" class="nav-link" data-scroll-target="#dimensionality"><span class="header-section-number">1.9.1</span> Dimensionality</a></li>
+  <li><a href="#distance-and-similarity-measures" id="toc-distance-and-similarity-measures" class="nav-link" data-scroll-target="#distance-and-similarity-measures"><span class="header-section-number">1.9.2</span> Distance and similarity measures</a></li>
+  <li><a href="#geometric-transformations" id="toc-geometric-transformations" class="nav-link" data-scroll-target="#geometric-transformations"><span class="header-section-number">1.9.3</span> Geometric transformations</a></li>
   </ul></li>
-  <li><a href="#scoring-functions-for-link-prediction" id="toc-scoring-functions-for-link-prediction" class="nav-link" data-scroll-target="#scoring-functions-for-link-prediction"><span class="header-section-number">3.10</span> Scoring functions for link prediction</a></li>
-  <li><a href="#the-link-prediction-task-formal-definition" id="toc-the-link-prediction-task-formal-definition" class="nav-link" data-scroll-target="#the-link-prediction-task-formal-definition"><span class="header-section-number">3.11</span> The link prediction task: formal definition</a></li>
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">3.12</span> Summary</a></li>
-  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading"><span class="header-section-number">3.13</span> Further reading</a>
+  <li><a href="#scoring-functions-for-link-prediction" id="toc-scoring-functions-for-link-prediction" class="nav-link" data-scroll-target="#scoring-functions-for-link-prediction"><span class="header-section-number">1.10</span> Scoring functions for link prediction</a></li>
+  <li><a href="#the-link-prediction-task-formal-definition" id="toc-the-link-prediction-task-formal-definition" class="nav-link" data-scroll-target="#the-link-prediction-task-formal-definition"><span class="header-section-number">1.11</span> The link prediction task: formal definition</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">1.12</span> Summary</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading"><span class="header-section-number">1.13</span> Further reading</a>
   <ul class="collapse">
-  <li><a href="#books-and-surveys" id="toc-books-and-surveys" class="nav-link" data-scroll-target="#books-and-surveys"><span class="header-section-number">3.13.1</span> Books and surveys</a></li>
-  <li><a href="#knowledge-graphs-and-applications" id="toc-knowledge-graphs-and-applications" class="nav-link" data-scroll-target="#knowledge-graphs-and-applications"><span class="header-section-number">3.13.2</span> Knowledge graphs and applications</a></li>
-  <li><a href="#embedding-models-introductions" id="toc-embedding-models-introductions" class="nav-link" data-scroll-target="#embedding-models-introductions"><span class="header-section-number">3.13.3</span> Embedding models introductions</a></li>
+  <li><a href="#books-and-surveys" id="toc-books-and-surveys" class="nav-link" data-scroll-target="#books-and-surveys"><span class="header-section-number">1.13.1</span> Books and surveys</a></li>
+  <li><a href="#knowledge-graphs-and-applications" id="toc-knowledge-graphs-and-applications" class="nav-link" data-scroll-target="#knowledge-graphs-and-applications"><span class="header-section-number">1.13.2</span> Knowledge graphs and applications</a></li>
+  <li><a href="#embedding-models-introductions" id="toc-embedding-models-introductions" class="nav-link" data-scroll-target="#embedding-models-introductions"><span class="header-section-number">1.13.3</span> Embedding models introductions</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -275,7 +213,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Introduction to Knowledge Graphs and Representations</span></h1>
+<h1 class="title"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to Knowledge Graphs and Representations</span></h1>
 </div>
 
 
@@ -295,46 +233,46 @@ ul.task-list li input[type="checkbox"] {
 <p>Knowledge has always been one of humanity’s most valuable resources. From ancient libraries to modern databases, we have continually developed better ways to store, organize, and retrieve information. In our digital age, the volume of available information has grown exponentially, creating both opportunities and challenges. How can we structure this vast sea of data to make it useful? How can machines process and reason with this information in ways that approach human understanding?</p>
 <p>Knowledge graphs represent one of the most promising solutions to these challenges. These structured representations organize information as a network of entities connected by relationships, providing a framework that is both human-interpretable and machine-processable. The concept has gained significant traction in recent years, with major technology companies like Google, Facebook, and Microsoft developing their own knowledge graph systems to power search engines, recommendation systems, and AI assistants.</p>
 <p>This chapter introduces the fundamental concepts of knowledge graphs, their representation, and the challenges they present. We’ll explore why knowledge graph completion—particularly through embedding techniques—has become such an important area of research. By the end of this chapter, you’ll have a solid foundation for understanding the more advanced embedding models and techniques presented in later chapters.</p>
-<section id="what-are-graphs" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="what-are-graphs"><span class="header-section-number">3.1</span> What are graphs?</h2>
+<section id="what-are-graphs" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="what-are-graphs"><span class="header-section-number">1.1</span> What are graphs?</h2>
 <p>Before diving into knowledge graphs specifically, let’s establish a common understanding of graphs in general. Graphs provide a powerful mathematical abstraction for representing relationships between entities.</p>
 <div id="def-graph" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.1 (Graph)</strong></span> A <strong>graph</strong> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>V</mi><mo>,</mo><mi>E</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">G = (V, E)</annotation></semantics></math> consists of:</p>
+<p><span class="theorem-title"><strong>Definition 1.1 (Graph)</strong></span> A <strong>graph</strong> <span class="math inline">\(G = (V, E)\)</span> consists of:</p>
 <ul>
-<li>A set of <strong>vertices</strong> (or <strong>nodes</strong>) <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math></li>
-<li>A set of <strong>edges</strong> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo>⊆</mo><mi>V</mi><mo>×</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">E \subseteq V \times V</annotation></semantics></math> that connect pairs of vertices</li>
+<li>A set of <strong>vertices</strong> (or <strong>nodes</strong>) <span class="math inline">\(V\)</span></li>
+<li>A set of <strong>edges</strong> <span class="math inline">\(E \subseteq V \times V\)</span> that connect pairs of vertices</li>
 </ul>
-<p>An edge <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>∈</mo><mi>E</mi></mrow><annotation encoding="application/x-tex">(u, v) \in E</annotation></semantics></math> indicates a relationship or connection between vertices <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>.</p>
+<p>An edge <span class="math inline">\((u, v) \in E\)</span> indicates a relationship or connection between vertices <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span>.</p>
 </div>
 <p>Graphs can be visualized as a collection of dots (vertices) connected by lines (edges). This intuitive visual representation makes graphs accessible even to those without a mathematical background.</p>
 <div id="exm-social-network" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.1 (Social network graph)</strong></span> Consider a simple social network where people are represented as vertices and friendships as edges. If we have users Alice, Bob, Charlie, Diana, and Elena, with friendships between (Alice, Bob), (Bob, Charlie), (Charlie, Diana), (Diana, Elena), and (Elena, Alice), we can represent this as a graph:</p>
+<p><span class="theorem-title"><strong>Example 1.1 (Social network graph)</strong></span> Consider a simple social network where people are represented as vertices and friendships as edges. If we have users Alice, Bob, Charlie, Diana, and Elena, with friendships between (Alice, Bob), (Bob, Charlie), (Charlie, Diana), (Diana, Elena), and (Elena, Alice), we can represent this as a graph:</p>
 <ul>
-<li>Vertices: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><mtext mathvariant="normal">Alice</mtext><mo>,</mo><mtext mathvariant="normal">Bob</mtext><mo>,</mo><mtext mathvariant="normal">Charlie</mtext><mo>,</mo><mtext mathvariant="normal">Diana</mtext><mo>,</mo><mtext mathvariant="normal">Elena</mtext><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">V = \{\text{Alice}, \text{Bob}, \text{Charlie}, \text{Diana}, \text{Elena}\}</annotation></semantics></math></li>
-<li>Edges: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">Alice</mtext><mo>,</mo><mtext mathvariant="normal">Bob</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">Bob</mtext><mo>,</mo><mtext mathvariant="normal">Charlie</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">Charlie</mtext><mo>,</mo><mtext mathvariant="normal">Diana</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">Diana</mtext><mo>,</mo><mtext mathvariant="normal">Elena</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">Elena</mtext><mo>,</mo><mtext mathvariant="normal">Alice</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">E = \{(\text{Alice}, \text{Bob}), (\text{Bob}, \text{Charlie}), (\text{Charlie}, \text{Diana}), (\text{Diana}, \text{Elena}), (\text{Elena}, \text{Alice})\}</annotation></semantics></math></li>
+<li>Vertices: <span class="math inline">\(V = \{\text{Alice}, \text{Bob}, \text{Charlie}, \text{Diana}, \text{Elena}\}\)</span></li>
+<li>Edges: <span class="math inline">\(E = \{(\text{Alice}, \text{Bob}), (\text{Bob}, \text{Charlie}), (\text{Charlie}, \text{Diana}), (\text{Diana}, \text{Elena}), (\text{Elena}, \text{Alice})\}\)</span></li>
 </ul>
 <p>This particular graph forms a cycle, where each person is friends with exactly two others, creating a circular friendship network.</p>
 </div>
-<section id="types-of-graphs" class="level3" data-number="3.1.1">
-<h3 data-number="3.1.1" class="anchored" data-anchor-id="types-of-graphs"><span class="header-section-number">3.1.1</span> Types of graphs</h3>
+<section id="types-of-graphs" class="level3" data-number="1.1.1">
+<h3 data-number="1.1.1" class="anchored" data-anchor-id="types-of-graphs"><span class="header-section-number">1.1.1</span> Types of graphs</h3>
 <p>Graphs come in various forms, each with properties suitable for different applications:</p>
 <div id="def-undirected-graph" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.2 (Undirected graph)</strong></span> An <strong>undirected graph</strong> is a graph where edges have no direction. If <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>∈</mo><mi>E</mi></mrow><annotation encoding="application/x-tex">(u, v) \in E</annotation></semantics></math>, then <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>v</mi><mo>,</mo><mi>u</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(v, u)</annotation></semantics></math> is also in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>, representing a symmetric relationship between <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>.</p>
+<p><span class="theorem-title"><strong>Definition 1.2 (Undirected graph)</strong></span> An <strong>undirected graph</strong> is a graph where edges have no direction. If <span class="math inline">\((u, v) \in E\)</span>, then <span class="math inline">\((v, u)\)</span> is also in <span class="math inline">\(E\)</span>, representing a symmetric relationship between <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span>.</p>
 </div>
 <div id="def-directed-graph" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.3 (Directed graph)</strong></span> A <strong>directed graph</strong> (or <strong>digraph</strong>) is a graph where edges have direction. An edge <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math> represents a relationship from <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math> to <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math> that doesn’t necessarily apply in the reverse direction.</p>
+<p><span class="theorem-title"><strong>Definition 1.3 (Directed graph)</strong></span> A <strong>directed graph</strong> (or <strong>digraph</strong>) is a graph where edges have direction. An edge <span class="math inline">\((u, v)\)</span> represents a relationship from <span class="math inline">\(u\)</span> to <span class="math inline">\(v\)</span> that doesn’t necessarily apply in the reverse direction.</p>
 </div>
 <div id="def-weighted-graph" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.4 (Weighted graph)</strong></span> A <strong>weighted graph</strong> is a graph where each edge has an associated numerical value called a <strong>weight</strong>. Formally, there is a weight function <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo>:</mo><mi>E</mi><mo>→</mo><mi>ℝ</mi></mrow><annotation encoding="application/x-tex">w: E \rightarrow \mathbb{R}</annotation></semantics></math> that assigns a real number to each edge.</p>
+<p><span class="theorem-title"><strong>Definition 1.4 (Weighted graph)</strong></span> A <strong>weighted graph</strong> is a graph where each edge has an associated numerical value called a <strong>weight</strong>. Formally, there is a weight function <span class="math inline">\(w: E \rightarrow \mathbb{R}\)</span> that assigns a real number to each edge.</p>
 </div>
 <div id="def-labeled-graph" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.5 (Labeled graph)</strong></span> A <strong>labeled graph</strong> is a graph where vertices and/or edges have labels or types. Formally, there are labeling functions <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>l</mi><mi>V</mi></msub><mo>:</mo><mi>V</mi><mo>→</mo><msub><mi>L</mi><mi>V</mi></msub></mrow><annotation encoding="application/x-tex">l_V: V \rightarrow L_V</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>l</mi><mi>E</mi></msub><mo>:</mo><mi>E</mi><mo>→</mo><msub><mi>L</mi><mi>E</mi></msub></mrow><annotation encoding="application/x-tex">l_E: E \rightarrow L_E</annotation></semantics></math> that assign labels from sets <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>L</mi><mi>V</mi></msub><annotation encoding="application/x-tex">L_V</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>L</mi><mi>E</mi></msub><annotation encoding="application/x-tex">L_E</annotation></semantics></math> to vertices and edges, respectively.</p>
+<p><span class="theorem-title"><strong>Definition 1.5 (Labeled graph)</strong></span> A <strong>labeled graph</strong> is a graph where vertices and/or edges have labels or types. Formally, there are labeling functions <span class="math inline">\(l_V: V \rightarrow L_V\)</span> and <span class="math inline">\(l_E: E \rightarrow L_E\)</span> that assign labels from sets <span class="math inline">\(L_V\)</span> and <span class="math inline">\(L_E\)</span> to vertices and edges, respectively.</p>
 </div>
 <div id="def-multigraph" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.6 (Multigraph)</strong></span> A <strong>multigraph</strong> is a graph that allows multiple edges (or parallel edges) between the same pair of vertices.</p>
+<p><span class="theorem-title"><strong>Definition 1.6 (Multigraph)</strong></span> A <strong>multigraph</strong> is a graph that allows multiple edges (or parallel edges) between the same pair of vertices.</p>
 </div>
 <div id="exm-graph-types" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.2 (Different graph types)</strong></span> Consider representing transportation connections between cities:</p>
+<p><span class="theorem-title"><strong>Example 1.2 (Different graph types)</strong></span> Consider representing transportation connections between cities:</p>
 <ul>
 <li><strong>Undirected graph</strong>: Cities connected by highways, where travel is possible in both directions</li>
 <li><strong>Directed graph</strong>: One-way streets connecting locations in a city</li>
@@ -345,20 +283,20 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </section>
 </section>
-<section id="knowledge-graphs-definition-and-components" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="knowledge-graphs-definition-and-components"><span class="header-section-number">3.2</span> Knowledge graphs: definition and components</h2>
+<section id="knowledge-graphs-definition-and-components" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="knowledge-graphs-definition-and-components"><span class="header-section-number">1.2</span> Knowledge graphs: definition and components</h2>
 <p>Now that we understand graphs in general, let’s focus on knowledge graphs specifically.</p>
 <div id="def-knowledge-graph" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.7 (Knowledge graph)</strong></span> A <strong>knowledge graph</strong> is a labeled, directed multigraph <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>E</mi><mo>,</mo><mi>R</mi><mo>,</mo><mi>T</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">G = (E, R, T)</annotation></semantics></math> where:</p>
+<p><span class="theorem-title"><strong>Definition 1.7 (Knowledge graph)</strong></span> A <strong>knowledge graph</strong> is a labeled, directed multigraph <span class="math inline">\(G = (E, R, T)\)</span> where:</p>
 <ul>
-<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math> is a set of entities (vertices)</li>
-<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math> is a set of relation types (edge labels)</li>
-<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>⊆</mo><mi>E</mi><mo>×</mo><mi>R</mi><mo>×</mo><mi>E</mi></mrow><annotation encoding="application/x-tex">T \subseteq E \times R \times E</annotation></semantics></math> is a set of triples or facts in the form <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mo>,</mo><mi>r</mi><mo>,</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(h, r, t)</annotation></semantics></math>, where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math> is the head entity, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math> is the relation, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math> is the tail entity</li>
+<li><span class="math inline">\(E\)</span> is a set of entities (vertices)</li>
+<li><span class="math inline">\(R\)</span> is a set of relation types (edge labels)</li>
+<li><span class="math inline">\(T \subseteq E \times R \times E\)</span> is a set of triples or facts in the form <span class="math inline">\((h, r, t)\)</span>, where <span class="math inline">\(h\)</span> is the head entity, <span class="math inline">\(r\)</span> is the relation, and <span class="math inline">\(t\)</span> is the tail entity</li>
 </ul>
 </div>
-<p>Knowledge graphs are specifically designed to represent factual information about the world in a structured format. Each triple <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mo>,</mo><mi>r</mi><mo>,</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(h, r, t)</annotation></semantics></math> encodes a single fact, such as “Paris is the capital of France” or “Albert Einstein developed the theory of relativity.”</p>
+<p>Knowledge graphs are specifically designed to represent factual information about the world in a structured format. Each triple <span class="math inline">\((h, r, t)\)</span> encodes a single fact, such as “Paris is the capital of France” or “Albert Einstein developed the theory of relativity.”</p>
 <div id="exm-movie-kg" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.3 (Movie knowledge graph)</strong></span> Consider a small knowledge graph about movies:</p>
+<p><span class="theorem-title"><strong>Example 1.3 (Movie knowledge graph)</strong></span> Consider a small knowledge graph about movies:</p>
 <p>Here’s the content with the LaTeX formatting removed:</p>
 <ul>
 <li>Entities: Inception, Christopher Nolan, Leonardo DiCaprio, The Revenant, Alejandro Iñárritu, Science Fiction, Drama, 2010, 2015</li>
@@ -384,23 +322,23 @@ ul.task-list li input[type="checkbox"] {
 <li><strong>Multi-relational</strong>: The same entities can be connected through different relation types</li>
 <li><strong>Factual knowledge</strong>: Each triple represents a specific fact about the world</li>
 </ol>
-<section id="special-types-of-knowledge-graphs" class="level3" data-number="3.2.1">
-<h3 data-number="3.2.1" class="anchored" data-anchor-id="special-types-of-knowledge-graphs"><span class="header-section-number">3.2.1</span> Special types of knowledge graphs</h3>
+<section id="special-types-of-knowledge-graphs" class="level3" data-number="1.2.1">
+<h3 data-number="1.2.1" class="anchored" data-anchor-id="special-types-of-knowledge-graphs"><span class="header-section-number">1.2.1</span> Special types of knowledge graphs</h3>
 <p>Some knowledge graphs have additional structure or constraints:</p>
 <div id="def-ontology" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.8 (Ontology)</strong></span> An <strong>ontology</strong> is a knowledge graph that includes class hierarchies, property constraints, and logical axioms. It defines a formal vocabulary and semantic constraints for a domain.</p>
+<p><span class="theorem-title"><strong>Definition 1.8 (Ontology)</strong></span> An <strong>ontology</strong> is a knowledge graph that includes class hierarchies, property constraints, and logical axioms. It defines a formal vocabulary and semantic constraints for a domain.</p>
 </div>
 <div id="def-knowledge-base" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.9 (Knowledge base)</strong></span> A <strong>knowledge base</strong> is a knowledge graph that is used for automated reasoning and may include inference rules and axioms in addition to factual triples.</p>
+<p><span class="theorem-title"><strong>Definition 1.9 (Knowledge base)</strong></span> A <strong>knowledge base</strong> is a knowledge graph that is used for automated reasoning and may include inference rules and axioms in addition to factual triples.</p>
 </div>
 <p>Large-scale knowledge graphs often combine aspects of both ontologies (providing structure) and knowledge bases (supporting reasoning).</p>
 </section>
 </section>
-<section id="real-world-knowledge-graphs" class="level2" data-number="3.3">
-<h2 data-number="3.3" class="anchored" data-anchor-id="real-world-knowledge-graphs"><span class="header-section-number">3.3</span> Real-world knowledge graphs</h2>
+<section id="real-world-knowledge-graphs" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="real-world-knowledge-graphs"><span class="header-section-number">1.3</span> Real-world knowledge graphs</h2>
 <p>To appreciate the significance of knowledge graphs, it’s helpful to look at some prominent examples:</p>
-<section id="public-knowledge-graphs" class="level3" data-number="3.3.1">
-<h3 data-number="3.3.1" class="anchored" data-anchor-id="public-knowledge-graphs"><span class="header-section-number">3.3.1</span> Public knowledge graphs</h3>
+<section id="public-knowledge-graphs" class="level3" data-number="1.3.1">
+<h3 data-number="1.3.1" class="anchored" data-anchor-id="public-knowledge-graphs"><span class="header-section-number">1.3.1</span> Public knowledge graphs</h3>
 <p>Several major knowledge graphs are publicly available for research and commercial applications:</p>
 <ol type="1">
 <li><p><strong>DBpedia</strong>: Extracts structured information from Wikipedia, containing information about persons, places, organizations, and more.</p></li>
@@ -410,8 +348,8 @@ ul.task-list li input[type="checkbox"] {
 <li><p><strong>Freebase</strong>: A large collaborative knowledge base that was acquired by Google and partially integrated into Google’s Knowledge Graph before being shut down. Datasets derived from Freebase, such as FB15k, are still widely used in research.</p></li>
 </ol>
 </section>
-<section id="commercial-knowledge-graphs" class="level3" data-number="3.3.2">
-<h3 data-number="3.3.2" class="anchored" data-anchor-id="commercial-knowledge-graphs"><span class="header-section-number">3.3.2</span> Commercial knowledge graphs</h3>
+<section id="commercial-knowledge-graphs" class="level3" data-number="1.3.2">
+<h3 data-number="1.3.2" class="anchored" data-anchor-id="commercial-knowledge-graphs"><span class="header-section-number">1.3.2</span> Commercial knowledge graphs</h3>
 <p>Major technology companies have developed proprietary knowledge graphs to power their products:</p>
 <ol type="1">
 <li><p><strong>Google Knowledge Graph</strong>: Powers Google’s search engine to provide direct answers to queries and enhances search results with relevant information.</p></li>
@@ -420,49 +358,49 @@ ul.task-list li input[type="checkbox"] {
 <li><p><strong>Amazon Product Graph</strong>: Contains information about products, their attributes, and relationships, supporting Amazon’s product recommendations.</p></li>
 </ol>
 <div id="exm-google-kg" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.4 (Google Knowledge Graph in action)</strong></span> When you search for “Albert Einstein” on Google, you receive not just links to websites but also a knowledge panel displaying key facts about Einstein: his birth date (March 14, 1879), death date (April 18, 1955), spouse (Elsa Einstein), children, notable awards (Nobel Prize in Physics), and much more. This information comes from Google’s Knowledge Graph, which has organized facts about Einstein and can present them directly to users.</p>
+<p><span class="theorem-title"><strong>Example 1.4 (Google Knowledge Graph in action)</strong></span> When you search for “Albert Einstein” on Google, you receive not just links to websites but also a knowledge panel displaying key facts about Einstein: his birth date (March 14, 1879), death date (April 18, 1955), spouse (Elsa Einstein), children, notable awards (Nobel Prize in Physics), and much more. This information comes from Google’s Knowledge Graph, which has organized facts about Einstein and can present them directly to users.</p>
 </div>
 </section>
 </section>
-<section id="applications-of-knowledge-graphs" class="level2" data-number="3.4">
-<h2 data-number="3.4" class="anchored" data-anchor-id="applications-of-knowledge-graphs"><span class="header-section-number">3.4</span> Applications of knowledge graphs</h2>
+<section id="applications-of-knowledge-graphs" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="applications-of-knowledge-graphs"><span class="header-section-number">1.4</span> Applications of knowledge graphs</h2>
 <p>Knowledge graphs enable numerous applications across various domains:</p>
-<section id="search-and-question-answering" class="level3" data-number="3.4.1">
-<h3 data-number="3.4.1" class="anchored" data-anchor-id="search-and-question-answering"><span class="header-section-number">3.4.1</span> Search and question answering</h3>
+<section id="search-and-question-answering" class="level3" data-number="1.4.1">
+<h3 data-number="1.4.1" class="anchored" data-anchor-id="search-and-question-answering"><span class="header-section-number">1.4.1</span> Search and question answering</h3>
 <p>Knowledge graphs significantly enhance search capabilities by understanding the meaning behind search queries and providing direct answers rather than just links.</p>
 <div id="exm-semantic-search" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.5 (Semantic search with knowledge graphs)</strong></span> Consider the query “Who directed Inception?”</p>
+<p><span class="theorem-title"><strong>Example 1.5 (Semantic search with knowledge graphs)</strong></span> Consider the query “Who directed Inception?”</p>
 <p>A traditional keyword-based search might return documents containing both “directed” and “Inception,” requiring the user to read through results to find the answer.</p>
-<p>A knowledge graph-powered search can directly return “Christopher Nolan” by querying the triple <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>?</mi><mo>,</mo><mtext mathvariant="normal">directed</mtext><mo>,</mo><mtext mathvariant="normal">Inception</mtext><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(?, \text{directed}, \text{Inception})</annotation></semantics></math> and returning the matching head entity.</p>
+<p>A knowledge graph-powered search can directly return “Christopher Nolan” by querying the triple <span class="math inline">\((?, \text{directed}, \text{Inception})\)</span> and returning the matching head entity.</p>
 </div>
 </section>
-<section id="recommendation-systems" class="level3" data-number="3.4.2">
-<h3 data-number="3.4.2" class="anchored" data-anchor-id="recommendation-systems"><span class="header-section-number">3.4.2</span> Recommendation systems</h3>
+<section id="recommendation-systems" class="level3" data-number="1.4.2">
+<h3 data-number="1.4.2" class="anchored" data-anchor-id="recommendation-systems"><span class="header-section-number">1.4.2</span> Recommendation systems</h3>
 <p>Knowledge graphs enable more sophisticated recommendation systems by capturing complex relationships between users and items.</p>
 <div id="exm-movie-recommendations" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.6 (Knowledge graph-based movie recommendations)</strong></span> Instead of simply recommending movies liked by similar users, a knowledge graph-based system can use paths like:</p>
+<p><span class="theorem-title"><strong>Example 1.6 (Knowledge graph-based movie recommendations)</strong></span> Instead of simply recommending movies liked by similar users, a knowledge graph-based system can use paths like:</p>
 <p>User liked Inception → Inception directed_by Christopher Nolan → Christopher Nolan directed Interstellar → Recommend Interstellar</p>
 <p>This allows for explainable recommendations: “We recommend Interstellar because you liked Inception, which was also directed by Christopher Nolan.”</p>
 </div>
 </section>
-<section id="virtual-assistants-and-conversational-ai" class="level3" data-number="3.4.3">
-<h3 data-number="3.4.3" class="anchored" data-anchor-id="virtual-assistants-and-conversational-ai"><span class="header-section-number">3.4.3</span> Virtual assistants and conversational AI</h3>
+<section id="virtual-assistants-and-conversational-ai" class="level3" data-number="1.4.3">
+<h3 data-number="1.4.3" class="anchored" data-anchor-id="virtual-assistants-and-conversational-ai"><span class="header-section-number">1.4.3</span> Virtual assistants and conversational AI</h3>
 <p>Knowledge graphs provide the factual knowledge that enables virtual assistants to answer questions and maintain context in conversations.</p>
 <div id="exm-conversational-context" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.7 (Conversational context with knowledge graphs)</strong></span> User: “Who wrote Romeo and Juliet?” Assistant: “William Shakespeare wrote Romeo and Juliet.” User: “When was he born?”</p>
+<p><span class="theorem-title"><strong>Example 1.7 (Conversational context with knowledge graphs)</strong></span> User: “Who wrote Romeo and Juliet?” Assistant: “William Shakespeare wrote Romeo and Juliet.” User: “When was he born?”</p>
 <p>The knowledge graph helps the assistant understand that “he” refers to William Shakespeare and can retrieve his birth date (April 1564).</p>
 </div>
 </section>
-<section id="data-integration" class="level3" data-number="3.4.4">
-<h3 data-number="3.4.4" class="anchored" data-anchor-id="data-integration"><span class="header-section-number">3.4.4</span> Data integration</h3>
+<section id="data-integration" class="level3" data-number="1.4.4">
+<h3 data-number="1.4.4" class="anchored" data-anchor-id="data-integration"><span class="header-section-number">1.4.4</span> Data integration</h3>
 <p>Knowledge graphs serve as a unifying framework for integrating heterogeneous data sources, aligning different vocabularies and data models.</p>
 <div id="exm-data-integration" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.8 (Enterprise data integration)</strong></span> A company might have customer data in a CRM system, product data in an inventory management system, and transaction data in a financial system. A knowledge graph can integrate these sources by mapping entities across systems (e.g., recognizing that Customer#1234 in the CRM system and User#5678 in the transaction system refer to the same person).</p>
+<p><span class="theorem-title"><strong>Example 1.8 (Enterprise data integration)</strong></span> A company might have customer data in a CRM system, product data in an inventory management system, and transaction data in a financial system. A knowledge graph can integrate these sources by mapping entities across systems (e.g., recognizing that Customer#1234 in the CRM system and User#5678 in the transaction system refer to the same person).</p>
 </div>
 </section>
 </section>
-<section id="the-challenge-of-incomplete-knowledge-graphs" class="level2" data-number="3.5">
-<h2 data-number="3.5" class="anchored" data-anchor-id="the-challenge-of-incomplete-knowledge-graphs"><span class="header-section-number">3.5</span> The challenge of incomplete knowledge graphs</h2>
+<section id="the-challenge-of-incomplete-knowledge-graphs" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="the-challenge-of-incomplete-knowledge-graphs"><span class="header-section-number">1.5</span> The challenge of incomplete knowledge graphs</h2>
 <p>Despite their utility, real-world knowledge graphs face a significant challenge: incompleteness. Building comprehensive knowledge graphs is difficult for several reasons:</p>
 <ol type="1">
 <li><p><strong>Scale</strong>: The real world contains an enormous number of entities and relationships. Even large knowledge graphs like Freebase or Wikidata capture only a fraction of all possible facts.</p></li>
@@ -471,23 +409,23 @@ ul.task-list li input[type="checkbox"] {
 <li><p><strong>Long tail phenomena</strong>: Many entities and relationships occur rarely, making them difficult to collect systematically.</p></li>
 </ol>
 <div id="def-kg-completion" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.10 (Knowledge graph completion)</strong></span> <strong>Knowledge graph completion</strong> is the task of adding missing triples to a knowledge graph. Given an incomplete knowledge graph <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>E</mi><mo>,</mo><mi>R</mi><mo>,</mo><mi>T</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">G = (E, R, T)</annotation></semantics></math>, the goal is to discover additional valid triples <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mi>′</mi><mo>⊆</mo><mi>E</mi><mo>×</mo><mi>R</mi><mo>×</mo><mi>E</mi></mrow><annotation encoding="application/x-tex">T' \subseteq E \times R \times E</annotation></semantics></math> such that <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mi>′</mi><mo>⊈</mo><mi>T</mi></mrow><annotation encoding="application/x-tex">T' \not\subseteq T</annotation></semantics></math>.</p>
+<p><span class="theorem-title"><strong>Definition 1.10 (Knowledge graph completion)</strong></span> <strong>Knowledge graph completion</strong> is the task of adding missing triples to a knowledge graph. Given an incomplete knowledge graph <span class="math inline">\(G = (E, R, T)\)</span>, the goal is to discover additional valid triples <span class="math inline">\(T' \subseteq E \times R \times E\)</span> such that <span class="math inline">\(T' \not\subseteq T\)</span>.</p>
 </div>
 <p>Knowledge graph completion is typically approached as a prediction problem: given the existing triples in a knowledge graph, can we predict which additional triples are likely to be true?</p>
 </section>
-<section id="link-prediction-in-knowledge-graphs" class="level2" data-number="3.6">
-<h2 data-number="3.6" class="anchored" data-anchor-id="link-prediction-in-knowledge-graphs"><span class="header-section-number">3.6</span> Link prediction in knowledge graphs</h2>
+<section id="link-prediction-in-knowledge-graphs" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="link-prediction-in-knowledge-graphs"><span class="header-section-number">1.6</span> Link prediction in knowledge graphs</h2>
 <p>The most common formulation of knowledge graph completion is link prediction:</p>
 <div id="def-link-prediction" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.11 (Link prediction)</strong></span> <strong>Link prediction</strong> in knowledge graphs is the task of predicting missing links (relationships) between entities. Formally, given a triple where either the head or tail entity is missing, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>?</mi><mo>,</mo><mi>r</mi><mo>,</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(?, r, t)</annotation></semantics></math> or <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mo>,</mo><mi>r</mi><mo>,</mo><mi>?</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(h, r, ?)</annotation></semantics></math>, the goal is to rank all possible entities from the knowledge graph based on their likelihood of completing the triple correctly.</p>
+<p><span class="theorem-title"><strong>Definition 1.11 (Link prediction)</strong></span> <strong>Link prediction</strong> in knowledge graphs is the task of predicting missing links (relationships) between entities. Formally, given a triple where either the head or tail entity is missing, <code>(?, r, t)</code> or <code>(h, r, ?)</code>, the goal is to rank all possible entities from the knowledge graph based on their likelihood of completing the triple correctly.</p>
 </div>
 <p>Link prediction can be viewed as answering questions like:</p>
 <ul>
-<li>“Which city is the capital of France?” — predicting <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>?</mi><mo>,</mo><mtext mathvariant="normal">capital_of</mtext><mo>,</mo><mtext mathvariant="normal">France</mtext><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(?, \text{capital_of}, \text{France})</annotation></semantics></math></li>
-<li>“What genre does the movie Inception belong to?” — predicting <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">Inception</mtext><mo>,</mo><mtext mathvariant="normal">has_genre</mtext><mo>,</mo><mi>?</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\text{Inception}, \text{has_genre}, ?)</annotation></semantics></math></li>
+<li>“Which city is the capital of France?” — predicting <code>(?, capital_of, France)</code></li>
+<li>“What genre does the movie Inception belong to?” — predicting <code>(Inception, has_genre, ?)</code></li>
 </ul>
 <div id="exm-link-prediction" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.9 (Link prediction example)</strong></span> Consider our movie knowledge graph example with a missing triple: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">Leonardo DiCaprio</mtext><mo>,</mo><mtext mathvariant="normal">won_oscar_for</mtext><mo>,</mo><mi>?</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\text{Leonardo DiCaprio}, \text{won_oscar_for}, ?)</annotation></semantics></math></p>
+<p><span class="theorem-title"><strong>Example 1.9 (Link prediction example)</strong></span> Consider our movie knowledge graph example with a missing triple: <code>(Leonardo DiCaprio, won_oscar_for, ?)</code>.</p>
 <p>A link prediction model would rank potential tail entities:</p>
 <ol type="1">
 <li>The Revenant (correct)</li>
@@ -497,33 +435,33 @@ ul.task-list li input[type="checkbox"] {
 <p>The model’s quality is assessed by how highly it ranks the correct answer.</p>
 </div>
 </section>
-<section id="approaches-to-knowledge-graph-completion" class="level2" data-number="3.7">
-<h2 data-number="3.7" class="anchored" data-anchor-id="approaches-to-knowledge-graph-completion"><span class="header-section-number">3.7</span> Approaches to knowledge graph completion</h2>
+<section id="approaches-to-knowledge-graph-completion" class="level2" data-number="1.7">
+<h2 data-number="1.7" class="anchored" data-anchor-id="approaches-to-knowledge-graph-completion"><span class="header-section-number">1.7</span> Approaches to knowledge graph completion</h2>
 <p>Researchers have developed various approaches to address the knowledge graph completion problem:</p>
-<section id="rule-based-methods" class="level3" data-number="3.7.1">
-<h3 data-number="3.7.1" class="anchored" data-anchor-id="rule-based-methods"><span class="header-section-number">3.7.1</span> Rule-based methods</h3>
+<section id="rule-based-methods" class="level3" data-number="1.7.1">
+<h3 data-number="1.7.1" class="anchored" data-anchor-id="rule-based-methods"><span class="header-section-number">1.7.1</span> Rule-based methods</h3>
 <p>Rule-based methods use logical rules to infer new facts from existing ones. For example, the rule:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">born_in</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>Y</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>∧</mo><mtext mathvariant="normal">located_in</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo>,</mo><mi>Z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>⇒</mo><mtext mathvariant="normal">nationality</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>Z</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\text{born_in}(X, Y) \land \text{located_in}(Y, Z) \Rightarrow \text{nationality}(X, Z)</annotation></semantics></math></p>
+<p><span class="math display">\[\text{born_in}(X, Y) \land \text{located_in}(Y, Z) \Rightarrow \text{nationality}(X, Z)\]</span></p>
 <p>could infer that someone born in Paris has French nationality, based on the fact that Paris is located in France.</p>
 <p>Rule-based approaches have the advantage of being interpretable but may struggle with noise and exceptions.</p>
 </section>
-<section id="graph-based-methods" class="level3" data-number="3.7.2">
-<h3 data-number="3.7.2" class="anchored" data-anchor-id="graph-based-methods"><span class="header-section-number">3.7.2</span> Graph-based methods</h3>
+<section id="graph-based-methods" class="level3" data-number="1.7.2">
+<h3 data-number="1.7.2" class="anchored" data-anchor-id="graph-based-methods"><span class="header-section-number">1.7.2</span> Graph-based methods</h3>
 <p>Graph-based methods leverage the graph structure to predict missing links. These approaches may use metrics like common neighbors, path features, or random walk statistics to assess the likelihood of links between entities.</p>
 <div id="exm-path-features" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.10 (Path features for link prediction)</strong></span> Consider predicting whether Leonardo DiCaprio has worked with Christopher Nolan. A path-based feature might be:</p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">Leonardo DiCaprio</mtext><mo>,</mo><mtext mathvariant="normal">acted_in</mtext><mo>,</mo><mtext mathvariant="normal">Inception</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>∧</mo><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">Inception</mtext><mo>,</mo><mtext mathvariant="normal">directed_by</mtext><mo>,</mo><mtext mathvariant="normal">Christopher Nolan</mtext><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">(\text{Leonardo DiCaprio}, \text{acted_in}, \text{Inception}) \land (\text{Inception}, \text{directed_by}, \text{Christopher Nolan})</annotation></semantics></math></p>
+<p><span class="theorem-title"><strong>Example 1.10 (Path features for link prediction)</strong></span> Consider predicting whether Leonardo DiCaprio has worked with Christopher Nolan. A path-based feature might be:</p>
+<p><span class="math inline">\((\text{Leonardo DiCaprio}, \text{acted_in}, \text{Inception}) \land (\text{Inception}, \text{directed_by}, \text{Christopher Nolan})\)</span></p>
 <p>This path suggests a professional relationship between DiCaprio and Nolan.</p>
 </div>
 </section>
-<section id="embedding-based-methods" class="level3" data-number="3.7.3">
-<h3 data-number="3.7.3" class="anchored" data-anchor-id="embedding-based-methods"><span class="header-section-number">3.7.3</span> Embedding-based methods</h3>
+<section id="embedding-based-methods" class="level3" data-number="1.7.3">
+<h3 data-number="1.7.3" class="anchored" data-anchor-id="embedding-based-methods"><span class="header-section-number">1.7.3</span> Embedding-based methods</h3>
 <p>Embedding-based methods represent entities and relations as vectors in a continuous space, where the geometric relationships between vectors capture semantic relationships.</p>
 <div id="def-knowledge-graph-embedding" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.12 (Knowledge graph embedding)</strong></span> <strong>Knowledge graph embedding (KGE)</strong> is the process of mapping entities and relations in a knowledge graph to continuous vector spaces while preserving the graph’s structural and semantic properties. Formally:</p>
+<p><span class="theorem-title"><strong>Definition 1.12 (Knowledge graph embedding)</strong></span> <strong>Knowledge graph embedding (KGE)</strong> is the process of mapping entities and relations in a knowledge graph to continuous vector spaces while preserving the graph’s structural and semantic properties. Formally:</p>
 <ul>
-<li>Each entity <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>∈</mo><mi>E</mi></mrow><annotation encoding="application/x-tex">e \in E</annotation></semantics></math> is mapped to a vector <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝐞</mi><mo>∈</mo><msup><mi>ℝ</mi><mi>d</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{e} \in \mathbb{R}^d</annotation></semantics></math> (or in some models, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝐞</mi><mo>∈</mo><msup><mi>ℂ</mi><mi>d</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{e} \in \mathbb{C}^d</annotation></semantics></math>)</li>
-<li>Each relation <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>∈</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">r \in R</annotation></semantics></math> is mapped to a vector, matrix, or tensor representation, depending on the specific model</li>
+<li>Each entity <span class="math inline">\(e \in E\)</span> is mapped to a vector <span class="math inline">\(\mathbf{e} \in \mathbb{R}^d\)</span> (or in some models, <span class="math inline">\(\mathbf{e} \in \mathbb{C}^d\)</span>)</li>
+<li>Each relation <span class="math inline">\(r \in R\)</span> is mapped to a vector, matrix, or tensor representation, depending on the specific model</li>
 </ul>
 </div>
 <p>The embedding approach has several advantages:</p>
@@ -533,20 +471,20 @@ ul.task-list li input[type="checkbox"] {
 <li><strong>Integration with machine learning</strong>: Embeddings can be used as input features for various machine learning tasks</li>
 </ol>
 <div id="exm-translation-embedding" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.11 (Translational embedding intuition)</strong></span> In a translational embedding model like TransE, relationships are represented as translations in the vector space. For example, if we have:</p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi>𝐅</mi><mi>𝐫</mi><mi>𝐚</mi><mi>𝐧</mi><mi>𝐜</mi><mi>𝐞</mi></mrow><mo>+</mo><mrow><mi>𝐜</mi><mi>𝐚</mi><mi>𝐩</mi><mi>𝐢</mi><mi>𝐭</mi><mi>𝐚</mi><mi>𝐥</mi><mi mathvariant="bold">_</mi><mi>𝐨</mi><mi>𝐟</mi></mrow><mo>≈</mo><mrow><mi>𝐏</mi><mi>𝐚</mi><mi>𝐫</mi><mi>𝐢</mi><mi>𝐬</mi></mrow></mrow><annotation encoding="application/x-tex">\mathbf{France} + \mathbf{capital\_of} \approx \mathbf{Paris}</annotation></semantics></math></p>
+<p><span class="theorem-title"><strong>Example 1.11 (Translational embedding intuition)</strong></span> In a translational embedding model like TransE, relationships are represented as translations in the vector space. For example, if we have:</p>
+<p><span class="math inline">\(\mathbf{France} + \mathbf{capital\_of} \approx \mathbf{Paris}\)</span></p>
 <p>Then we might also expect:</p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi>𝐆</mi><mi>𝐞</mi><mi>𝐫</mi><mi>𝐦</mi><mi>𝐚</mi><mi>𝐧</mi><mi>𝐲</mi></mrow><mo>+</mo><mrow><mi>𝐜</mi><mi>𝐚</mi><mi>𝐩</mi><mi>𝐢</mi><mi>𝐭</mi><mi>𝐚</mi><mi>𝐥</mi><mi mathvariant="bold">_</mi><mi>𝐨</mi><mi>𝐟</mi></mrow><mo>≈</mo><mrow><mi>𝐁</mi><mi>𝐞</mi><mi>𝐫</mi><mi>𝐥</mi><mi>𝐢</mi><mi>𝐧</mi></mrow></mrow><annotation encoding="application/x-tex">\mathbf{Germany} + \mathbf{capital\_of} \approx \mathbf{Berlin}</annotation></semantics></math></p>
+<p><span class="math inline">\(\mathbf{Germany} + \mathbf{capital\_of} \approx \mathbf{Berlin}\)</span></p>
 <p>This geometric structure enables the model to generalize from observed facts to new, similar facts.</p>
 </div>
 <p>Embedding-based methods have become the dominant approach for knowledge graph completion, and the remainder of this book focuses on various embedding techniques, their properties, and applications.</p>
 </section>
 </section>
-<section id="representing-knowledge-symbolic-vs.-distributed-approaches" class="level2" data-number="3.8">
-<h2 data-number="3.8" class="anchored" data-anchor-id="representing-knowledge-symbolic-vs.-distributed-approaches"><span class="header-section-number">3.8</span> Representing knowledge: symbolic vs.&nbsp;distributed approaches</h2>
+<section id="representing-knowledge-symbolic-vs.-distributed-approaches" class="level2" data-number="1.8">
+<h2 data-number="1.8" class="anchored" data-anchor-id="representing-knowledge-symbolic-vs.-distributed-approaches"><span class="header-section-number">1.8</span> Representing knowledge: symbolic vs.&nbsp;distributed approaches</h2>
 <p>To better understand the significance of knowledge graph embeddings, it’s helpful to contrast symbolic and distributed representations of knowledge.</p>
-<section id="symbolic-representations" class="level3" data-number="3.8.1">
-<h3 data-number="3.8.1" class="anchored" data-anchor-id="symbolic-representations"><span class="header-section-number">3.8.1</span> Symbolic representations</h3>
+<section id="symbolic-representations" class="level3" data-number="1.8.1">
+<h3 data-number="1.8.1" class="anchored" data-anchor-id="symbolic-representations"><span class="header-section-number">1.8.1</span> Symbolic representations</h3>
 <p>Symbolic representations store knowledge as discrete symbols and logical statements. Knowledge graphs in their raw form (as collections of triples) are symbolic representations.</p>
 <p>Advantages of symbolic representations:</p>
 <ul>
@@ -562,8 +500,8 @@ ul.task-list li input[type="checkbox"] {
 <li>Difficult to integrate with neural models</li>
 </ul>
 </section>
-<section id="distributed-representations" class="level3" data-number="3.8.2">
-<h3 data-number="3.8.2" class="anchored" data-anchor-id="distributed-representations"><span class="header-section-number">3.8.2</span> Distributed representations</h3>
+<section id="distributed-representations" class="level3" data-number="1.8.2">
+<h3 data-number="1.8.2" class="anchored" data-anchor-id="distributed-representations"><span class="header-section-number">1.8.2</span> Distributed representations</h3>
 <p>Distributed representations encode knowledge as patterns of activation across many units (e.g., vectors of real numbers). Knowledge graph embeddings are distributed representations.</p>
 <p>Advantages of distributed representations:</p>
 <ul>
@@ -579,7 +517,7 @@ ul.task-list li input[type="checkbox"] {
 <li>Difficult to incorporate hard constraints</li>
 </ul>
 <div id="exm-representation-comparison" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.12 (Comparison of representations)</strong></span> Consider the fact “Paris is the capital of France”:</p>
+<p><span class="theorem-title"><strong>Example 1.12 (Comparison of representations)</strong></span> Consider the fact “Paris is the capital of France”:</p>
 <p><strong>Symbolic representation</strong>:</p>
 <pre><code>(Paris, capital_of, France)</code></pre>
 <p><strong>Distributed representation (vectors)</strong>:</p>
@@ -592,33 +530,33 @@ France = [0.4, -0.1, 0.9, 0.5, ...]</code></pre>
 <p>Knowledge graph embeddings aim to combine the best of both worlds: they start with symbolic knowledge in the form of triples but convert it to distributed representations that enable efficient computation and generalization.</p>
 </section>
 </section>
-<section id="embedding-space-properties" class="level2" data-number="3.9">
-<h2 data-number="3.9" class="anchored" data-anchor-id="embedding-space-properties"><span class="header-section-number">3.9</span> Embedding space properties</h2>
+<section id="embedding-space-properties" class="level2" data-number="1.9">
+<h2 data-number="1.9" class="anchored" data-anchor-id="embedding-space-properties"><span class="header-section-number">1.9</span> Embedding space properties</h2>
 <p>When embedding knowledge graphs into vector spaces, certain properties of the embedding space become important:</p>
-<section id="dimensionality" class="level3" data-number="3.9.1">
-<h3 data-number="3.9.1" class="anchored" data-anchor-id="dimensionality"><span class="header-section-number">3.9.1</span> Dimensionality</h3>
-<p>The dimension <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math> of the embedding space significantly impacts the model’s capacity and performance:</p>
+<section id="dimensionality" class="level3" data-number="1.9.1">
+<h3 data-number="1.9.1" class="anchored" data-anchor-id="dimensionality"><span class="header-section-number">1.9.1</span> Dimensionality</h3>
+<p>The dimension <span class="math inline">\(d\)</span> of the embedding space significantly impacts the model’s capacity and performance:</p>
 <ul>
-<li><strong>Low dimensionality</strong> (e.g., <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>50</mn></mrow><annotation encoding="application/x-tex">d = 50</annotation></semantics></math>) leads to more compact representations that may generalize better but might lose important details</li>
-<li><strong>High dimensionality</strong> (e.g., <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">d = 500</annotation></semantics></math>) allows for more expressive representations but may require more data to train effectively and could lead to overfitting</li>
+<li><strong>Low dimensionality</strong> (e.g., <span class="math inline">\(d = 50\)</span>) leads to more compact representations that may generalize better but might lose important details</li>
+<li><strong>High dimensionality</strong> (e.g., <span class="math inline">\(d = 500\)</span>) allows for more expressive representations but may require more data to train effectively and could lead to overfitting</li>
 </ul>
 </section>
-<section id="distance-and-similarity-measures" class="level3" data-number="3.9.2">
-<h3 data-number="3.9.2" class="anchored" data-anchor-id="distance-and-similarity-measures"><span class="header-section-number">3.9.2</span> Distance and similarity measures</h3>
+<section id="distance-and-similarity-measures" class="level3" data-number="1.9.2">
+<h3 data-number="1.9.2" class="anchored" data-anchor-id="distance-and-similarity-measures"><span class="header-section-number">1.9.2</span> Distance and similarity measures</h3>
 <p>Different embedding models use different notions of distance or similarity in the embedding space:</p>
 <div id="def-distance-measures" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.13 (Common distance and similarity measures)</strong></span> For vectors <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝐱</mi><mo>,</mo><mi>𝐲</mi><mo>∈</mo><msup><mi>ℝ</mi><mi>d</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{x}, \mathbf{y} \in \mathbb{R}^d</annotation></semantics></math>:</p>
+<p><span class="theorem-title"><strong>Definition 1.13 (Common distance and similarity measures)</strong></span> For vectors <span class="math inline">\(\mathbf{x}, \mathbf{y} \in \mathbb{R}^d\)</span>:</p>
 <ol type="1">
-<li><p><strong>Euclidean distance</strong>: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mtext mathvariant="normal">Euclidean</mtext></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo>,</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mo stretchy="false" form="postfix">∥</mo><mi>𝐱</mi><mo>−</mo><mi>𝐲</mi><msub><mo stretchy="false" form="postfix">∥</mo><mn>2</mn></msub><mo>=</mo><msqrt><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>d</mi></msubsup><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup></mrow></msqrt></mrow><annotation encoding="application/x-tex">d_{\text{Euclidean}}(\mathbf{x}, \mathbf{y}) = \|\mathbf{x} - \mathbf{y}\|_2 = \sqrt{\sum_{i=1}^d (x_i - y_i)^2}</annotation></semantics></math></p></li>
-<li><p><strong>Manhattan distance</strong>: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mtext mathvariant="normal">Manhattan</mtext></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo>,</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mo stretchy="false" form="postfix">∥</mo><mi>𝐱</mi><mo>−</mo><mi>𝐲</mi><msub><mo stretchy="false" form="postfix">∥</mo><mn>1</mn></msub><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>d</mi></msubsup><mrow><mo stretchy="true" form="prefix">|</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">|</mo></mrow></mrow><annotation encoding="application/x-tex">d_{\text{Manhattan}}(\mathbf{x}, \mathbf{y}) = \|\mathbf{x} - \mathbf{y}\|_1 = \sum_{i=1}^d |x_i - y_i|</annotation></semantics></math></p></li>
-<li><p><strong>Cosine similarity</strong>: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">sim</mtext><mtext mathvariant="normal">cosine</mtext></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo>,</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mrow><mi>𝐱</mi><mo>⋅</mo><mi>𝐲</mi></mrow><mrow><mo stretchy="false" form="postfix">∥</mo><mi>𝐱</mi><msub><mo stretchy="false" form="postfix">∥</mo><mn>2</mn></msub><mo stretchy="false" form="postfix">∥</mo><mi>𝐲</mi><msub><mo stretchy="false" form="postfix">∥</mo><mn>2</mn></msub></mrow></mfrac><mo>=</mo><mfrac><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>d</mi></msubsup><msub><mi>x</mi><mi>i</mi></msub><msub><mi>y</mi><mi>i</mi></msub></mrow><mrow><msqrt><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>d</mi></msubsup><msubsup><mi>x</mi><mi>i</mi><mn>2</mn></msubsup></mrow></msqrt><msqrt><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>d</mi></msubsup><msubsup><mi>y</mi><mi>i</mi><mn>2</mn></msubsup></mrow></msqrt></mrow></mfrac></mrow><annotation encoding="application/x-tex">\text{sim}_{\text{cosine}}(\mathbf{x}, \mathbf{y}) = \frac{\mathbf{x} \cdot \mathbf{y}}{\|\mathbf{x}\|_2 \|\mathbf{y}\|_2} = \frac{\sum_{i=1}^d x_i y_i}{\sqrt{\sum_{i=1}^d x_i^2} \sqrt{\sum_{i=1}^d y_i^2}}</annotation></semantics></math></p></li>
-<li><p><strong>Dot product</strong>: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">sim</mtext><mtext mathvariant="normal">dot</mtext></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mo>,</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>𝐱</mi><mo>⋅</mo><mi>𝐲</mi><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>d</mi></msubsup><msub><mi>x</mi><mi>i</mi></msub><msub><mi>y</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\text{sim}_{\text{dot}}(\mathbf{x}, \mathbf{y}) = \mathbf{x} \cdot \mathbf{y} = \sum_{i=1}^d x_i y_i</annotation></semantics></math></p></li>
+<li><p><strong>Euclidean distance</strong>: <span class="math inline">\(d_{\text{Euclidean}}(\mathbf{x}, \mathbf{y}) = \|\mathbf{x} - \mathbf{y}\|_2 = \sqrt{\sum_{i=1}^d (x_i - y_i)^2}\)</span></p></li>
+<li><p><strong>Manhattan distance</strong>: <span class="math inline">\(d_{\text{Manhattan}}(\mathbf{x}, \mathbf{y}) = \|\mathbf{x} - \mathbf{y}\|_1 = \sum_{i=1}^d |x_i - y_i|\)</span></p></li>
+<li><p><strong>Cosine similarity</strong>: <span class="math inline">\(\text{sim}_{\text{cosine}}(\mathbf{x}, \mathbf{y}) = \frac{\mathbf{x} \cdot \mathbf{y}}{\|\mathbf{x}\|_2 \|\mathbf{y}\|_2} = \frac{\sum_{i=1}^d x_i y_i}{\sqrt{\sum_{i=1}^d x_i^2} \sqrt{\sum_{i=1}^d y_i^2}}\)</span></p></li>
+<li><p><strong>Dot product</strong>: <span class="math inline">\(\text{sim}_{\text{dot}}(\mathbf{x}, \mathbf{y}) = \mathbf{x} \cdot \mathbf{y} = \sum_{i=1}^d x_i y_i\)</span></p></li>
 </ol>
 </div>
 <p>Different knowledge graph embedding models use different measures depending on how they conceptualize relationships in the embedding space.</p>
 </section>
-<section id="geometric-transformations" class="level3" data-number="3.9.3">
-<h3 data-number="3.9.3" class="anchored" data-anchor-id="geometric-transformations"><span class="header-section-number">3.9.3</span> Geometric transformations</h3>
+<section id="geometric-transformations" class="level3" data-number="1.9.3">
+<h3 data-number="1.9.3" class="anchored" data-anchor-id="geometric-transformations"><span class="header-section-number">1.9.3</span> Geometric transformations</h3>
 <p>Knowledge graph embedding models often interpret relations as geometric transformations in the embedding space:</p>
 <ul>
 <li><strong>Translations</strong>: Relation vectors shift entity vectors (e.g., in TransE)</li>
@@ -629,29 +567,29 @@ France = [0.4, -0.1, 0.9, 0.5, ...]</code></pre>
 <p>The choice of transformation affects what types of relationship patterns the model can capture.</p>
 </section>
 </section>
-<section id="scoring-functions-for-link-prediction" class="level2" data-number="3.10">
-<h2 data-number="3.10" class="anchored" data-anchor-id="scoring-functions-for-link-prediction"><span class="header-section-number">3.10</span> Scoring functions for link prediction</h2>
+<section id="scoring-functions-for-link-prediction" class="level2" data-number="1.10">
+<h2 data-number="1.10" class="anchored" data-anchor-id="scoring-functions-for-link-prediction"><span class="header-section-number">1.10</span> Scoring functions for link prediction</h2>
 <p>At the heart of embedding-based link prediction is the scoring function, which assesses how likely a triple is to be true.</p>
 <div id="def-scoring-function" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.14 (Scoring function)</strong></span> A <strong>scoring function</strong> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mi>r</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mo>,</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f_r(h, t)</annotation></semantics></math> in knowledge graph embedding models measures the plausibility of a triple <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mo>,</mo><mi>r</mi><mo>,</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(h, r, t)</annotation></semantics></math>. Higher scores (or lower distances/energies) indicate that a triple is more likely to be valid. The specific form of the scoring function varies across different embedding models.</p>
+<p><span class="theorem-title"><strong>Definition 1.14 (Scoring function)</strong></span> A <strong>scoring function</strong> <span class="math inline">\(f_r(h, t)\)</span> in knowledge graph embedding models measures the plausibility of a triple <span class="math inline">\((h, r, t)\)</span>. Higher scores (or lower distances/energies) indicate that a triple is more likely to be valid. The specific form of the scoring function varies across different embedding models.</p>
 </div>
 <p>Different models define different scoring functions. For example:</p>
 <ul>
-<li><strong>TransE</strong>: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mi>r</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mo>,</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>−</mi><mo stretchy="false" form="postfix">∥</mo><mi>𝐡</mi><mo>+</mo><mi>𝐫</mi><mo>−</mo><mi>𝐭</mi><mo stretchy="false" form="postfix">∥</mo></mrow><annotation encoding="application/x-tex">f_r(h, t) = -\|\mathbf{h} + \mathbf{r} - \mathbf{t}\|</annotation></semantics></math> (distance-based, lower is better)</li>
-<li><strong>DistMult</strong>: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mi>r</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mo>,</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msup><mi>𝐡</mi><mi>⊤</mi></msup><mtext mathvariant="normal">diag</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐫</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>𝐭</mi></mrow><annotation encoding="application/x-tex">f_r(h, t) = \mathbf{h}^\top \text{diag}(\mathbf{r}) \mathbf{t}</annotation></semantics></math> (similarity-based, higher is better)</li>
+<li><strong>TransE</strong>: <span class="math inline">\(f_r(h, t) = -\|\mathbf{h} + \mathbf{r} - \mathbf{t}\|\)</span> (distance-based, lower is better)</li>
+<li><strong>DistMult</strong>: <span class="math inline">\(f_r(h, t) = \mathbf{h}^\top \text{diag}(\mathbf{r}) \mathbf{t}\)</span> (similarity-based, higher is better)</li>
 </ul>
 <p>The scoring function is crucial because it defines the geometry of the embedding space and determines what patterns the model can learn.</p>
 </section>
-<section id="the-link-prediction-task-formal-definition" class="level2" data-number="3.11">
-<h2 data-number="3.11" class="anchored" data-anchor-id="the-link-prediction-task-formal-definition"><span class="header-section-number">3.11</span> The link prediction task: formal definition</h2>
+<section id="the-link-prediction-task-formal-definition" class="level2" data-number="1.11">
+<h2 data-number="1.11" class="anchored" data-anchor-id="the-link-prediction-task-formal-definition"><span class="header-section-number">1.11</span> The link prediction task: formal definition</h2>
 <p>Now that we understand the components of knowledge graph embeddings, let’s formally define the link prediction task:</p>
 <div id="def-link-prediction-formal" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 3.15 (Formal link prediction task)</strong></span> Given:</p>
+<p><span class="theorem-title"><strong>Definition 1.15 (Formal link prediction task)</strong></span> Given:</p>
 <ul>
-<li>A knowledge graph <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>E</mi><mo>,</mo><mi>R</mi><mo>,</mo><mi>T</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">G = (E, R, T)</annotation></semantics></math></li>
-<li>A query in the form <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mo>,</mo><mi>r</mi><mo>,</mo><mi>?</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(h, r, ?)</annotation></semantics></math> or <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>?</mi><mo>,</mo><mi>r</mi><mo>,</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(?, r, t)</annotation></semantics></math>, where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>?</mi><annotation encoding="application/x-tex">?</annotation></semantics></math> indicates a missing entity</li>
+<li>A knowledge graph <span class="math inline">\(G = (E, R, T)\)</span></li>
+<li>A query in the form <span class="math inline">\((h, r, ?)\)</span> or <span class="math inline">\((?, r, t)\)</span>, where <span class="math inline">\(?\)</span> indicates a missing entity</li>
 </ul>
-<p>The task is to rank all entities <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>∈</mo><mi>E</mi></mrow><annotation encoding="application/x-tex">e \in E</annotation></semantics></math> by the score <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mi>r</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mo>,</mo><mi>e</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f_r(h, e)</annotation></semantics></math> or <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mi>r</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>e</mi><mo>,</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f_r(e, t)</annotation></semantics></math>, respectively, where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>r</mi></msub><annotation encoding="application/x-tex">f_r</annotation></semantics></math> is a scoring function.</p>
+<p>The task is to rank all entities <span class="math inline">\(e \in E\)</span> by the score <span class="math inline">\(f_r(h, e)\)</span> or <span class="math inline">\(f_r(e, t)\)</span>, respectively, where <span class="math inline">\(f_r\)</span> is a scoring function.</p>
 <p>Performance is evaluated by the rank of the correct entity among all possible entities.</p>
 </div>
 <p>In practice, link prediction involves these steps:</p>
@@ -662,7 +600,7 @@ France = [0.4, -0.1, 0.9, 0.5, ...]</code></pre>
 <li>Evaluate using metrics like Mean Rank, Mean Reciprocal Rank, or Hits@k</li>
 </ol>
 <div id="exm-link-prediction-ranking" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3.13 (Link prediction ranking example)</strong></span> Consider a query <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>?</mi><mo>,</mo><mtext mathvariant="normal">capital_of</mtext><mo>,</mo><mtext mathvariant="normal">France</mtext><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(?, \text{capital_of}, \text{France})</annotation></semantics></math> to find the capital of France.</p>
+<p><span class="theorem-title"><strong>Example 1.13 (Link prediction ranking example)</strong></span> Consider a query <span class="math inline">\((?, \text{capital_of}, \text{France})\)</span> to find the capital of France.</p>
 <p>A model might produce these scores for candidate entities:</p>
 <ul>
 <li>Paris: 0.95</li>
@@ -674,8 +612,8 @@ France = [0.4, -0.1, 0.9, 0.5, ...]</code></pre>
 <p>The correct answer (Paris) is ranked first, resulting in a perfect prediction in this case.</p>
 </div>
 </section>
-<section id="summary" class="level2" data-number="3.12">
-<h2 data-number="3.12" class="anchored" data-anchor-id="summary"><span class="header-section-number">3.12</span> Summary</h2>
+<section id="summary" class="level2" data-number="1.12">
+<h2 data-number="1.12" class="anchored" data-anchor-id="summary"><span class="header-section-number">1.12</span> Summary</h2>
 <p>In this chapter, we’ve established the foundations for understanding knowledge graphs and embedding approaches to link prediction:</p>
 <ul>
 <li>Knowledge graphs represent factual information as triples of the form (head entity, relation, tail entity)</li>
@@ -686,26 +624,26 @@ France = [0.4, -0.1, 0.9, 0.5, ...]</code></pre>
 </ul>
 <p>The next chapter will delve into the fundamentals of vector space representations, which form the mathematical foundation for all knowledge graph embedding approaches.</p>
 </section>
-<section id="further-reading" class="level2" data-number="3.13">
-<h2 data-number="3.13" class="anchored" data-anchor-id="further-reading"><span class="header-section-number">3.13</span> Further reading</h2>
-<section id="books-and-surveys" class="level3" data-number="3.13.1">
-<h3 data-number="3.13.1" class="anchored" data-anchor-id="books-and-surveys"><span class="header-section-number">3.13.1</span> Books and surveys</h3>
+<section id="further-reading" class="level2" data-number="1.13">
+<h2 data-number="1.13" class="anchored" data-anchor-id="further-reading"><span class="header-section-number">1.13</span> Further reading</h2>
+<section id="books-and-surveys" class="level3" data-number="1.13.1">
+<h3 data-number="1.13.1" class="anchored" data-anchor-id="books-and-surveys"><span class="header-section-number">1.13.1</span> Books and surveys</h3>
 <ul>
 <li>Wang, Q., Mao, Z., Wang, B., &amp; Guo, L. (2017). Knowledge graph embedding: A survey of approaches and applications. IEEE Transactions on Knowledge and Data Engineering, 29(12), 2724-2743.</li>
 <li>Hogan, A., Blomqvist, E., Cochez, M., d’Amato, C., Melo, G. D., Gutierrez, C., … &amp; Zimmermann, A. (2021). Knowledge graphs. ACM Computing Surveys, 54(4), 1-37.</li>
 <li>Getoor, L., &amp; Taskar, B. (Eds.). (2007). Introduction to statistical relational learning. MIT press.</li>
 </ul>
 </section>
-<section id="knowledge-graphs-and-applications" class="level3" data-number="3.13.2">
-<h3 data-number="3.13.2" class="anchored" data-anchor-id="knowledge-graphs-and-applications"><span class="header-section-number">3.13.2</span> Knowledge graphs and applications</h3>
+<section id="knowledge-graphs-and-applications" class="level3" data-number="1.13.2">
+<h3 data-number="1.13.2" class="anchored" data-anchor-id="knowledge-graphs-and-applications"><span class="header-section-number">1.13.2</span> Knowledge graphs and applications</h3>
 <ul>
 <li>Singhal, A. (2012). Introducing the Knowledge Graph: things, not strings. Google Official Blog.</li>
 <li>Nickel, M., Murphy, K., Tresp, V., &amp; Gabrilovich, E. (2016). A review of relational machine learning for knowledge graphs. Proceedings of the IEEE, 104(1), 11-33.</li>
 <li>Paulheim, H. (2017). Knowledge graph refinement: A survey of approaches and evaluation methods. Semantic Web, 8(3), 489-508.</li>
 </ul>
 </section>
-<section id="embedding-models-introductions" class="level3" data-number="3.13.3">
-<h3 data-number="3.13.3" class="anchored" data-anchor-id="embedding-models-introductions"><span class="header-section-number">3.13.3</span> Embedding models introductions</h3>
+<section id="embedding-models-introductions" class="level3" data-number="1.13.3">
+<h3 data-number="1.13.3" class="anchored" data-anchor-id="embedding-models-introductions"><span class="header-section-number">1.13.3</span> Embedding models introductions</h3>
 <ul>
 <li>Bordes, A., Usunier, N., Garcia-Duran, A., Weston, J., &amp; Yakhnenko, O. (2013). Translating embeddings for modeling multi-relational data. In Advances in Neural Information Processing Systems (pp.&nbsp;2787-2795).</li>
 <li>Yang, B., Yih, W. T., He, X., Gao, J., &amp; Deng, L. (2015). Embedding entities and relations for learning and inference in knowledge bases. In International Conference on Learning Representations.</li>
@@ -1141,14 +1079,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation column-body">
   <div class="nav-page nav-page-previous">
-      <a href="../content/outline.html" class="pagination-link" aria-label="Outline">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Outline</span></span>
+      <a href="../index.html" class="pagination-link" aria-label="Welcome">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Welcome</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../content/embedding.html" class="pagination-link" aria-label="Fundamentals of Vector Space Representations">
-        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Fundamentals of Vector Space Representations</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->

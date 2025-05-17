@@ -296,20 +296,20 @@ The most common formulation of knowledge graph completion is link prediction:
 
 ## Link prediction
 
-**Link prediction** in knowledge graphs is the task of predicting missing links (relationships) between entities. Formally, given a triple where either the head or tail entity is missing, $(?, r, t)$ or $(h, r, ?)$, the goal is to rank all possible entities from the knowledge graph based on their likelihood of completing the triple correctly.
+**Link prediction** in knowledge graphs is the task of predicting missing links (relationships) between entities. Formally, given a triple where either the head or tail entity is missing, `(?, r, t)` or `(h, r, ?)`, the goal is to rank all possible entities from the knowledge graph based on their likelihood of completing the triple correctly.
 
 :::
 
 Link prediction can be viewed as answering questions like:
 
-- "Which city is the capital of France?" — predicting $(?, \text{capital_of}, \text{France})$
-- "What genre does the movie Inception belong to?" — predicting $(\text{Inception}, \text{has_genre}, ?)$
+- "Which city is the capital of France?" — predicting `(?, capital_of, France)`
+- "What genre does the movie Inception belong to?" — predicting `(Inception, has_genre, ?)`
 
 ::: {#exm-link-prediction}
 
 ## Link prediction example
 
-Consider our movie knowledge graph example with a missing triple: $(\text{Leonardo DiCaprio}, \text{won_oscar_for}, ?)$
+Consider our movie knowledge graph example with a missing triple: `(Leonardo DiCaprio, won_oscar_for, ?)`.
 
 A link prediction model would rank potential tail entities:
 

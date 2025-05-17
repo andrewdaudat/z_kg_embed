@@ -1,0 +1,1166 @@
+# Advanced Models: Rotations and Neural Networks
+
+The previous chapters explored translation-based and semantic matching models, which have formed the foundation of knowledge graph embedding approaches. As research in this field has progressed, more sophisticated models have emerged, leveraging complex spaces, rotational transformations, and neural network architectures to achieve greater expressiveness and performance. These advanced models aim to address limitations of earlier approaches and capture more complex relation patterns in knowledge graphs.
+
+This chapter delves into two main categories of advanced knowledge graph embedding models. First, we'll explore models based on rotations in complex or other geometric spaces, which offer powerful ways to represent various relation patterns. Then, we'll examine neural network-based approaches that leverage deep learning architectures to model complex interactions between entities and relations. By the end of this chapter, you'll understand how these advanced models push the boundaries of knowledge graph embedding and enable more accurate link prediction and reasoning.
+
+## Rotations in embedding space
+
+Rotational transformations provide a powerful geometric framework for modeling relationships in knowledge graphs. Unlike translations, which shift points in embedding space, rotations preserve distances while changing directions. This property makes rotational models particularly effective at capturing various relation patterns, including symmetry, antisymmetry, inversion, and composition.
+
+::: {#def-rotation-transformation}
+
+## Rotation transformation
+
+A **rotation transformation** in a vector space is a linear transformation that preserves distances between points and keeps the origin fixed. In 2D Euclidean space, a rotation by angle $\theta$ can be represented by the matrix:
+
+$$R(\theta) = \begin{pmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{pmatrix}$$
+
+When applied to a vector $\mathbf{v}$, the rotated vector is $R(\theta)\mathbf{v}$.
+
+In higher dimensions or different geometric spaces, rotations take more complex forms but maintain their distance-preserving property.
+
+:::
+
+Rotational transformations have several advantages for modeling relations:
+
+1. **Distance preservation**: Rotations don't change the magnitude of vectors, which helps maintain entity similarity structures
+2. **Compositionality**: Successive rotations combine naturally through matrix multiplication
+3. **Invertibility**: Every rotation has a well-defined inverse (the opposite rotation)
+4. **Varied expressiveness**: Different rotation angles can model different relation patterns
+
+::: {#exm-rotation-intuition}
+
+## Rotation intuition example
+
+Consider a simple knowledge graph with countries and their capitals:
+
+- (France, capital_of, Paris)
+- (Germany, capital_of, Berlin)
+- (Italy, capital_of, Rome)
+
+In a rotation-based model, the relation "capital_of" might be represented as a rotation that transforms country embeddings into the region of the embedding space where their capital cities are located.
+
+If countries are clustered in one region of the embedding space and capital cities in another, a consistent rotation would align the embedding of each country with its capital.
+
+:::
+
+## RotatE: relational rotation in complex space
+
+RotatE, introduced by Sun et al. (2019), represents relations as rotations in complex vector space. We first discussed RotatE in Chapter 3 as an advanced translation-based model, but its primary innovation is the use of rotations in complex space.
+
+::: {#def-rotate}
+
+## RotatE model
+
+In the **RotatE** model, entities and relations are embedded in complex space $\mathbb{C}^d$:
+
+- Each entity $e$ is represented by a complex vector $\mathbf{e} \in \mathbb{C}^d$
+- Each relation $r$ is represented by a complex vector $\mathbf{r} \in \mathbb{C}^d$ with $|\mathbf{r}_i| = 1$ for all components $i$
+
+The model enforces: $$\mathbf{t} = \mathbf{h} \circ \mathbf{r}$$
+
+where $\circ$ is the Hadamard (element-wise) product and $\mathbf{h}, \mathbf{r}, \mathbf{t}$ are the embeddings of head entity, relation, and tail entity, respectively.
+
+The scoring function is: $$f_r(h, t) = -\|\mathbf{h} \circ \mathbf{r} - \mathbf{t}\|^2$$
+
+:::
+
+### Complex number interpretation
+
+The key insight of RotatE is that multiplying by a complex number with unit modulus corresponds to a rotation in the complex plane:
+
+::: {#def-complex-rotation}
+
+## Complex number rotation
+
+A complex number $z = e^{i\theta} = \cos\theta + i\sin\theta$ with unit modulus ($|z| = 1$) represents a rotation by angle $\theta$ in the complex plane.
+
+When multiplying complex numbers:
+
+- The moduli multiply: $|z_1 \cdot z_2| = |z_1| \cdot |z_2|$
+- The arguments (angles) add: $\arg(z_1 \cdot z_2) = \arg(z_1) + \arg(z_2)$
+
+Therefore, multiplying a complex vector by another complex vector with unit modulus components performs element-wise rotations.
+
+:::
+
+::: {#exm-rotate-rotation}
+
+## RotatE rotation example
+
+Consider a 2-dimensional complex embedding space with:
+
+- $\mathbf{h} = [0.8 + 0.6i, 0.5 - 0.5i]$ (head entity embedding)
+- $\mathbf{r} = [0.7 + 0.7i, 0.0 + 1.0i]$ (relation embedding)
+
+Note that each component of $\mathbf{r}$ has unit modulus:
+
+- $|0.7 + 0.7i| = \sqrt{0.7^2 + 0.7^2} = \sqrt{0.98} \approx 1$
+- $|0.0 + 1.0i| = \sqrt{0^2 + 1^2} = 1$
+
+The Hadamard product would be: $\mathbf{h} \circ \mathbf{r} = [(0.8 + 0.6i) \cdot (0.7 + 0.7i), (0.5 - 0.5i) \cdot (0.0 + 1.0i)]$
+
+For the first component: $(0.8 + 0.6i) \cdot (0.7 + 0.7i) = (0.8 \cdot 0.7 - 0.6 \cdot 0.7) + (0.8 \cdot 0.7 + 0.6 \cdot 0.7)i = 0.56 - 0.42 + (0.56 + 0.42)i = 0.14 + 0.98i$
+
+For the second component: $(0.5 - 0.5i) \cdot (0.0 + 1.0i) = (0.5 \cdot 0.0 - (-0.5) \cdot 1.0) + (0.5 \cdot 1.0 + (-0.5) \cdot 0.0)i = 0.0 + 0.5 + 0.5i = 0.5 + 0.5i$
+
+Therefore: $\mathbf{h} \circ \mathbf{r} = [0.14 + 0.98i, 0.5 + 0.5i]$
+
+This represents the head entity rotated according to the relation.
+
+:::
+
+### Modeling relation patterns
+
+RotatE can model various relation patterns through rotations in complex space:
+
+::: {#def-rotate-patterns}
+
+## RotatE relation patterns
+
+1. **Symmetry**: A symmetric relation has $\mathbf{r}_i = 1$ or $\mathbf{r}_i = -1$ for all components $i$, corresponding to rotation by 0 or π radians
+2. **Antisymmetry**: An antisymmetric relation has $\mathbf{r}_i \neq 1$ and $\mathbf{r}_i \neq -1$ for some components $i$
+3. **Inversion**: For inverse relations $r_1$ and $r_2$, $\mathbf{r}_2 = \overline{\mathbf{r}_1}$ (complex conjugate)
+4. **Composition**: For relations $r_1$, $r_2$, and $r_3$ where $(h, r_1, e)$ and $(e, r_2, t)$ imply $(h, r_3, t)$, we have $\mathbf{r}_3 = \mathbf{r}_1 \circ \mathbf{r}_2$
+
+:::
+
+::: {#exm-rotate-patterns}
+
+## RotatE relation patterns example
+
+Consider these relation patterns:
+
+1. **Symmetry** (e.g., "is_sibling_of"):
+
+   - If $\mathbf{r} = [1, 1, ..., 1]$ (all ones), then $\mathbf{h} \circ \mathbf{r} = \mathbf{h}$
+   - This would model a relation where $(h, r, t)$ implies $(t, r, h)$ with the same score
+
+2. **Inversion** (e.g., "is_parent_of" and "is_child_of"):
+
+   - If $\mathbf{r}_{\text{is\_parent\_of}} = [0.7 + 0.7i, 0.0 + 1.0i, ...]$
+   - Then $\mathbf{r}_{\text{is\_child\_of}} = [0.7 - 0.7i, 0.0 - 1.0i, ...]$ (complex conjugate)
+   - This ensures that rotating by "is_parent_of" and then by "is_child_of" returns to the original position
+
+3. **Composition** (e.g., "is_born_in" and "is_located_in" compose to "has_nationality"):
+   - If $\mathbf{r}_{\text{is\_born\_in}} = [0.9 + 0.4i, 0.7 + 0.7i, ...]$
+   - And $\mathbf{r}_{\text{is\_located\_in}} = [0.8 + 0.6i, 0.5 + 0.9i, ...]$
+   - Then $\mathbf{r}_{\text{has\_nationality}} = \mathbf{r}_{\text{is\_born\_in}} \circ \mathbf{r}_{\text{is\_located\_in}}$
+   - This models the transitive relationship where being born in a city located in a country implies having that country's nationality
+
+:::
+
+### Self-adversarial negative sampling
+
+A key innovation in RotatE is its self-adversarial negative sampling technique, which improves training efficiency:
+
+::: {#def-self-adversarial}
+
+## Self-adversarial negative sampling
+
+In **self-adversarial negative sampling**, the weight of a negative sample $(h', r, t')$ is determined by its current score according to the model:
+
+$$p(h', r, t') = \frac{\exp(\alpha f_r(h', t'))}{\sum_{(h_j', r, t_j') \in T'_{(h,r,t)}} \exp(\alpha f_r(h_j', t_j'))}$$
+
+where $\alpha$ is a temperature hyperparameter.
+
+The negative sampling loss becomes: $$L = -\log\sigma(\gamma - f_r(h, t)) - \sum_{(h', r, t') \in T'_{(h,r,t)}} p(h', r, t') \log\sigma(f_r(h', t') - \gamma)$$
+
+where $\sigma$ is the sigmoid function and $\gamma$ is the margin.
+
+:::
+
+This approach focuses training on "hard" negative examples (those that the model incorrectly scores highly), leading to more efficient learning.
+
+### RotatE strengths and limitations
+
+RotatE offers several advantages:
+
+1. **Expressive modeling of relation patterns**: RotatE can model symmetry, antisymmetry, inversion, and composition
+2. **Parameter efficiency**: With $O(2|E|d + 2|R|d)$ parameters (considering real and imaginary parts separately), RotatE is relatively efficient
+3. **Strong empirical performance**: RotatE achieves state-of-the-art results on various knowledge graph completion benchmarks
+
+However, RotatE also has some limitations:
+
+1. **Restricted to rotations**: The model can only represent relationships as rotations, which may not capture all possible patterns
+2. **2D rotations only**: Each complex dimension allows for rotation only in a 2D plane, potentially limiting expressiveness in higher dimensions
+3. **Unit modulus constraint**: The constraint that relation embeddings must have unit modulus components restricts the model's flexibility
+
+## pRotatE: phase rotation model
+
+pRotatE, a variant of RotatE introduced in the same paper by Sun et al. (2019), explicitly models relations as phase rotations in complex space:
+
+::: {#def-protate}
+
+## pRotatE model
+
+In the **pRotatE** model, entities and relations are embedded based on their phase angles:
+
+- Each entity $e$ is represented by a complex vector $\mathbf{e} \in \mathbb{C}^d$ with $|\mathbf{e}_i| = 1$ for all components $i$
+- Each relation $r$ is represented by a vector of phase angles $\mathbf{r} \in [0, 2\pi)^d$
+
+The model enforces: $$e^{i\theta_{\mathbf{t}}} = e^{i\theta_{\mathbf{h}}} \circ e^{i\mathbf{r}}$$
+
+where $\theta_{\mathbf{e}}$ denotes the phase angle of the complex vector $\mathbf{e}$.
+
+The scoring function is: $$f_r(h, t) = -\|e^{i\theta_{\mathbf{h}}} \circ e^{i\mathbf{r}} - e^{i\theta_{\mathbf{t}}}\|^2$$
+
+:::
+
+pRotatE makes the phase rotation aspect of RotatE more explicit, emphasizing that the modulus of entity embeddings doesn't affect the scoring function.
+
+## QuatE: quaternion embeddings
+
+QuatE, proposed by Zhang et al. (2019), extends rotational embeddings from the complex domain to quaternions, providing additional degrees of freedom for representation.
+
+::: {#def-quate}
+
+## QuatE model
+
+In the **QuatE** model, entities and relations are represented as quaternions: $$\mathbf{e} = e_r + e_i\mathbf{i} + e_j\mathbf{j} + e_k\mathbf{k}$$ where $e_r, e_i, e_j, e_k \in \mathbb{R}$ are real numbers, and $\mathbf{i}, \mathbf{j}, \mathbf{k}$ are imaginary units with: $$\mathbf{i}^2 = \mathbf{j}^2 = \mathbf{k}^2 = \mathbf{i}\mathbf{j}\mathbf{k} = -1$$
+
+The scoring function is: $$f_r(h, t) = \langle \mathbf{h} \otimes \mathbf{r}_n, \mathbf{t} \rangle$$ where $\otimes$ is quaternion multiplication, $\mathbf{r}_n$ is the normalized relation quaternion, and $\langle \cdot, \cdot \rangle$ is the quaternion inner product.
+
+:::
+
+### Quaternion algebra
+
+Quaternions extend complex numbers to four dimensions, providing a powerful framework for representing 3D rotations:
+
+::: {#def-quaternions}
+
+## Quaternion algebra
+
+A **quaternion** $q = a + b\mathbf{i} + c\mathbf{j} + d\mathbf{k}$ consists of:
+
+- A scalar (real) part $a \in \mathbb{R}$
+- Three imaginary parts $b, c, d \in \mathbb{R}$ with imaginary units $\mathbf{i}, \mathbf{j}, \mathbf{k}$
+
+Key operations include:
+
+1. **Conjugate**: $\overline{q} = a - b\mathbf{i} - c\mathbf{j} - d\mathbf{k}$
+2. **Norm**: $|q| = \sqrt{a^2 + b^2 + c^2 + d^2}$
+3. **Multiplication**: Defined by the properties $\mathbf{i}^2 = \mathbf{j}^2 = \mathbf{k}^2 = -1$, $\mathbf{i}\mathbf{j} = \mathbf{k}$, $\mathbf{j}\mathbf{k} = \mathbf{i}$, $\mathbf{k}\mathbf{i} = \mathbf{j}$, $\mathbf{j}\mathbf{i} = -\mathbf{k}$, $\mathbf{k}\mathbf{j} = -\mathbf{i}$, $\mathbf{i}\mathbf{k} = -\mathbf{j}$
+4. **Inner product**: $\langle q_1, q_2 \rangle = a_1a_2 + b_1b_2 + c_1c_2 + d_1d_2$
+
+:::
+
+### Quaternion rotations
+
+A key advantage of quaternions is their ability to efficiently represent 3D rotations:
+
+::: {#def-quaternion-rotation}
+
+## Quaternion rotation
+
+A rotation in 3D space can be represented by a unit quaternion $q$ with $|q| = 1$. To rotate a vector $\mathbf{v} = (x, y, z)$ by quaternion $q$:
+
+1. Convert $\mathbf{v}$ to a pure imaginary quaternion: $v = 0 + x\mathbf{i} + y\mathbf{j} + z\mathbf{k}$
+2. Apply the rotation: $v' = q \otimes v \otimes q^{-1}$ where $q^{-1} = \overline{q}$ for unit quaternions
+3. Extract the vector from the resulting quaternion: $\mathbf{v}' = (v'_i, v'_j, v'_k)$
+
+This rotation preserves the vector's magnitude and offers a compact and numerically stable representation of 3D rotations.
+
+:::
+
+::: {#exm-quate-rotation}
+
+## QuatE rotation example
+
+Consider a quaternion relation embedding $\mathbf{r} = \frac{\sqrt{2}}{2} + \frac{\sqrt{2}}{2}\mathbf{i} + 0\mathbf{j} + 0\mathbf{k}$ (representing a 90-degree rotation around the i-axis).
+
+For an entity embedding $\mathbf{h} = 0 + 0\mathbf{i} + 1\mathbf{j} + 0\mathbf{k}$, the quaternion product would be: $\mathbf{h} \otimes \mathbf{r} = (0 + 0\mathbf{i} + 1\mathbf{j} + 0\mathbf{k}) \otimes (\frac{\sqrt{2}}{2} + \frac{\sqrt{2}}{2}\mathbf{i} + 0\mathbf{j} + 0\mathbf{k})$
+
+Following quaternion multiplication rules: $\mathbf{h} \otimes \mathbf{r} = \frac{\sqrt{2}}{2}\mathbf{j} + \frac{\sqrt{2}}{2}(\mathbf{j} \otimes \mathbf{i}) = \frac{\sqrt{2}}{2}\mathbf{j} + \frac{\sqrt{2}}{2}(-\mathbf{k}) = \frac{\sqrt{2}}{2}\mathbf{j} - \frac{\sqrt{2}}{2}\mathbf{k}$
+
+This represents the head entity rotated by 90 degrees according to the relation quaternion.
+
+:::
+
+### QuatE strengths and limitations
+
+QuatE offers several advantages:
+
+1. **Enhanced expressiveness**: Quaternions provide additional degrees of freedom compared to complex numbers
+2. **3D rotation modeling**: QuatE can naturally model rotations in 3D space, which can capture more complex relation patterns
+3. **Strong empirical performance**: QuatE achieves state-of-the-art results on several benchmarks
+
+However, QuatE also has limitations:
+
+1. **Increased complexity**: Quaternion operations are more complex than real or complex operations
+2. **Additional parameters**: With four components per dimension, QuatE has more parameters than real-valued models
+3. **Training challenges**: The model requires careful initialization and training due to the complexity of quaternion algebra
+
+## DensE: rotation in spinor space
+
+DensE, proposed by Li et al. (2020), extends rotational models to higher dimensions using spinor representations:
+
+::: {#def-dense}
+
+## DensE model
+
+In the **DensE** model, entities and relations are embedded in higher-dimensional spaces using spinor representations:
+
+- Entities are represented as multivectors in Clifford algebra
+- Relations are represented as rotors (generalized quaternions) that act on entity embeddings
+
+The model applies rotations in higher-dimensional spaces, extending beyond the 3D rotations of quaternions to arbitrary dimensions.
+
+The scoring function measures the distance between the rotated head entity and the tail entity in this higher-dimensional space.
+
+:::
+
+DensE leverages the mathematical framework of Clifford algebra and geometric algebra to represent rotations in arbitrary dimensions, offering even greater expressiveness than quaternion-based models.
+
+## Neural network-based models
+
+While geometric models like RotatE and QuatE offer powerful representations through rotations, neural network-based models take a different approach by leveraging the expressive power of neural architectures to model complex interactions between entities and relations.
+
+::: {#def-neural-kge}
+
+## Neural network-based knowledge graph embedding
+
+**Neural network-based knowledge graph embedding** models use neural architectures to:
+
+1. Process entity and relation embeddings
+2. Model complex, non-linear interactions between entities and relations
+3. Compute scores for triples based on learned representations
+
+:::
+
+Neural network approaches have several potential advantages:
+
+1. **Expressiveness**: Neural networks can approximate arbitrary functions, potentially capturing more complex patterns
+2. **Non-linearity**: Non-linear activation functions enable modeling of complex, non-linear relationships
+3. **Feature learning**: Neural networks can learn useful features from raw embeddings
+4. **Integration with other modalities**: Neural architectures can naturally integrate with other neural models for multimodal learning
+
+## Neural Tensor Network (NTN)
+
+The Neural Tensor Network (NTN), proposed by Socher et al. (2013), was one of the first neural network-based models for knowledge graph embedding:
+
+::: {#def-ntn}
+
+## Neural Tensor Network model
+
+In the **Neural Tensor Network (NTN)** model, entities are represented as vectors $\mathbf{e} \in \mathbb{R}^d$, and each relation $r$ is associated with:
+
+1. A tensor $\mathcal{W}_r \in \mathbb{R}^{d \times d \times k}$
+2. A linear transform matrix $\mathbf{V}_r \in \mathbb{R}^{k \times 2d}$
+3. A bias vector $\mathbf{b}_r \in \mathbb{R}^k$
+4. A weight vector $\mathbf{u}_r \in \mathbb{R}^k$
+
+The scoring function is: $$f_r(h, t) = \mathbf{u}_r^T \tanh(\mathbf{h}^T \mathcal{W}_r \mathbf{t} + \mathbf{V}_r [\mathbf{h}; \mathbf{t}] + \mathbf{b}_r)$$
+
+where $[\mathbf{h}; \mathbf{t}]$ denotes the concatenation of $\mathbf{h}$ and $\mathbf{t}$, and $\tanh$ is the hyperbolic tangent activation function.
+
+:::
+
+### Tensor product
+
+The core of the NTN model is the tensor product, which captures multiplicative interactions between entity embeddings:
+
+::: {#def-tensor-product}
+
+## Tensor product
+
+The **tensor product** between vectors $\mathbf{h}, \mathbf{t} \in \mathbb{R}^d$ with a tensor $\mathcal{W} \in \mathbb{R}^{d \times d \times k}$ produces a vector $\mathbf{z} \in \mathbb{R}^k$ where:
+
+$$\mathbf{z}[i] = \mathbf{h}^T \mathcal{W}[:, :, i] \mathbf{t} = \sum_{j=1}^d \sum_{l=1}^d \mathbf{h}[j] \mathcal{W}[j, l, i] \mathbf{t}[l]$$
+
+Each slice $\mathcal{W}[:, :, i]$ of the tensor is a matrix that captures a particular type of interaction between the embeddings.
+
+:::
+
+::: {#exm-ntn}
+
+## NTN example
+
+Consider entity embeddings $\mathbf{h}, \mathbf{t} \in \mathbb{R}^2$ and a relation with tensor $\mathcal{W}_r \in \mathbb{R}^{2 \times 2 \times 2}$, matrices $\mathbf{V}_r \in \mathbb{R}^{2 \times 4}$, and vectors $\mathbf{b}_r, \mathbf{u}_r \in \mathbb{R}^2$.
+
+For the tensor product term, if:
+
+- $\mathbf{h} = [0.5, 0.8]$
+- $\mathbf{t} = [0.3, 0.6]$
+- $\mathcal{W}_r[:,:,0] = \begin{pmatrix} 0.1 & 0.2 \\ 0.3 & 0.4 \end{pmatrix}$
+- $\mathcal{W}_r[:,:,1] = \begin{pmatrix} 0.5 & 0.6 \\ 0.7 & 0.8 \end{pmatrix}$
+
+Then: $\mathbf{h}^T \mathcal{W}_r[:,:,0] \mathbf{t} = [0.5, 0.8] \begin{pmatrix} 0.1 & 0.2 \\ 0.3 & 0.4 \end{pmatrix} [0.3, 0.6]^T = [0.5 \cdot 0.1 + 0.8 \cdot 0.3, 0.5 \cdot 0.2 + 0.8 \cdot 0.4] [0.3, 0.6]^T = [0.05 + 0.24, 0.1 + 0.32] [0.3, 0.6]^T = [0.29, 0.42] [0.3, 0.6]^T = 0.29 \cdot 0.3 + 0.42 \cdot 0.6 = 0.087 + 0.252 = 0.339$
+
+Similarly, for the second slice, $\mathbf{h}^T \mathcal{W}_r[:,:,1] \mathbf{t} = 0.915$
+
+This tensor product term is then combined with the bilinear term and bias, passed through a non-linear activation function, and weighted to produce the final score.
+
+:::
+
+### NTN strengths and limitations
+
+NTN offers several advantages:
+
+1. **High expressiveness**: The tensor product captures complex interactions between entity embeddings
+2. **Non-linearity**: The activation function introduces non-linearity, enabling more complex relation modeling
+3. **Combined bilinear and tensor interactions**: NTN incorporates both standard bilinear terms and more expressive tensor interactions
+
+However, NTN also has significant limitations:
+
+1. **Parameter explosion**: With $O(|E|d + |R|kd^2 + |R|k(2d) + |R|k + |R|k) = O(|E|d + |R|kd^2)$ parameters, NTN requires many more parameters than other models
+2. **Overfitting risk**: The large number of parameters increases the risk of overfitting, especially for relations with few examples
+3. **Computational complexity**: Computing the tensor product is computationally expensive, making NTN less scalable to large knowledge graphs
+
+## Multi-Layer Perceptron (MLP) models
+
+Several simpler neural models replace the tensor product with standard neural network layers:
+
+::: {#def-mlp-models}
+
+## MLP-based knowledge graph embedding models
+
+**MLP-based knowledge graph embedding models** use multilayer perceptrons to score triples:
+
+1. Combine entity embeddings through concatenation, element-wise operations, or other means
+2. Process the combined representations through one or more fully connected layers
+3. Produce a score indicating the plausibility of the triple
+
+The general form is: $$f_r(h, t) = \text{MLP}_r([\mathbf{h}; \mathbf{t}]) \text{ or } f_r(h, t) = \text{MLP}([\mathbf{h}; \mathbf{r}; \mathbf{t}])$$
+
+where $[\cdot; \cdot]$ denotes concatenation, and $\text{MLP}$ is a multi-layer perceptron.
+
+:::
+
+These models are more parameter-efficient than NTN while still leveraging the expressiveness of neural networks.
+
+## Convolutional models
+
+Convolutional neural networks (CNNs) have also been applied to knowledge graph embeddings, leveraging their ability to capture local patterns and parameter sharing:
+
+::: {#def-conve}
+
+## ConvE model
+
+In the **ConvE** model, proposed by Dettmers et al. (2018):
+
+1. Entity and relation embeddings are reshaped and concatenated to form a 2D "image"
+2. 2D convolutional filters are applied to this image
+3. The result is flattened, passed through a fully connected layer, and scored against the tail entity
+
+The scoring function is: $$f_r(h, t) = \mathbf{t}^T \text{ReLU}(\text{vec}(\text{ReLU}(\text{conv}([\overline{\mathbf{h}}; \overline{\mathbf{r}}]) * \Omega)) \mathbf{W})$$
+
+where $\overline{\mathbf{h}}$ and $\overline{\mathbf{r}}$ are the reshaped head entity and relation embeddings, $\text{conv}$ is the convolution operation with filters $\Omega$, $\text{vec}$ flattens the output, and $\mathbf{W}$ is a weight matrix.
+
+:::
+
+::: {#exm-conve}
+
+## ConvE example
+
+Consider entity and relation embeddings with dimension $d = 100$. In ConvE:
+
+1. Reshape the head entity embedding to a 10×10 matrix
+2. Reshape the relation embedding to a 10×10 matrix
+3. Stack these to create a 10×20 "image"
+4. Apply convolutional filters (e.g., 3×3 filters) to this image
+5. Apply ReLU activation, flatten, and project to the embedding dimension
+6. Compute the similarity with the tail entity embedding
+
+This approach leverages the parameter sharing and local pattern recognition capabilities of CNNs.
+
+:::
+
+### ConvKB
+
+ConvKB, proposed by Nguyen et al. (2018), applies convolutions across the embedding dimension rather than to reshaped embeddings:
+
+::: {#def-convkb}
+
+## ConvKB model
+
+In the **ConvKB** model:
+
+1. Entity and relation embeddings are stacked to form a 3×d matrix $\mathbf{M} = [\mathbf{h}, \mathbf{r}, \mathbf{t}]$
+2. 1D convolutional filters with width 3 are applied across the embeddings
+3. The results are flattened and scored using a linear layer
+
+The scoring function is:
+
+$$f_r(h, t) = \text{concat}(\text{ReLU}(\text{conv}([\mathbf{h}, \mathbf{r}, \mathbf{t}]) * \Omega)) \cdot \mathbf{w}$$
+
+where $[\mathbf{h}, \mathbf{r}, \mathbf{t}]$ is the stacked matrix of embeddings, $\text{conv}$ is the convolution operation with filters $\Omega$, $\text{concat}$ concatenates the output, and $\mathbf{w}$ is a weight vector.
+
+:::
+
+ConvKB applies convolutional filters directly to the triples, capturing interactions between corresponding dimensions of the head entity, relation, and tail entity embeddings.
+
+### CapsE: Capsule Network for KGE
+
+CapsE, proposed by Nguyen et al. (2019), leverages capsule networks to better preserve spatial information in the embedding space:
+
+::: {#def-capse}
+
+## CapsE model
+
+In the **CapsE** model:
+
+1. Entity and relation embeddings are stacked to form a 3×d matrix $\mathbf{M} = [\mathbf{h}, \mathbf{r}, \mathbf{t}]$
+2. Convolutional filters are applied to extract features
+3. A capsule network processes these features to preserve structural information
+4. Dynamic routing between capsules determines the final score
+
+Capsule networks use vectors (rather than scalars) to represent features and employ a dynamic routing mechanism that preserves hierarchical relationships.
+
+:::
+
+CapsE aims to better capture the structural aspects of knowledge graph embeddings by preserving spatial information through capsule networks.
+
+## Graph Neural Network (GNN) based models
+
+Graph Neural Networks have emerged as powerful tools for modeling graph-structured data, including knowledge graphs:
+
+::: {#def-gnn-kge}
+
+## GNN-based knowledge graph embedding
+
+**GNN-based knowledge graph embedding** models apply graph neural networks to learn entity and relation representations:
+
+1. Treat the knowledge graph as a labeled, directed graph
+2. Apply message passing between nodes (entities) along edges (relations)
+3. Update node representations based on aggregated messages
+4. Use the final node representations for link prediction
+
+These models leverage the graph structure directly, rather than treating each triple independently.
+
+:::
+
+### R-GCN: Relational Graph Convolutional Networks
+
+R-GCN, proposed by Schlichtkrull et al. (2018), extends Graph Convolutional Networks (GCNs) to handle multi-relational data:
+
+::: {#def-rgcn}
+
+## R-GCN model
+
+In the **R-GCN** model:
+
+1. Each entity (node) has an initial embedding $\mathbf{h}_i^{(0)}$
+2. In each layer $l$, node embeddings are updated based on neighbors: $$\mathbf{h}_i^{(l+1)} = \sigma\left(\sum_{r \in R} \sum_{j \in \mathcal{N}_i^r} \frac{1}{c_{i,r}} \mathbf{W}_r^{(l)} \mathbf{h}_j^{(l)} + \mathbf{W}_0^{(l)} \mathbf{h}_i^{(l)}\right)$$ where $\mathcal{N}_i^r$ is the set of neighbors of node $i$ connected through relation $r$, $c_{i,r}$ is a normalization constant, $\mathbf{W}_r^{(l)}$ is a relation-specific transformation matrix, and $\mathbf{W}_0^{(l)}$ is a self-connection matrix
+3. After $L$ layers, the final node embeddings $\mathbf{h}_i^{(L)}$ are used for link prediction
+
+For link prediction, R-GCN is often combined with a scoring function like DistMult or ConvE to evaluate triple plausibility.
+
+:::
+
+::: {#exm-rgcn}
+
+## R-GCN example
+
+Consider a small knowledge graph with entities "Alice," "Bob," and "Charlie" and relations "knows" and "works_with."
+
+In R-GCN, the embedding update for Alice would involve:
+
+1. Aggregating messages from neighbors connected through "knows" relations
+2. Aggregating messages from neighbors connected through "works_with" relations
+3. Applying relation-specific transformations to these messages
+4. Combining them with Alice's current embedding
+5. Applying a non-linear activation function
+
+This process captures both the structure of the graph and the semantics of different relation types.
+
+:::
+
+### CompGCN: Compositional Graph Convolutional Networks
+
+CompGCN, proposed by Vashishth et al. (2020), extends R-GCN by incorporating compositional operators from translational approaches:
+
+::: {#def-compgcn}
+
+## CompGCN model
+
+In the **CompGCN** model:
+
+1. Both entity and relation embeddings are updated in each layer
+2. Node embeddings are updated based on neighbors and composition operators: $$\mathbf{h}_i^{(l+1)} = \sigma\left(\mathbf{W}_{\lambda(r)}^{(l)} \sum_{(j,r) \in \mathcal{N}_i} \frac{1}{|\mathcal{N}_i|} \phi(\mathbf{h}_j^{(l)}, \mathbf{r}) + \mathbf{W}_{\text{self}}^{(l)} \mathbf{h}_i^{(l)}\right)$$ where $\phi$ is a composition operator (like subtraction, multiplication, or circular correlation), $\lambda(r)$ indicates whether $r$ is incoming, outgoing, or a self-loop, and $\mathbf{W}_{\lambda(r)}^{(l)}$ is a direction-specific parameter matrix
+3. Relation embeddings are also updated: $$\mathbf{r}^{(l+1)} = \mathbf{W}_{\text{rel}}^{(l)} \mathbf{r}^{(l)}$$
+
+CompGCN combines the message-passing framework of GNNs with the compositional operators of translational embedding models.
+
+:::
+
+CompGCN unifies the translational and graph neural network approaches, leveraging the strengths of both paradigms.
+
+## Attention-based models
+
+Attention mechanisms, which have revolutionized natural language processing, have also been applied to knowledge graph embeddings:
+
+::: {#def-attention-kge}
+
+## Attention-based knowledge graph embedding
+
+**Attention-based knowledge graph embedding** models use attention mechanisms to:
+
+1. Dynamically weight the importance of different aspects of entity and relation embeddings
+2. Focus on the most relevant parts of the embedding space for a given triple
+3. Capture complex, context-dependent relationships between entities
+
+Attention allows these models to adaptively focus on different features depending on the specific entities and relations involved.
+
+:::
+
+### KBAT: Knowledge Base Attention Network
+
+KBAT, proposed by Nathani et al. (2019), applies multi-head attention to knowledge graph embedding:
+
+::: {#def-kbat}
+
+## KBAT model
+
+In the **KBAT** model:
+
+1. For each entity, feature vectors are computed based on its local neighborhood
+2. Multi-head attention mechanisms are applied to these features: $$\alpha_{ij} = \frac{\exp(f(\mathbf{W}\mathbf{h}_i, \mathbf{W}\mathbf{h}_j, \mathbf{r}_{ij}))}{\sum_{k \in \mathcal{N}_i} \exp(f(\mathbf{W}\mathbf{h}_i, \mathbf{W}\mathbf{h}_k, \mathbf{r}_{ik}))}$$ where $f$ is a scoring function, $\mathbf{W}$ is a projection matrix, and $\mathbf{r}_{ij}$ is the relation embedding
+3. Entity representations are updated using these attention weights: $$\mathbf{h}_i' = \sigma\left(\sum_{j \in \mathcal{N}_i} \alpha_{ij} \mathbf{W}\mathbf{h}_j\right)$$
+4. The updated representations are used for link prediction
+
+KBAT combines the benefits of graph attention networks with knowledge graph embedding.
+
+:::
+
+### MultiHopKG: Multi-hop Knowledge Graph Reasoning
+
+MultiHopKG, proposed by Lin et al. (2018), uses attention for multi-hop reasoning over knowledge graphs:
+
+::: {#def-multihopkg}
+
+## MultiHopKG model
+
+In the **MultiHopKG** model:
+
+1. A reinforcement learning agent traverses the knowledge graph to find paths
+2. At each step, the agent uses attention to decide which relation to follow: $$\mathbf{a}_t = \text{Attention}(\mathbf{h}_{e_t}, \{\mathbf{r} | (e_t, r, e') \in \mathcal{G}\})$$ where $\mathbf{h}_{e_t}$ is the current entity representation, and $\mathbf{r}$ are relation embeddings
+3. The agent's policy is trained to find paths that lead to the correct answer entities
+4. The final paths provide interpretable reasoning chains for link prediction
+
+MultiHopKG combines attention mechanisms with reinforcement learning for explainable link prediction.
+
+:::
+
+## Pre-trained language model approaches
+
+Recent advances in pre-trained language models (PLMs) have opened new possibilities for knowledge graph embeddings:
+
+::: {#def-plm-kge}
+
+## Pre-trained language model approaches to KGE
+
+**Pre-trained language model approaches** leverage large language models to enhance knowledge graph embeddings:
+
+1. Use PLMs to encode textual descriptions of entities and relations
+2. Fine-tune these models for knowledge graph completion tasks
+3. Combine the linguistic knowledge in PLMs with the structural information in knowledge graphs
+
+These approaches benefit from the rich semantic understanding captured by pre-trained language models.
+
+:::
+
+### KG-BERT
+
+KG-BERT, proposed by Yao et al. (2019), fine-tunes BERT for knowledge graph completion:
+
+::: {#def-kg-bert}
+
+## KG-BERT model
+
+In the **KG-BERT** model:
+
+1. Each triple $(h, r, t)$ is converted to a text sequence: "[CLS] h [SEP] r [SEP] t [SEP]"
+2. BERT encodes this sequence into contextual embeddings
+3. The [CLS] token embedding is used to score the plausibility of the triple: $$f_r(h, t) = \sigma(\mathbf{w}^T \mathbf{h}_{[CLS]})$$ where $\mathbf{h}_{[CLS]}$ is the [CLS] token embedding, and $\mathbf{w}$ is a weight vector
+4. The model is fine-tuned on the knowledge graph triples
+
+KG-BERT treats knowledge graph completion as a sequence classification task, leveraging BERT's pre-trained language understanding capabilities.
+
+:::
+
+::: {#exm-kg-bert}
+
+## KG-BERT example
+
+For the triple (Paris, is_capital_of, France), KG-BERT would:
+
+1. Convert it to the text sequence: "[CLS] Paris [SEP] is capital of [SEP] France [SEP]"
+2. Process this sequence through BERT to get contextual embeddings
+3. Use the [CLS] token embedding to score the triple's plausibility
+4. Compare this score with those of corrupted triples like (London, is_capital_of, France)
+
+This approach leverages BERT's understanding of language to determine which triples make semantic sense.
+
+:::
+
+### KEPLER
+
+KEPLER, proposed by Wang et al. (2021), jointly trains knowledge embeddings and language representations:
+
+::: {#def-kepler}
+
+## KEPLER model
+
+In the **KEPLER** model:
+
+1. Entities and relations are represented by their textual descriptions
+2. A pre-trained language model (e.g., RoBERTa) encodes these descriptions into embeddings
+3. A knowledge embedding objective (e.g., TransE) is combined with the language modeling objective: $$L = L_{KE} + \lambda L_{MLM}$$ where $L_{KE}$ is the knowledge embedding loss, $L_{MLM}$ is the masked language modeling loss, and $\lambda$ is a weighting factor
+4. The model is jointly trained on both objectives
+
+KEPLER aligns the embedding space with linguistic semantics, enabling better generalization to unseen entities.
+
+:::
+
+## Hybrid and multi-modal models
+
+Many recent approaches combine different model types or incorporate multiple modalities:
+
+::: {#def-hybrid-models}
+
+## Hybrid knowledge graph embedding models
+
+**Hybrid knowledge graph embedding models** combine different approaches to leverage their complementary strengths:
+
+1. **Geometric + Neural**: Combine geometric interpretations with neural processing
+2. **Structure + Text**: Integrate graph structure with textual descriptions
+3. **Multiple Modalities**: Incorporate images, numerical attributes, or other modalities
+
+These models aim to capture different aspects of entities and relations through diverse representations.
+
+:::
+
+### IKRL: Image-Embodied Knowledge Representation Learning
+
+IKRL, proposed by Xie et al. (2017), incorporates visual information into knowledge graph embeddings:
+
+::: {#def-ikrl}
+
+## IKRL model
+
+In the **IKRL** model:
+
+1. Each entity has both a structure-based embedding and an image-based embedding
+2. The image-based embedding is generated from visual features extracted by a CNN
+3. The model aligns the two embedding spaces and uses both for link prediction
+4. The scoring function combines both embeddings: $$f_r(h, t) = -\|\mathbf{h}_s + \mathbf{r} - \mathbf{t}_s\| - \lambda \|\mathbf{h}_i + \mathbf{r} - \mathbf{t}_i\|$$ where $\mathbf{h}_s, \mathbf{t}_s$ are structure-based embeddings, $\mathbf{h}_i, \mathbf{t}_i$ are image-based embeddings, and $\lambda$ is a weighting factor
+
+IKRL enables visual reasoning within knowledge graph embeddings.
+
+:::
+
+### MMKB: Multi-Modal Knowledge Bases
+
+MMKB, proposed by Pezeshkpour et al. (2018), integrates text, images, and graph structure:
+
+::: {#def-mmkb}
+
+## MMKB model
+
+In the **MMKB** model:
+
+1. Entities have embeddings from multiple modalities: graph structure, text descriptions, and images
+2. Each modality is processed by a specialized encoder (e.g., GNN for structure, BERT for text, CNN for images)
+3. The embeddings from different modalities are fused through attention mechanisms
+4. The fused embeddings are used for link prediction
+
+MMKB enables comprehensive entity representation through multiple complementary views.
+
+:::
+
+## Comparative analysis
+
+Let's analyze the different advanced models we've discussed in terms of their capabilities and characteristics:
+
+::: {#def-model-comparison}
+
+## Comparative analysis of advanced models
+
+| Model | Type | Complexity | Relation Patterns | Expressiveness | Interpretability |
+| --- | --- | --- | --- | --- | --- |
+| RotatE | Rotational | Medium | Strong all-around | High | Medium |
+| QuatE | Rotational | Medium | Strong all-around | Very High | Medium |
+| NTN | Neural Network | Very High | Strong all-around | Very High | Low |
+| ConvE | CNN-based | High | Strong all-around | High | Low |
+| R-GCN | GNN-based | High | Strong structural | High | Medium |
+| KBAT | Attention | High | Strong contextual | High | Medium-Low |
+| KG-BERT | PLM-based | Very High | Strong semantic | Very High | Medium-High |
+| IKRL | Multi-modal | High | Medium | High | Medium |
+
+:::
+
+Each model category has different strengths and is suited to different types of knowledge graphs and applications.
+
+::: {#exm-model-selection}
+
+## Model selection example
+
+Consider different knowledge graph scenarios:
+
+1. **General-purpose knowledge graph** (like Freebase or DBpedia):
+
+   - RotatE or QuatE might offer the best balance of expressiveness and efficiency
+   - R-GCN could be valuable if the graph structure is particularly important
+
+2. **Specialized domain with rich textual descriptions** (like a biomedical knowledge graph):
+
+   - KG-BERT or KEPLER would leverage the textual information effectively
+   - Hybrid models combining text and structure could perform particularly well
+
+3. **Visual knowledge graph** (with many image entities):
+
+   - IKRL or other multi-modal models would be most appropriate
+   - Models that can incorporate both visual and textual information would have an advantage
+
+4. **Sparse knowledge graph** (with limited training data):
+   - Models with fewer parameters (like RotatE) might perform better due to reduced overfitting risk
+   - Pre-trained approaches like KG-BERT could leverage external knowledge to compensate for sparsity
+
+:::
+
+## Performance analysis
+
+Let's examine the empirical performance of advanced models on standard benchmark datasets:
+
+::: {#def-performance-comparison}
+
+## Performance comparison (Hits@10 in %)
+
+| Model   | FB15k | WN18 | FB15k-237 | WN18RR |
+| ------- | ----- | ---- | --------- | ------ |
+| RotatE  | 83.1  | 95.9 | 47.6      | 57.1   |
+| QuatE   | 88.0  | 95.9 | 51.6      | 53.3   |
+| NTN     | 70.4  | 66.1 | 42.1      | 45.2   |
+| ConvE   | 83.1  | 95.5 | 50.1      | 52.8   |
+| R-GCN   | 82.5  | 96.4 | 51.7      | 53.4   |
+| KBAT    | 89.2  | 98.0 | 58.1      | 62.8   |
+| KG-BERT | -     | -    | 42.0      | 52.4   |
+| CompGCN | 87.9  | 95.3 | 53.5      | 54.6   |
+
+:::
+
+These results show the evolution of performance as models have become more sophisticated. Attention-based and graph neural network models tend to perform particularly well on recent benchmarks like FB15k-237 and WN18RR.
+
+::: {#exm-performance-analysis}
+
+## Performance analysis example
+
+On FB15k-237 (a more challenging dataset without inverse relations):
+
+1. Rotational models (RotatE, QuatE) perform well, showing their ability to capture complex relation patterns
+2. Graph-based models (R-GCN, CompGCN) achieve strong results by leveraging the graph structure
+3. Attention-based models (KBAT) achieve the best performance by dynamically focusing on relevant features
+4. Language model-based approaches (KG-BERT) perform reasonably but are computationally expensive
+
+This suggests that for challenging knowledge graph completion tasks, models that can adaptively focus on different aspects of the graph (through attention or graph propagation) have an advantage.
+
+:::
+
+## Computational efficiency
+
+While advanced models offer improved performance, they often come with increased computational costs:
+
+::: {#def-computational-efficiency}
+
+## Computational efficiency comparison
+
+| Model   | Parameters                  | Training Time | Inference Time |
+| ------- | --------------------------- | ------------- | -------------- | --- | ------- | ----------- | ----------- |
+| RotatE  | $O(2                        | E             | d + 2          | R   | d)$     | Medium      | Fast        |
+| QuatE   | $O(4                        | E             | d + 4          | R   | d)$     | Medium-High | Medium      |
+| NTN     | $O(                         | E             | d +            | R   | kd^2)$  | Very High   | High        |
+| ConvE   | $O(                         | E             | d +            | R   | d + c)$ | High        | Medium      |
+| R-GCN   | $O(                         | E             | d +            | R   | d^2)$   | High        | Medium-High |
+| KBAT    | $O(                         | E             | d +            | R   | d + a)$ | High        | Medium      |
+| KG-BERT | $O(p)$ (pre-trained params) | Very High     | Very High      |
+| CompGCN | $O(                         | E             | d +            | R   | d + g)$ | High        | Medium      |
+
+:::
+
+Where $c$, $a$, and $g$ are model-specific constants for convolutional, attention, and graph neural network parameters, respectively, and $p$ represents the parameters of the pre-trained language model.
+
+::: {#exm-efficiency-tradeoffs}
+
+## Efficiency trade-off example
+
+Consider deploying a knowledge graph embedding model in different scenarios:
+
+1. **Resource-constrained environment** (e.g., mobile device):
+
+   - RotatE would be most appropriate due to its balance of performance and efficiency
+   - Models with many parameters or expensive operations would be impractical
+
+2. **Batch processing system** (where inference time is less critical):
+
+   - More complex models like R-GCN or KBAT could be used
+   - Training could be performed on powerful hardware, with inference done in batches
+
+3. **Large-scale web service** (requiring both accuracy and speed):
+   - Models would need to be carefully optimized or distilled
+   - Hybrid approaches might be used, with expensive models for offline processing and simpler models for real-time queries
+
+:::
+
+## Implementation considerations
+
+When implementing advanced knowledge graph embedding models, several practical considerations are important:
+
+### Initialization strategies
+
+Proper initialization is crucial, especially for complex models:
+
+::: {#def-advanced-initialization}
+
+## Initialization strategies for advanced models
+
+1. **Rotational models**:
+
+   - Complex embeddings: Initialize real and imaginary parts separately
+   - Quaternion embeddings: Use quaternion-specific initialization methods
+   - Constrain initial relation embeddings to have unit modulus
+
+2. **Neural network models**:
+
+   - Use Xavier/Glorot or He initialization for neural network weights
+   - Pre-train simpler embeddings (e.g., TransE) and use them to initialize more complex models
+   - Layer-wise initialization based on network depth
+
+3. **Pre-trained language models**:
+   - Start with pre-trained weights and carefully fine-tune
+   - Use adapter modules to efficiently adapt pre-trained models to knowledge graph tasks
+
+:::
+
+### Hardware acceleration
+
+Advanced models benefit from hardware acceleration:
+
+::: {#def-hardware-acceleration}
+
+## Hardware acceleration techniques
+
+1. **GPU acceleration**:
+
+   - Batch processing of triples
+   - Efficient implementation of complex operations (quaternion multiplication, tensor products)
+   - Mixed-precision training to reduce memory requirements
+
+2. **Distributed training**:
+
+   - Parameter sharding for very large models
+   - Data parallelism for large knowledge graphs
+   - Model parallelism for models with many parameters (e.g., NTN)
+
+3. **Optimization techniques**:
+   - Gradient accumulation for large batch training
+   - Gradient checkpointing to reduce memory usage
+   - Efficient negative sampling strategies
+
+:::
+
+### Regularization and training stability
+
+Advanced models often require careful regularization:
+
+::: {#def-advanced-regularization}
+
+## Regularization for advanced models
+
+1. **Weight decay**: Apply L2 regularization to prevent overfitting
+2. **Dropouts**: Use dropout in neural network layers
+3. **Batch normalization**: Stabilize training of deep networks
+4. **Gradient clipping**: Prevent exploding gradients
+5. **Label smoothing**: Avoid overconfident predictions
+6. **Self-adversarial negative sampling**: Focus training on hard negative examples
+
+:::
+
+## Applications of advanced models
+
+Advanced knowledge graph embedding models enable sophisticated applications:
+
+### Complex question answering
+
+Advanced models support multi-hop and complex question answering:
+
+::: {#def-complex-qa}
+
+## Complex question answering
+
+Advanced models enable answering complex questions that require:
+
+1. **Multi-hop reasoning**: Following paths through the knowledge graph
+2. **Constraint satisfaction**: Finding entities that satisfy multiple conditions
+3. **Uncertainty handling**: Providing confidence scores for answers
+4. **Explanation generation**: Providing reasoning chains for answers
+
+Models like R-GCN, KBAT, and MultiHopKG are particularly well-suited for these tasks.
+
+:::
+
+::: {#exm-complex-qa}
+
+## Complex question answering example
+
+Consider the question: "What medications might interact with drugs that treat hypertension?"
+
+This requires:
+
+1. Identifying drugs that treat hypertension
+2. Finding other medications that interact with these drugs
+3. Providing a ranked list of potential interactions
+
+Advanced models can perform this multi-hop reasoning by effectively navigating the knowledge graph structure.
+
+:::
+
+### Entity typing and hierarchical reasoning
+
+Advanced models can perform entity typing and hierarchical reasoning:
+
+::: {#def-entity-typing}
+
+## Entity typing and hierarchical reasoning
+
+Advanced models enable:
+
+1. **Fine-grained entity typing**: Predicting the types of entities at multiple levels of granularity
+2. **Hierarchical inference**: Reasoning over type hierarchies (e.g., if X is a Dog, X is also a Mammal)
+3. **Zero-shot classification**: Classifying entities into previously unseen categories
+
+Models that capture compositional patterns (like QuatE) or leverage textual information (like KG-BERT) excel at these tasks.
+
+:::
+
+### Explainable recommendations
+
+Advanced models enable explainable recommendation systems:
+
+::: {#def-explainable-recommendations}
+
+## Explainable recommendations
+
+Advanced models support:
+
+1. **Path-based recommendations**: Finding meaningful paths connecting users to recommended items
+2. **Multi-relational reasoning**: Considering multiple types of interactions between users and items
+3. **Textual explanations**: Generating natural language explanations for recommendations
+
+GNN-based and attention-based models are particularly effective for these applications.
+
+:::
+
+::: {#exm-explainable-recommendation}
+
+## Explainable recommendation example
+
+A movie recommendation system might explain a recommendation as: "We recommend 'Inception' because:
+
+1. You liked 'Interstellar', which was directed by Christopher Nolan
+2. Christopher Nolan also directed 'Inception'
+3. Both movies are in the science fiction genre, which you frequently watch"
+
+This explanation is derived from paths in the knowledge graph, identified using advanced embedding models.
+
+:::
+
+## Future directions
+
+Advanced knowledge graph embedding models continue to evolve, with several promising research directions:
+
+### Inductive learning
+
+Enabling inductive learning is a key research direction:
+
+::: {#def-inductive-learning}
+
+## Inductive knowledge graph embedding
+
+**Inductive knowledge graph embedding** aims to handle previously unseen entities and relations:
+
+1. **Text-based induction**: Using textual descriptions to generate embeddings for new entities
+2. **Structure-based induction**: Leveraging local graph patterns to embed new entities
+3. **Zero-shot relation learning**: Generalizing to entirely new relation types
+
+Pre-trained language model approaches and graph neural networks are particularly promising for inductive learning.
+
+:::
+
+### Temporal knowledge graphs
+
+Incorporating temporal information is another important direction:
+
+::: {#def-temporal-kge}
+
+## Temporal knowledge graph embedding
+
+**Temporal knowledge graph embedding** models the evolution of knowledge over time:
+
+1. **Time-aware embeddings**: Incorporating time as an additional dimension in embeddings
+2. **Evolutionary models**: Modeling how entity and relation embeddings evolve over time
+3. **Forecasting**: Predicting future states of the knowledge graph
+
+Extensions of rotational and neural models to handle time are active areas of research.
+
+:::
+
+### Neuro-symbolic approaches
+
+Combining neural embeddings with symbolic reasoning is a promising direction:
+
+::: {#def-neuro-symbolic}
+
+## Neuro-symbolic knowledge graph embedding
+
+**Neuro-symbolic approaches** combine neural embeddings with logical reasoning:
+
+1. **Rule injection**: Incorporating logical rules into the embedding learning process
+2. **Embedding distillation**: Extracting symbolic knowledge from learned embeddings
+3. **Joint reasoning**: Combining embedding-based and rule-based inference
+
+These approaches aim to leverage the complementary strengths of neural and symbolic AI.
+
+:::
+
+## Summary
+
+In this chapter, we've explored advanced knowledge graph embedding models, focusing on rotational models and neural network-based approaches.
+
+Rotational models like RotatE and QuatE leverage complex or quaternion embeddings to represent relations as rotations in the embedding space. These models capture various relation patterns, including symmetry, antisymmetry, inversion, and composition, while maintaining parameter efficiency.
+
+Neural network-based models, on the other hand, use various architectures to model interactions between entities and relations. These include the Neural Tensor Network with its tensor product operations, convolutional models like ConvE and ConvKB, graph neural networks like R-GCN and CompGCN, and attention-based models like KBAT.
+
+We also examined approaches that leverage pre-trained language models (KG-BERT, KEPLER) and multi-modal information (IKRL, MMKB), showing how external knowledge can enhance knowledge graph embeddings.
+
+Throughout the chapter, we analyzed the strengths and limitations of these models, their computational requirements, and their performance on benchmark datasets. We also discussed practical implementation considerations and applications of advanced models to complex tasks like multi-hop question answering and explainable recommendations.
+
+Advanced knowledge graph embedding models represent the cutting edge of the field, pushing the boundaries of what can be modeled and predicted in knowledge graphs. By understanding these models and their capabilities, you can select the appropriate approach for your specific knowledge graph and application requirements.
+
+## Further reading
+
+### Rotational models
+
+- Sun, Z., Deng, Z. H., Nie, J. Y., & Tang, J. (2019). RotatE: Knowledge Graph Embedding by Relational Rotation in Complex Space. In International Conference on Learning Representations.
+- Zhang, S., Tay, Y., Yao, L., & Liu, Q. (2019). Quaternion Knowledge Graph Embeddings. In Advances in Neural Information Processing Systems (pp. 2731-2741).
+- Li, Y., Guan, J., Xiong, D., & Yang, B. (2020). DensE: Knowledge Graph Embedding via Highly Irregular Density in Spinor Space. In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (pp. 4037-4048).
+
+### Neural network models
+
+- Socher, R., Chen, D., Manning, C. D., & Ng, A. (2013). Reasoning with Neural Tensor Networks for Knowledge Base Completion. In Advances in Neural Information Processing Systems (pp. 926-934).
+- Dettmers, T., Minervini, P., Stenetorp, P., & Riedel, S. (2018). Convolutional 2D Knowledge Graph Embeddings. In AAAI Conference on Artificial Intelligence (pp. 1811-1818).
+- Nguyen, D. Q., Nguyen, T. D., Nguyen, D. Q., & Phung, D. (2018). A Novel Embedding Model for Knowledge Base Completion Based on Convolutional Neural Network. In Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics (pp. 327-333).
+- Schlichtkrull, M., Kipf, T. N., Bloem, P., van den Berg, R., Titov, I., & Welling, M. (2018). Modeling Relational Data with Graph Convolutional Networks. In European Semantic Web Conference (pp. 593-607).
+
+### Attention and language model approaches
+
+- Nathani, D., Chauhan, J., Sharma, C., & Kaul, M. (2019). Learning Attention-based Embeddings for Relation Prediction in Knowledge Graphs. In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics (pp. 4710-4723).
+- Yao, L., Mao, C., & Luo, Y. (2019). KG-BERT: BERT for Knowledge Graph Completion. arXiv preprint arXiv:1909.03193.
+- Wang, X., Gao, T., Zhu, Z., Zhang, Z., Liu, Z., Li, J., & Tang, J. (2021). KEPLER: A Unified Model for Knowledge Embedding and Pre-trained Language Representation. Transactions of the Association for Computational Linguistics, 9, 176-194.
+
+### Multi-modal and hybrid approaches
+
+- Xie, R., Liu, Z., Jia, H., Luan, H., & Sun, M. (2017). Representation Learning of Knowledge Graphs with Entity Descriptions. In AAAI Conference on Artificial Intelligence (pp. 2659-2665).
+- Pezeshkpour, P., Chen, L., & Singh, S. (2018). Embedding Multimodal Relational Data for Knowledge Base Completion. In Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing (pp. 3208-3218).
+- Vashishth, S., Sanyal, S., Nitin, V., & Talukdar, P. (2020). Composition-based Multi-Relational Graph Convolutional Networks. In International Conference on Learning Representations.

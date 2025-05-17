@@ -1,0 +1,1024 @@
+# Fundamentals of Vector Space Representations
+
+The concept of representing objects in vector spaces forms the mathematical foundation for knowledge graph embeddings. In this chapter, we'll explore how abstract entities and relationships can be encoded as points and transformations in geometric spaces. This approach provides computational efficiency, enables similarity-based reasoning, and allows us to harness powerful machine learning techniques for knowledge graph completion.
+
+Vector space representations have revolutionized many fields in artificial intelligence and data science. From word embeddings in natural language processing to user embeddings in recommendation systems, the idea of mapping objects to continuous vector spaces has proven remarkably effective. Knowledge graph embeddings apply this same principle to entities and relations in knowledge graphs.
+
+This chapter builds the mathematical groundwork needed to understand knowledge graph embedding models. We'll start with basic vector space concepts, explore various embedding approaches, and examine how semantic relationships can be captured geometrically. By the end of this chapter, you'll understand how vector spaces serve as a powerful framework for representing and reasoning with knowledge.
+
+## Vector spaces: definitions and properties
+
+Let's begin with the fundamental concept of a vector space:
+
+::: {#def-vector-space}
+
+## Vector space
+
+A **vector space** $V$ over a field $F$ (typically $\mathbb{R}$ or $\mathbb{C}$) is a set of elements called vectors, equipped with two operations:
+
+1. **Vector addition**: $+: V \times V \rightarrow V$
+2. **Scalar multiplication**: $\cdot: F \times V \rightarrow V$
+
+These operations must satisfy several axioms, including associativity and distributivity of addition and multiplication, existence of additive and multiplicative identities, and additive inverses.
+
+:::
+
+For knowledge graph embeddings, we typically work with real vector spaces $\mathbb{R}^d$, where $d$ is the dimension of the embedding. Each vector has $d$ real-valued components.
+
+::: {#exm-vector-space}
+
+## Real vector space
+
+In the vector space $\mathbb{R}^3$, vectors are triplets of real numbers, such as $\mathbf{v} = (3, -1, 4)$ and $\mathbf{w} = (2, 0, 5)$.
+
+Vector addition: $\mathbf{v} + \mathbf{w} = (3, -1, 4) + (2, 0, 5) = (5, -1, 9)$ Scalar multiplication: $2 \cdot \mathbf{v} = 2 \cdot (3, -1, 4) = (6, -2, 8)$
+
+:::
+
+### Vector space properties
+
+Several properties of vector spaces are particularly relevant for knowledge graph embeddings:
+
+::: {#def-vector-space-properties}
+
+## Key vector space properties
+
+1. **Dimensionality**: The number of independent basis vectors needed to span the space, denoted as $d$.
+2. **Norm**: A function $\|\cdot\|: V \rightarrow \mathbb{R}$ that assigns a non-negative scalar length to each vector.
+3. **Distance**: A function $d: V \times V \rightarrow \mathbb{R}$ that measures the separation between two vectors.
+4. **Inner product**: A function $\langle \cdot, \cdot \rangle: V \times V \rightarrow F$ that generalizes the dot product.
+
+:::
+
+#### Norms and distances
+
+Norms measure the "size" or "length" of vectors:
+
+::: {#def-norms}
+
+## Common norms
+
+For a vector $\mathbf{x} = (x_1, x_2, \ldots, x_d) \in \mathbb{R}^d$:
+
+1. **L1 norm** (Manhattan norm): $\|\mathbf{x}\|_1 = \sum_{i=1}^d |x_i|$
+2. **L2 norm** (Euclidean norm): $\|\mathbf{x}\|_2 = \sqrt{\sum_{i=1}^d x_i^2}$
+3. **L-infinity norm** (Maximum norm): $\|\mathbf{x}\|_\infty = \max_{i=1}^d |x_i|$
+
+:::
+
+Distances measure the separation between vectors:
+
+::: {#def-distances}
+
+## Common distance measures
+
+For vectors $\mathbf{x}, \mathbf{y} \in \mathbb{R}^d$:
+
+1. **Euclidean distance**: $d_{\text{Euclidean}}(\mathbf{x}, \mathbf{y}) = \|\mathbf{x} - \mathbf{y}\|_2 = \sqrt{\sum_{i=1}^d (x_i - y_i)^2}$
+2. **Manhattan distance**: $d_{\text{Manhattan}}(\mathbf{x}, \mathbf{y}) = \|\mathbf{x} - \mathbf{y}\|_1 = \sum_{i=1}^d |x_i - y_i|$
+3. **Cosine distance**: $d_{\text{cosine}}(\mathbf{x}, \mathbf{y}) = 1 - \frac{\mathbf{x} \cdot \mathbf{y}}{\|\mathbf{x}\|_2 \|\mathbf{y}\|_2}$
+
+:::
+
+::: {#exm-distances}
+
+## Distance calculation example
+
+Consider vectors $\mathbf{a} = (3, 4)$ and $\mathbf{b} = (6, 8)$ in $\mathbb{R}^2$.
+
+Euclidean distance: $d_{\text{Euclidean}}(\mathbf{a}, \mathbf{b}) = \sqrt{(3-6)^2 + (4-8)^2} = \sqrt{9 + 16} = 5$
+
+Manhattan distance: $d_{\text{Manhattan}}(\mathbf{a}, \mathbf{b}) = |3-6| + |4-8| = 3 + 4 = 7$
+
+For cosine distance, we first compute:
+
+- $\mathbf{a} \cdot \mathbf{b} = 3 \times 6 + 4 \times 8 = 18 + 32 = 50$
+- $\|\mathbf{a}\|_2 = \sqrt{3^2 + 4^2} = \sqrt{9 + 16} = 5$
+- $\|\mathbf{b}\|_2 = \sqrt{6^2 + 8^2} = \sqrt{36 + 64} = 10$
+
+Cosine distance: $d_{\text{cosine}}(\mathbf{a}, \mathbf{b}) = 1 - \frac{50}{5 \times 10} = 1 - 1 = 0$
+
+The cosine distance is 0, indicating that the vectors point in the same direction (they're collinear), which is indeed the case as $\mathbf{b} = 2\mathbf{a}$.
+
+:::
+
+#### Inner products
+
+Inner products generalize the notion of dot products and provide a way to measure the alignment between vectors:
+
+::: {#def-inner-product}
+
+## Inner product
+
+An **inner product** on a vector space $V$ is a function $\langle \cdot, \cdot \rangle: V \times V \rightarrow F$ that satisfies:
+
+1. Linearity: $\langle \alpha \mathbf{x} + \beta \mathbf{y}, \mathbf{z} \rangle = \alpha \langle \mathbf{x}, \mathbf{z} \rangle + \beta \langle \mathbf{y}, \mathbf{z} \rangle$
+2. Symmetry: $\langle \mathbf{x}, \mathbf{y} \rangle = \langle \mathbf{y}, \mathbf{x} \rangle$
+3. Positive definiteness: $\langle \mathbf{x}, \mathbf{x} \rangle \geq 0$, with equality if and only if $\mathbf{x} = \mathbf{0}$
+
+For real vector spaces, the standard inner product (dot product) is: $\langle \mathbf{x}, \mathbf{y} \rangle = \mathbf{x} \cdot \mathbf{y} = \sum_{i=1}^d x_i y_i$
+
+:::
+
+Inner products are closely related to norms: $\|\mathbf{x}\|_2 = \sqrt{\langle \mathbf{x}, \mathbf{x} \rangle}$
+
+### Linear transformations
+
+Linear transformations are fundamental for understanding how relations can be modeled in embedding spaces:
+
+::: {#def-linear-transformation}
+
+## Linear transformation
+
+A **linear transformation** $T: V \rightarrow W$ between vector spaces $V$ and $W$ is a function that preserves vector addition and scalar multiplication:
+
+1. $T(\mathbf{x} + \mathbf{y}) = T(\mathbf{x}) + T(\mathbf{y})$
+2. $T(\alpha \mathbf{x}) = \alpha T(\mathbf{x})$
+
+For finite-dimensional spaces, a linear transformation can be represented by a matrix $\mathbf{M}$, where $T(\mathbf{x}) = \mathbf{M}\mathbf{x}$.
+
+:::
+
+Different types of linear transformations are used in knowledge graph embedding models:
+
+::: {#def-transformation-types}
+
+## Common linear transformations
+
+1. **Translation**: Addition of a fixed vector: $T(\mathbf{x}) = \mathbf{x} + \mathbf{b}$
+2. **Rotation**: Multiplication by a rotation matrix: $T(\mathbf{x}) = \mathbf{R}\mathbf{x}$ where $\mathbf{R}^T\mathbf{R} = \mathbf{I}$ and $\det(\mathbf{R}) = 1$
+3. **Scaling**: Multiplication by a diagonal matrix: $T(\mathbf{x}) = \mathbf{D}\mathbf{x}$ where $\mathbf{D} = \text{diag}(d_1, d_2, \ldots, d_n)$
+4. **Projection**: Multiplication by a projection matrix: $T(\mathbf{x}) = \mathbf{P}\mathbf{x}$ where $\mathbf{P}^2 = \mathbf{P}$
+
+:::
+
+::: {#exm-transformations}
+
+## Linear transformation example
+
+Consider a vector $\mathbf{v} = (3, 2)$ in $\mathbb{R}^2$ and the following transformations:
+
+1. Translation by $\mathbf{b} = (1, -1)$: $T_1(\mathbf{v}) = \mathbf{v} + \mathbf{b} = (3, 2) + (1, -1) = (4, 1)$
+
+2. Rotation by 90° counterclockwise, using the rotation matrix $\mathbf{R} = \begin{pmatrix} 0 & -1 \\ 1 & 0 \end{pmatrix}$: $T_2(\mathbf{v}) = \mathbf{R}\mathbf{v} = \begin{pmatrix} 0 & -1 \\ 1 & 0 \end{pmatrix} \begin{pmatrix} 3 \\ 2 \end{pmatrix} = \begin{pmatrix} -2 \\ 3 \end{pmatrix} = (-2, 3)$
+
+3. Scaling by factors 2 and 0.5, using the diagonal matrix $\mathbf{D} = \begin{pmatrix} 2 & 0 \\ 0 & 0.5 \end{pmatrix}$: $T_3(\mathbf{v}) = \mathbf{D}\mathbf{v} = \begin{pmatrix} 2 & 0 \\ 0 & 0.5 \end{pmatrix} \begin{pmatrix} 3 \\ 2 \end{pmatrix} = \begin{pmatrix} 6 \\ 1 \end{pmatrix} = (6, 1)$
+
+:::
+
+## Complex vector spaces
+
+While real vector spaces are the most common foundation for embeddings, complex vector spaces offer additional modeling capabilities:
+
+::: {#def-complex-space}
+
+## Complex vector space
+
+A **complex vector space** $\mathbb{C}^d$ consists of vectors with complex number components. Each component has a real and imaginary part: $z = a + bi$ where $a, b \in \mathbb{R}$ and $i = \sqrt{-1}$.
+
+Key operations in complex spaces include:
+
+1. **Complex conjugate**: $\overline{z} = a - bi$
+2. **Modulus**: $|z| = \sqrt{a^2 + b^2}$
+3. **Hermitian inner product**: $\langle \mathbf{x}, \mathbf{y} \rangle = \sum_{i=1}^d x_i \overline{y_i}$
+
+:::
+
+Complex vector spaces are particularly useful for modeling asymmetric relations in knowledge graphs, as we'll see in later chapters when discussing models like ComplEx and RotatE.
+
+::: {#exm-complex-vector}
+
+## Complex vector example
+
+Consider complex vectors $\mathbf{u} = (1+i, 2-i)$ and $\mathbf{v} = (3-2i, i)$ in $\mathbb{C}^2$.
+
+Vector addition: $\mathbf{u} + \mathbf{v} = (1+i, 2-i) + (3-2i, i) = (4-i, 2)$
+
+Hermitian inner product: $\langle \mathbf{u}, \mathbf{v} \rangle = (1+i) \cdot \overline{(3-2i)} + (2-i) \cdot \overline{i} = (1+i)(3+2i) + (2-i)(-i) = (1+i)(3+2i) + (2-i)(-i)$ $= (3+2i+3i+2i^2) + (-2i+i^2) = (3+5i-2) + (-2i-1) = 3+5i-2-2i-1 = 0+3i$ $= 3i$
+
+Note that unlike the standard inner product in real space, the Hermitian inner product can yield complex results.
+
+:::
+
+## Word embeddings: a motivating example
+
+To better understand how vector embeddings can capture semantic relationships, let's examine word embeddings, which have been instrumental in natural language processing and serve as a conceptual precursor to knowledge graph embeddings.
+
+::: {#def-word-embedding}
+
+## Word embedding
+
+A **word embedding** is a mapping from words to vectors in a continuous vector space, where the geometric relationships between vectors capture semantic relationships between words.
+
+:::
+
+Word embedding models like Word2Vec, GloVe, and FastText learn vector representations of words from large text corpora. These embeddings capture remarkable semantic properties.
+
+### Capturing semantics in vector space
+
+Word embeddings exhibit a fascinating property: semantic relationships between words are reflected in geometric relationships between their vectors.
+
+::: {#exm-word-analogy}
+
+## Word analogy in embedding space
+
+In well-trained word embeddings, vector arithmetic can solve analogy problems:
+
+$\mathbf{king} - \mathbf{man} + \mathbf{woman} \approx \mathbf{queen}$
+
+This means that the gender relationship (difference between "man" and "woman") is captured consistently in the embedding space and can be applied to other word pairs.
+
+Similar patterns emerge for other relationships:
+
+- $\mathbf{paris} - \mathbf{france} + \mathbf{italy} \approx \mathbf{rome}$ (capital-country relationship)
+- $\mathbf{walked} - \mathbf{walk} + \mathbf{run} \approx \mathbf{ran}$ (verb tense relationship)
+
+:::
+
+This example illustrates a powerful idea: semantic relationships can be captured as geometric transformations in embedding space. The difference vector $\mathbf{woman} - \mathbf{man}$ represents a gender transformation that can be applied to other words.
+
+Knowledge graph embeddings extend this idea to entities and relations in a knowledge graph. Just as word embeddings capture semantic relationships between words, knowledge graph embeddings capture relationships between entities.
+
+## Embedding entities and relations
+
+Knowledge graph embeddings map both entities and relations to vector space:
+
+::: {#def-entity-embedding}
+
+## Entity embedding
+
+An **entity embedding** is a function $f: E \rightarrow \mathbb{R}^d$ (or $\mathbb{C}^d$) that maps each entity in the knowledge graph to a vector in the embedding space.
+
+:::
+
+::: {#def-relation-embedding}
+
+## Relation embedding
+
+A **relation embedding** maps each relation to a parameter in the embedding space. Depending on the model, this could be:
+
+1. A vector: $g: R \rightarrow \mathbb{R}^d$ (or $\mathbb{C}^d$)
+2. A matrix: $g: R \rightarrow \mathbb{R}^{d \times d}$ (or $\mathbb{C}^{d \times d}$)
+3. A tensor: $g: R \rightarrow \mathbb{R}^{d \times d \times k}$ (or $\mathbb{C}^{d \times d \times k}$)
+
+:::
+
+Different knowledge graph embedding models use different representations for relations, as we'll explore in subsequent chapters.
+
+### Geometric interpretations of relations
+
+Relations in knowledge graphs can be interpreted geometrically in the embedding space:
+
+::: {#def-relation-geometries}
+
+## Geometric interpretations of relations
+
+1. **Translation**: Relation as a displacement vector: $\mathbf{h} + \mathbf{r} \approx \mathbf{t}$
+2. **Rotation**: Relation as a rotation operator: $\mathbf{R}_r \mathbf{h} \approx \mathbf{t}$
+3. **Linear transformation**: Relation as a matrix: $\mathbf{M}_r \mathbf{h} \approx \mathbf{t}$
+4. **Bilinear product**: Relation as a weighted interaction: $\mathbf{h}^T \mathbf{M}_r \mathbf{t} \approx \text{high score}$
+
+:::
+
+::: {#exm-relation-geometry}
+
+## Geometric relation example
+
+Consider a simple knowledge graph about geography:
+
+- (France, has_capital, Paris)
+- (Germany, has_capital, Berlin)
+- (Italy, has_capital, Rome)
+
+In a translational model like TransE, these facts might be embedded as:
+
+- $\mathbf{France} + \mathbf{has\_capital} \approx \mathbf{Paris}$
+- $\mathbf{Germany} + \mathbf{has\_capital} \approx \mathbf{Berlin}$
+- $\mathbf{Italy} + \mathbf{has\_capital} \approx \mathbf{Rome}$
+
+The relation "has_capital" is represented as a consistent displacement vector that, when added to a country's embedding, approximates the embedding of its capital city.
+
+:::
+
+## Encoding relation patterns
+
+One of the key challenges in knowledge graph embeddings is capturing different relation patterns. Various relation types exhibit different logical properties:
+
+::: {#def-relation-patterns}
+
+## Relation patterns
+
+1. **Symmetry**: A relation $r$ is symmetric if $(h, r, t) \implies (t, r, h)$ Example: "is_sibling_of"
+
+2. **Antisymmetry**: A relation $r$ is antisymmetric if $(h, r, t) \implies \neg(t, r, h)$ for $h \neq t$ Example: "is_greater_than"
+
+3. **Inversion**: Relations $r_1$ and $r_2$ are inverses if $(h, r_1, t) \implies (t, r_2, h)$ Example: "is_parent_of" and "is_child_of"
+
+4. **Composition**: Relations $r_1$, $r_2$, and $r_3$ form a composition if $(h, r_1, e) \land (e, r_2, t) \implies (h, r_3, t)$ Example: "is_born_in" and "is_located_in" compose to "has_nationality"
+
+5. **Transitivity**: A relation $r$ is transitive if $(h, r, e) \land (e, r, t) \implies (h, r, t)$ Example: "is_ancestor_of"
+
+:::
+
+Different embedding models have different capacities to capture these relation patterns. The geometric representation of relations constrains which patterns can be modeled effectively.
+
+::: {#exm-relation-patterns}
+
+## Modeling relation patterns
+
+Consider how different geometric interpretations might model symmetry:
+
+1. **Translation model**: If $\mathbf{h} + \mathbf{r} \approx \mathbf{t}$ for a symmetric relation, then we would also need $\mathbf{t} + \mathbf{r} \approx \mathbf{h}$, which implies $\mathbf{r} \approx \mathbf{0}$ (the zero vector). This suggests that pure translation models struggle with symmetric relations.
+
+2. **Rotation model**: A 180-degree rotation (represented by multiplication by -1) is symmetrical: if $-\mathbf{h} \approx \mathbf{t}$, then $-\mathbf{t} \approx \mathbf{h}$. This makes rotation-based models potentially better suited for symmetric relations.
+
+3. **Bilinear model**: If $\mathbf{h}^T \mathbf{M} \mathbf{t}$ is high for a valid triple, and $\mathbf{M}$ is symmetric ($\mathbf{M} = \mathbf{M}^T$), then $\mathbf{t}^T \mathbf{M} \mathbf{h}$ will also be high, naturally capturing symmetry.
+
+:::
+
+## Scoring functions and plausibility
+
+Knowledge graph embedding models use scoring functions to assess the plausibility of triples:
+
+::: {#def-scoring-function}
+
+## Scoring function
+
+A **scoring function** $f_r(h, t)$ measures the plausibility of a triple $(h, r, t)$. Depending on the model, higher or lower scores indicate more plausible triples.
+
+Scoring functions can be broadly categorized as:
+
+1. **Distance-based**: Lower scores indicate more plausible triples, e.g., $f_r(h, t) = -\|\mathbf{h} + \mathbf{r} - \mathbf{t}\|$
+2. **Similarity-based**: Higher scores indicate more plausible triples, e.g., $f_r(h, t) = \mathbf{h}^T \mathbf{M}_r \mathbf{t}$
+
+:::
+
+The scoring function defines the geometry of the embedding space and determines which triples are considered plausible. Different models use different scoring functions based on their geometric interpretation of relations.
+
+::: {#exm-scoring}
+
+## Scoring function example
+
+Consider a knowledge graph with entities $E = \{\text{Alice}, \text{Bob}, \text{Charlie}, \text{Dave}\}$ and relation "knows". Suppose we have the following true triples:
+
+- (Alice, knows, Bob)
+- (Bob, knows, Charlie)
+- (Charlie, knows, Dave)
+
+Using a TransE-like model with a distance-based scoring function $f_r(h, t) = -\|\mathbf{h} + \mathbf{r} - \mathbf{t}\|$, we might compute scores like:
+
+- $f_{\text{knows}}(\text{Alice}, \text{Bob}) = -0.1$ (low distance, high plausibility)
+- $f_{\text{knows}}(\text{Alice}, \text{Charlie}) = -0.5$ (moderate distance, moderate plausibility)
+- $f_{\text{knows}}(\text{Alice}, \text{Dave}) = -1.2$ (high distance, low plausibility)
+
+For a query "Who does Alice know?", we would rank entities by score:
+
+1. Bob (-0.1)
+2. Charlie (-0.5)
+3. Dave (-1.2)
+
+This correctly predicts the direct connection (Alice knows Bob) as most plausible, while allowing for the possibility of indirect connections.
+
+:::
+
+## Learning embeddings
+
+Now that we understand what embeddings are, let's briefly discuss how they are learned:
+
+::: {#def-embedding-learning}
+
+## Embedding learning
+
+**Embedding learning** is the process of finding entity and relation representations that minimize a loss function over the observed triples in a knowledge graph. The general approach involves:
+
+1. Initialize embeddings randomly
+2. Compute scores for observed (positive) triples and unobserved (negative) triples
+3. Update embeddings to increase the gap between scores of positive and negative triples
+4. Repeat until convergence
+
+:::
+
+The specific learning algorithm depends on the model, but most knowledge graph embedding approaches use variants of stochastic gradient descent with a margin-based or logistic loss function.
+
+::: {#exm-learning}
+
+## Embedding learning example
+
+Consider a simple knowledge graph with positive triples:
+
+- (Alice, knows, Bob)
+- (Bob, knows, Charlie)
+
+And negative (unobserved) triples:
+
+- (Alice, knows, Charlie)
+- (Charlie, knows, Alice)
+
+Using a margin-based loss with margin $\gamma$, we would update embeddings to ensure: $f_{\text{knows}}(\text{Alice}, \text{Bob}) + \gamma < f_{\text{knows}}(\text{Alice}, \text{Charlie})$ $f_{\text{knows}}(\text{Bob}, \text{Charlie}) + \gamma < f_{\text{knows}}(\text{Charlie}, \text{Alice})$
+
+Where $f_r(h, t)$ is the scoring function, and we assume lower scores indicate more plausible triples.
+
+:::
+
+A more detailed discussion of learning algorithms will be presented in Chapter 6.
+
+## Visualization and interpretation
+
+Visualizing embeddings can provide insights into how models capture semantic relationships:
+
+::: {#def-embedding-visualization}
+
+## Embedding visualization
+
+**Embedding visualization** techniques project high-dimensional embeddings into 2D or 3D space for visual inspection. Common approaches include:
+
+1. **Principal Component Analysis (PCA)**: Linear projection that preserves maximum variance
+2. **t-SNE**: Non-linear projection that preserves local distances
+3. **UMAP**: Non-linear projection that balances local and global structure
+
+:::
+
+While the full embedding space may have hundreds of dimensions, visualizations can reveal clusters, relationships, and patterns that help us understand what the embeddings have learned.
+
+::: {#exm-visualization}
+
+## Embedding visualization example
+
+Imagine we've learned embeddings for a geography knowledge graph containing countries, cities, and continents. A 2D visualization might reveal:
+
+1. Clusters of entities by continent (European countries grouped together, Asian countries grouped together, etc.)
+2. Consistent spatial relationships between countries and their capitals
+3. Hierarchical structures where countries appear "between" their cities and their continent
+
+These patterns would indicate that the embedding model has successfully captured geographic relationships.
+
+:::
+
+## Embedding spaces for knowledge graphs
+
+Different knowledge graph embedding models use different types of embedding spaces and geometric interpretations. Here's a preview of what we'll explore in subsequent chapters:
+
+### Translational models (Chapter 3)
+
+Translational models like TransE, TransH, and TransR represent relations as translations in embedding space:
+
+::: {#def-translational-space}
+
+## Translational embedding space
+
+In a **translational embedding space**, entities are points in $\mathbb{R}^d$ and relations are displacement vectors. For a triple $(h, r, t)$, the model enforces: $\mathbf{h} + \mathbf{r} \approx \mathbf{t}$
+
+:::
+
+::: {#exm-translational}
+
+## Translational embedding example
+
+In a geography knowledge graph, the "is_capital_of" relation might be represented as a consistent displacement that, when applied to a capital city's embedding, approximates the embedding of the corresponding country:
+
+$\mathbf{Paris} + \mathbf{is\_capital\_of} \approx \mathbf{France}$ $\mathbf{Berlin} + \mathbf{is\_capital\_of} \approx \mathbf{Germany}$ $\mathbf{Rome} + \mathbf{is\_capital\_of} \approx \mathbf{Italy}$
+
+:::
+
+### Semantic matching models (Chapter 4)
+
+Semantic matching models like RESCAL, DistMult, and ComplEx measure plausibility through similarity functions:
+
+::: {#def-bilinear-space}
+
+## Bilinear embedding space
+
+In a **bilinear embedding space**, entities are points in $\mathbb{R}^d$ and relations are matrices $\mathbf{M}_r \in \mathbb{R}^{d \times d}$. The plausibility of a triple is measured by: $f_r(h, t) = \mathbf{h}^T \mathbf{M}_r \mathbf{t}$
+
+:::
+
+::: {#exm-bilinear}
+
+## Bilinear embedding example
+
+In a movie knowledge graph, the "acted_in" relation might be represented as a matrix that measures compatibility between actor and movie embeddings:
+
+$f_{\text{acted\_in}}(\text{Leonardo DiCaprio}, \text{Titanic}) = \mathbf{Leonardo}^T \mathbf{M}_{\text{acted\_in}} \mathbf{Titanic}$
+
+Actors and movies with compatible characteristics would yield high scores.
+
+:::
+
+### Complex and rotation-based models (Chapter 5)
+
+More advanced models like ComplEx and RotatE use complex vector spaces or rotational transformations:
+
+::: {#def-complex-embedding}
+
+## Complex embedding space
+
+In a **complex embedding space**, entities are points in $\mathbb{C}^d$ and relations can be diagonal matrices or element-wise operations. The use of complex numbers enables modeling asymmetric relations through complex conjugation.
+
+:::
+
+::: {#exm-complex-embeddings}
+
+## Complex embedding example
+
+In ComplEx, the scoring function is: $f_r(h, t) = \text{Re}(\langle \mathbf{h}, \mathbf{r}, \overline{\mathbf{t}} \rangle) = \text{Re}\left(\sum_{i=1}^d h_i r_i \overline{t_i}\right)$
+
+The asymmetry comes from using the complex conjugate of the tail entity embedding. This allows the model to distinguish between $(h, r, t)$ and $(t, r, h)$, which is essential for antisymmetric relations.
+
+:::
+
+## Properties of good embeddings
+
+What makes an embedding space effective for knowledge graph representation? Several desirable properties have been identified:
+
+::: {#def-embedding-properties}
+
+## Desirable embedding properties
+
+1. **Expressiveness**: Ability to represent various relation patterns (symmetry, antisymmetry, inversion, composition)
+2. **Efficiency**: Computationally efficient storage and operations
+3. **Inductive capability**: Generalization to unseen entities or relations
+4. **Interpretability**: Meaningful geometric structure that aids understanding
+5. **Smoothness**: Similar entities have similar embeddings
+6. **Separation**: Different relation patterns are clearly distinguished
+
+:::
+
+Different embedding models prioritize different properties. For example, TransE offers simplicity and efficiency but has limited expressiveness for certain relation patterns. More complex models like Neural Tensor Networks offer greater expressiveness but at the cost of computational efficiency.
+
+## From word embeddings to knowledge graph embeddings
+
+Let's take a step back and connect knowledge graph embeddings to the broader context of representation learning:
+
+::: {#def-representation-learning}
+
+## Representation learning
+
+**Representation learning** is the process of automatically discovering useful representations of data for tasks like classification, prediction, and generation. Vector embeddings are a form of representation learning where objects are mapped to continuous vector spaces.
+
+:::
+
+Word embeddings were among the first successful applications of representation learning in NLP. Knowledge graph embeddings extend similar principles to structured relational data.
+
+::: {#exm-embedding-evolution}
+
+## Evolution of embedding approaches
+
+1. **One-hot encodings**: Sparse, high-dimensional vectors where each dimension corresponds to a discrete item (e.g., a specific word)
+2. **Word embeddings**: Dense, low-dimensional vectors learned from text data, capturing semantic relationships
+3. **Knowledge graph embeddings**: Vector representations of entities and relations in a knowledge graph, capturing relational patterns
+4. **Contextual embeddings**: Dynamic representations that adapt based on context (e.g., BERT embeddings for language)
+
+:::
+
+The progression from simple one-hot encodings to sophisticated embedding models reflects a broader trend in AI: moving from hand-crafted features to learned representations that capture implicit patterns in data.
+
+## Embedding space dimensions
+
+The dimensionality of the embedding space is a crucial hyperparameter that balances expressiveness against computational efficiency and overfitting:
+
+::: {#def-dimensionality}
+
+## Embedding dimensionality
+
+The **dimensionality** of an embedding space refers to the number of components in each entity or relation vector. Higher dimensionality offers:
+
+1. Greater capacity to capture complex patterns
+2. More degrees of freedom for separating entities
+3. Potential to model fine-grained distinctions
+
+But comes with drawbacks:
+
+1. Increased computational cost
+2. Higher memory requirements
+3. Greater risk of overfitting
+4. Reduced interpretability
+
+:::
+
+There's no universal "optimal" dimensionality for knowledge graph embeddings. The appropriate dimension depends on:
+
+1. The size and complexity of the knowledge graph
+2. The diversity of entity and relation types
+3. The specific embedding model being used
+4. Available computational resources
+5. The downstream task requirements
+
+::: {#exm-dimensionality}
+
+## Dimensionality selection example
+
+Consider different knowledge graphs and reasonable embedding dimensions:
+
+1. **Small domain-specific graph** (100 entities, 10 relations):
+
+   - Lower dimension (e.g., d = 20-50) might be sufficient
+   - Prevents overfitting to limited data
+
+2. **Medium-sized general knowledge graph** (10,000 entities, 100 relations):
+
+   - Moderate dimension (e.g., d = 100-200)
+   - Balances expressiveness and computational efficiency
+
+3. **Large-scale knowledge graph** (millions of entities, thousands of relations):
+   - Higher dimension (e.g., d = 200-500)
+   - Needed to capture diverse entity and relation types
+
+:::
+
+In practice, dimensionality is often treated as a hyperparameter and tuned based on validation performance.
+
+## Manifold hypothesis and embedding spaces
+
+The effectiveness of embeddings can be partly explained by the manifold hypothesis:
+
+::: {#def-manifold-hypothesis}
+
+## Manifold hypothesis
+
+The **manifold hypothesis** states that real-world high-dimensional data (such as images, text, or knowledge) tends to lie on or near a low-dimensional manifold within the high-dimensional space. This allows for effective dimensionality reduction while preserving important structures.
+
+:::
+
+For knowledge graphs, this suggests that the semantic relationships between entities can be effectively captured in a relatively low-dimensional space, despite the apparent complexity of real-world knowledge.
+
+::: {#exm-manifold}
+
+## Manifold example
+
+Consider a knowledge graph of animals with attributes like size, habitat, diet, and taxonomy. Although animals could be described along hundreds of dimensions, the meaningful variations might lie primarily along a much lower-dimensional manifold.
+
+For instance, we might find that a 100-dimensional embedding space effectively captures the relationships between animals, even though the full description of each animal's attributes might require thousands of dimensions.
+
+:::
+
+The manifold hypothesis helps explain why relatively low-dimensional embeddings (typically 50-500 dimensions) can effectively model large knowledge graphs with millions of entities and relations.
+
+## Relationship to matrix and tensor factorization
+
+Knowledge graph embedding methods are closely related to matrix and tensor factorization techniques:
+
+::: {#def-factorization}
+
+## Tensor factorization for knowledge graphs
+
+A knowledge graph can be represented as a 3-dimensional tensor $\mathcal{X} \in \mathbb{R}^{|E| \times |R| \times |E|}$, where:
+
+- $\mathcal{X}_{h,r,t} = 1$ if triple $(h, r, t)$ exists in the knowledge graph
+- $\mathcal{X}_{h,r,t} = 0$ otherwise
+
+**Tensor factorization** decomposes this tensor into lower-dimensional factors, which can be interpreted as entity and relation embeddings.
+
+:::
+
+Different knowledge graph embedding models correspond to different tensor factorization approaches:
+
+1. **RESCAL**: $\mathcal{X}_{h,r,t} \approx \mathbf{h}^T \mathbf{W}_r \mathbf{t}$ (Tucker decomposition)
+2. **DistMult**: $\mathcal{X}_{h,r,t} \approx \sum_{i=1}^d h_i r_i t_i$ (CP decomposition with diagonal core tensor)
+3. **ComplEx**: Complex-valued extension of CP decomposition
+
+This connection to tensor factorization provides theoretical grounding for knowledge graph embedding methods.
+
+::: {#exm-factorization}
+
+## Tensor factorization example
+
+Consider a tiny knowledge graph with 3 entities (Alice, Bob, Charlie) and 2 relations (knows, likes):
+
+The tensor $\mathcal{X}$ would be $3 \times 2 \times 3$, with entries:
+
+- $\mathcal{X}_{\text{Alice},\text{knows},\text{Bob}} = 1$ (Alice knows Bob)
+- $\mathcal{X}_{\text{Bob},\text{knows},\text{Charlie}} = 1$ (Bob knows Charlie)
+- $\mathcal{X}_{\text{Alice},\text{likes},\text{Charlie}} = 1$ (Alice likes Charlie)
+- All other entries = 0
+
+A rank-2 factorization might yield:
+
+- Entity embeddings: $\mathbf{Alice} = (0.8, 0.3)$, $\mathbf{Bob} = (0.5, 0.7)$, $\mathbf{Charlie} = (0.2, 0.9)$
+- Relation matrices: $\mathbf{W}_{\text{knows}} = \begin{pmatrix} 0.9 & 0.2 \\ 0.2 & 0.8 \end{pmatrix}$, $\mathbf{W}_{\text{likes}} = \begin{pmatrix} 0.3 & 0.7 \\ 0.7 & 0.4 \end{pmatrix}$
+
+These embeddings would approximately reconstruct the original tensor.
+
+:::
+
+## Vector spaces beyond Euclidean geometry
+
+While most knowledge graph embedding models use Euclidean space, other geometric spaces can offer advantages for certain types of knowledge structures:
+
+::: {#def-non-euclidean}
+
+## Non-Euclidean embedding spaces
+
+1. **Hyperbolic space**: A non-Euclidean geometry with constant negative curvature, well-suited for hierarchical structures
+2. **Spherical space**: Embedding on the surface of a hypersphere, useful for clustering and when distances should be bounded
+3. **Product spaces**: Combinations of different geometric spaces, capturing different aspects of the data
+
+:::
+
+::: {#exm-hyperbolic}
+
+## Hyperbolic embedding example
+
+Consider a knowledge graph with hierarchical taxonomic relations, such as:
+
+- (Animal, has_subclass, Mammal)
+- (Mammal, has_subclass, Canine)
+- (Canine, has_subclass, Dog)
+- (Dog, has_subclass, Labrador)
+
+In Euclidean space, it's challenging to maintain consistent distances between all levels of the hierarchy.
+
+Hyperbolic space, however, has an exponentially expanding volume as you move away from the origin. This allows for embedding trees with consistent distances between levels, making it well-suited for taxonomic hierarchies.
+
+:::
+
+Advanced knowledge graph embedding models sometimes leverage these alternative geometric spaces to better capture specific relation patterns.
+
+## Understanding the embedding space through analogies
+
+To build intuition about how embedding spaces work, it's helpful to consider analogies in knowledge graph embeddings, similar to the word analogies we discussed earlier:
+
+::: {#def-kg-analogy}
+
+## Knowledge graph analogy
+
+A **knowledge graph analogy** is a relationship pattern of the form "entity A is to entity B as entity C is to entity D," which can be expressed through vector arithmetic in the embedding space.
+
+:::
+
+::: {#exm-kg-analogy}
+
+## Knowledge graph analogy example
+
+In a well-trained embedding space for a geography knowledge graph, we might observe:
+
+$\mathbf{France} - \mathbf{Paris} \approx \mathbf{Germany} - \mathbf{Berlin} \approx \mathbf{Italy} - \mathbf{Rome}$
+
+This indicates that the "is_capital_of" relationship is captured as a consistent vector offset in the embedding space.
+
+Similarly, for a family relationship knowledge graph:
+
+$\mathbf{Man} - \mathbf{Boy} \approx \mathbf{Woman} - \mathbf{Girl}$
+
+This captures the "adult version of" relationship.
+
+:::
+
+Analogies provide a way to visualize and understand what the embedding space has learned. When embeddings successfully capture these analogical relationships, it suggests that the model has learned a meaningful semantic structure.
+
+## Entity types and relation domains
+
+Knowledge graphs often include information about entity types and relation domains/ranges:
+
+::: {#def-type-constraints}
+
+## Type constraints
+
+**Type constraints** in knowledge graphs specify:
+
+1. **Entity types**: The categories that entities belong to (e.g., Person, Place, Organization)
+2. **Relation domains**: The types of entities that can appear as the head of a relation
+3. **Relation ranges**: The types of entities that can appear as the tail of a relation
+
+:::
+
+In embedding spaces, entity types often manifest as clusters or regions:
+
+::: {#exm-type-clustering}
+
+## Type clustering example
+
+In a well-trained embedding space for a general knowledge graph:
+
+- Person entities might cluster in one region of the space
+- Location entities in another region
+- Organization entities in yet another region
+
+This clustering emerges naturally during training because entities of the same type tend to participate in similar relations.
+
+For instance, the relation "was_born_in" typically has a Person as its head entity and a Location as its tail entity. The embedding model learns to place Persons and Locations in different regions of the space to satisfy this pattern.
+
+:::
+
+Some advanced embedding models explicitly incorporate type information to improve performance.
+
+## Translating from symbolic to continuous representations
+
+Knowledge graph embeddings fundamentally translate between symbolic and continuous representations:
+
+::: {#def-representation-types}
+
+## Representation paradigms
+
+1. **Symbolic representation**: Discrete, exact, and interpretable (e.g., triples in a knowledge graph)
+2. **Continuous representation**: Dense, approximate, and amenable to mathematical operations (e.g., embeddings)
+
+:::
+
+This translation offers both benefits and challenges:
+
+### Benefits of continuous representations:
+
+1. Efficient computation through vector operations
+2. Similarity-based generalization to unseen facts
+3. Robust handling of noise and uncertainty
+4. Integration with neural models for downstream tasks
+
+### Challenges of continuous representations:
+
+1. Loss of interpretability
+2. Approximation errors
+3. Difficulty in incorporating hard logical constraints
+4. Challenges in representing discrete categories
+
+::: {#exm-continuous-symbolic}
+
+## Continuous vs. symbolic example
+
+Consider the fact "Paris is the capital of France."
+
+**Symbolic representation**:
+
+```
+(Paris, is_capital_of, France)
+```
+
+This is exact, discrete, and human-interpretable.
+
+**Continuous representation (vectors)**:
+
+```
+Paris = [0.2, 0.7, -0.5, 0.1, ...]
+is_capital_of = [0.8, -0.3, 0.2, 0.6, ...]
+France = [1.0, 0.4, -0.3, 0.7, ...]
+```
+
+This is approximate and less interpretable but enables mathematical operations like measuring that: `||Paris + is_capital_of - France|| = 0.3` (low distance indicating a plausible triple)
+
+:::
+
+The power of knowledge graph embeddings comes from bridging these two representation paradigms, leveraging the strengths of both.
+
+## Embedding initialization
+
+The initialization of embeddings before training can significantly impact the learning process and final results:
+
+::: {#def-initialization}
+
+## Embedding initialization
+
+**Embedding initialization** refers to the strategy for setting initial values of entity and relation embeddings before training. Common approaches include:
+
+1. **Random uniform initialization**: Sample from uniform distribution, e.g., $U(-\frac{1}{\sqrt{d}}, \frac{1}{\sqrt{d}})$
+2. **Normal initialization**: Sample from normal distribution, e.g., $N(0, \frac{1}{d})$
+3. **Xavier/Glorot initialization**: Scaled based on input and output dimensions
+4. **Pre-trained initialization**: Start with embeddings from another model or data source
+
+:::
+
+::: {#exm-initialization}
+
+## Initialization impact example
+
+Consider training a TransE model with different initializations:
+
+1. **Too small initialization** (e.g., uniform[-0.01, 0.01]):
+
+   - Entities start very close together
+   - Gradients may be small
+   - Training progresses slowly
+   - May get stuck in suboptimal solutions
+
+2. **Too large initialization** (e.g., uniform[-10, 10]):
+
+   - Entities start far apart
+   - Initial predictions are very poor
+   - Training may be unstable
+   - Can lead to exploding gradients
+
+3. **Properly scaled initialization** (e.g., uniform[-0.5, 0.5] for d=100):
+   - Provides good separation between entities
+   - Allows effective gradient flow
+   - Enables faster convergence
+
+:::
+
+Proper initialization helps avoid numerical issues during training and can lead to better final embeddings.
+
+## Normalization and constraints
+
+Many knowledge graph embedding models apply normalization or constraints to the embeddings:
+
+::: {#def-normalization}
+
+## Embedding normalization
+
+**Embedding normalization** refers to constraints applied to embeddings during training, such as:
+
+1. **L2 normalization**: Constraining $\|\mathbf{e}\|_2 = 1$ for all entity embeddings
+2. **Maximum norm constraint**: Ensuring $\|\mathbf{e}\|_2 \leq C$ for some constant $C$
+3. **Unit modulus constraint**: For complex embeddings, ensuring $|e_i| = 1$ for each component
+
+:::
+
+These constraints serve several purposes:
+
+1. Preventing the model from "cheating" by scaling embeddings arbitrarily
+2. Improving numerical stability during training
+3. Enforcing specific geometric properties (e.g., rotations in complex space)
+4. Regularizing the model to prevent overfitting
+
+::: {#exm-normalization}
+
+## Normalization example
+
+In TransE, a common approach is to normalize entity embeddings to unit L2 norm after each training step:
+
+$\mathbf{e} \leftarrow \frac{\mathbf{e}}{\|\mathbf{e}\|_2}$ for each entity embedding $\mathbf{e}$
+
+This ensures that all entities lie on the unit hypersphere, preventing the model from simply pushing entities far apart to satisfy the margin-based loss function.
+
+Without this constraint, the model could "cheat" by making $\|\mathbf{h}\|$ and $\|\mathbf{t}\|$ very large while keeping $\|\mathbf{r}\|$ small, which would satisfy $\mathbf{h} + \mathbf{r} \approx \mathbf{t}$ without capturing meaningful semantic relationships.
+
+:::
+
+Different models use different normalization strategies based on their geometric interpretation of embeddings.
+
+## Visualization techniques for embeddings
+
+Visualization is a powerful tool for understanding and debugging embedding spaces:
+
+::: {#def-viz-techniques}
+
+## Embedding visualization techniques
+
+1. **Dimensionality reduction**:
+
+   - Principal Component Analysis (PCA): Linear projection preserving maximum variance
+   - t-SNE: Non-linear projection preserving local distances
+   - UMAP: Non-linear projection balancing local and global structure
+
+2. **Relation-centric visualization**:
+
+   - Plotting head-tail pairs connected by the same relation
+   - Visualizing relation-specific transformations
+
+3. **Query-based visualization**:
+   - Showing nearest neighbors to specific entities
+   - Visualizing entities connected through specific relation paths
+
+:::
+
+::: {#exm-viz}
+
+## Visualization example
+
+Imagine we've trained embeddings for a geography knowledge graph. We might create visualizations such as:
+
+1. **PCA projection** showing countries clustered by continent, with capital cities positioned near their countries
+
+2. **Relation visualization** showing consistent offsets between countries and their capitals, indicating that the "capital_of" relation has been learned as a consistent translation
+
+3. **Nearest neighbor visualization** for the query "France," showing similar entities like "Germany," "Italy," and "Spain" nearby in the embedding space
+
+:::
+
+Visualizations can reveal patterns, biases, and problems in the embedding space, helping guide refinements to the model.
+
+## Summary
+
+In this chapter, we've explored the fundamental concepts of vector space representations for knowledge graphs:
+
+- Vector spaces provide a mathematical framework for representing entities and relations
+- Different geometric interpretations (translations, rotations, bilinear forms) capture different aspects of relations
+- Embedding spaces can encode semantic relationships as geometric relationships
+- Properties like dimensionality, normalization, and initialization impact embedding quality
+- Different relation patterns (symmetry, composition, transitivity) require different modeling approaches
+- Visualization techniques help understand and debug embedding spaces
+
+This mathematical foundation prepares us for the detailed exploration of specific knowledge graph embedding models in the following chapters. We'll begin in Chapter 3 with translational embedding models, which provide an intuitive geometric interpretation of relations as translations in the embedding space.
+
+## Further reading
+
+### Vector spaces and linear algebra
+
+- Strang, G. (2006). Linear Algebra and Its Applications. 4th Edition. Brooks Cole.
+- Axler, S. (2014). Linear Algebra Done Right. 3rd Edition. Springer.
+- Roman, S. (2005). Advanced Linear Algebra. 3rd Edition. Springer.
+
+### Embedding methods
+
+- Bengio, Y., Courville, A., & Vincent, P. (2013). Representation learning: A review and new perspectives. IEEE Transactions on Pattern Analysis and Machine Intelligence, 35(8), 1798-1828.
+- Mikolov, T., Sutskever, I., Chen, K., Corrado, G. S., & Dean, J. (2013). Distributed representations of words and phrases and their compositionality. In Advances in Neural Information Processing Systems (pp. 3111-3119).
+- Pennington, J., Socher, R., & Manning, C. D. (2014). GloVe: Global vectors for word representation. In Proceedings of the 2014 Conference on Empirical Methods in Natural Language Processing (pp. 1532-1543).
+
+### Tensor factorization and knowledge graph embeddings
+
+- Kolda, T. G., & Bader, B. W. (2009). Tensor decompositions and applications. SIAM Review, 51(3), 455-500.
+- Nickel, M., Tresp, V., & Kriegel, H. P. (2011). A three-way model for collective learning on multi-relational data. In Proceedings of the 28th International Conference on Machine Learning (pp. 809-816).
+- Wang, Q., Mao, Z., Wang, B., & Guo, L. (2017). Knowledge graph embedding: A survey of approaches and applications. IEEE Transactions on Knowledge and Data Engineering, 29(12), 2724-2743.
+
+### Visualization and dimensionality reduction
+
+- Van der Maaten, L., & Hinton, G. (2008). Visualizing data using t-SNE. Journal of Machine Learning Research, 9(Nov), 2579-2605.
+- McInnes, L., Healy, J., & Melville, J. (2018). UMAP: Uniform manifold approximation and projection for dimension reduction. arXiv preprint arXiv:1802.03426.
+- Abadi, M., Barham, P., Chen, J., Chen, Z., Davis, A., Dean, J., ... & Zheng, X. (2016). TensorFlow: A system for large-scale machine learning. In 12th USENIX Symposium on Operating Systems Design and Implementation (pp. 265-283).

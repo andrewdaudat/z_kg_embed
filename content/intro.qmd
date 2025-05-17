@@ -1,0 +1,596 @@
+# Introduction to Knowledge Graphs and Representations
+
+Knowledge has always been one of humanity's most valuable resources. From ancient libraries to modern databases, we have continually developed better ways to store, organize, and retrieve information. In our digital age, the volume of available information has grown exponentially, creating both opportunities and challenges. How can we structure this vast sea of data to make it useful? How can machines process and reason with this information in ways that approach human understanding?
+
+Knowledge graphs represent one of the most promising solutions to these challenges. These structured representations organize information as a network of entities connected by relationships, providing a framework that is both human-interpretable and machine-processable. The concept has gained significant traction in recent years, with major technology companies like Google, Facebook, and Microsoft developing their own knowledge graph systems to power search engines, recommendation systems, and AI assistants.
+
+This chapter introduces the fundamental concepts of knowledge graphs, their representation, and the challenges they present. We'll explore why knowledge graph completion—particularly through embedding techniques—has become such an important area of research. By the end of this chapter, you'll have a solid foundation for understanding the more advanced embedding models and techniques presented in later chapters.
+
+## What are graphs?
+
+Before diving into knowledge graphs specifically, let's establish a common understanding of graphs in general. Graphs provide a powerful mathematical abstraction for representing relationships between entities.
+
+::: {#def-graph}
+
+## Graph
+
+A **graph** $G = (V, E)$ consists of:
+
+- A set of **vertices** (or **nodes**) $V$
+- A set of **edges** $E \subseteq V \times V$ that connect pairs of vertices
+
+An edge $(u, v) \in E$ indicates a relationship or connection between vertices $u$ and $v$.
+
+:::
+
+Graphs can be visualized as a collection of dots (vertices) connected by lines (edges). This intuitive visual representation makes graphs accessible even to those without a mathematical background.
+
+::: {#exm-social-network}
+
+## Social network graph
+
+Consider a simple social network where people are represented as vertices and friendships as edges. If we have users Alice, Bob, Charlie, Diana, and Elena, with friendships between (Alice, Bob), (Bob, Charlie), (Charlie, Diana), (Diana, Elena), and (Elena, Alice), we can represent this as a graph:
+
+- Vertices: $V = \{\text{Alice}, \text{Bob}, \text{Charlie}, \text{Diana}, \text{Elena}\}$
+- Edges: $E = \{(\text{Alice}, \text{Bob}), (\text{Bob}, \text{Charlie}), (\text{Charlie}, \text{Diana}), (\text{Diana}, \text{Elena}), (\text{Elena}, \text{Alice})\}$
+
+This particular graph forms a cycle, where each person is friends with exactly two others, creating a circular friendship network.
+
+:::
+
+### Types of graphs
+
+Graphs come in various forms, each with properties suitable for different applications:
+
+::: {#def-undirected-graph}
+
+## Undirected graph
+
+An **undirected graph** is a graph where edges have no direction. If $(u, v) \in E$, then $(v, u)$ is also in $E$, representing a symmetric relationship between $u$ and $v$.
+
+:::
+
+::: {#def-directed-graph}
+
+## Directed graph
+
+A **directed graph** (or **digraph**) is a graph where edges have direction. An edge $(u, v)$ represents a relationship from $u$ to $v$ that doesn't necessarily apply in the reverse direction.
+
+:::
+
+::: {#def-weighted-graph}
+
+## Weighted graph
+
+A **weighted graph** is a graph where each edge has an associated numerical value called a **weight**. Formally, there is a weight function $w: E \rightarrow \mathbb{R}$ that assigns a real number to each edge.
+
+:::
+
+::: {#def-labeled-graph}
+
+## Labeled graph
+
+A **labeled graph** is a graph where vertices and/or edges have labels or types. Formally, there are labeling functions $l_V: V \rightarrow L_V$ and $l_E: E \rightarrow L_E$ that assign labels from sets $L_V$ and $L_E$ to vertices and edges, respectively.
+
+:::
+
+::: {#def-multigraph}
+
+## Multigraph
+
+A **multigraph** is a graph that allows multiple edges (or parallel edges) between the same pair of vertices.
+
+:::
+
+::: {#exm-graph-types}
+
+## Different graph types
+
+Consider representing transportation connections between cities:
+
+- **Undirected graph**: Cities connected by highways, where travel is possible in both directions
+- **Directed graph**: One-way streets connecting locations in a city
+- **Weighted graph**: Cities connected by roads, with weights representing distances or travel times
+- **Labeled graph**: A transportation network where edges are labeled by transportation type (bus, train, flight)
+- **Multigraph**: Cities connected by multiple transportation options (e.g., both a highway and a railway between two cities)
+
+:::
+
+## Knowledge graphs: definition and components
+
+Now that we understand graphs in general, let's focus on knowledge graphs specifically.
+
+::: {#def-knowledge-graph}
+
+## Knowledge graph
+
+A **knowledge graph** is a labeled, directed multigraph $G = (E, R, T)$ where:
+
+- $E$ is a set of entities (vertices)
+- $R$ is a set of relation types (edge labels)
+- $T \subseteq E \times R \times E$ is a set of triples or facts in the form $(h, r, t)$, where $h$ is the head entity, $r$ is the relation, and $t$ is the tail entity
+
+:::
+
+Knowledge graphs are specifically designed to represent factual information about the world in a structured format. Each triple $(h, r, t)$ encodes a single fact, such as "Paris is the capital of France" or "Albert Einstein developed the theory of relativity."
+
+::: {#exm-movie-kg}
+
+## Movie knowledge graph
+
+Consider a small knowledge graph about movies:
+
+- Entities: $E = \{\text{Inception}, \text{Christopher Nolan}, \text{Leonardo DiCaprio}, \text{The Revenant}, \text{Alejandro Iñárritu}, \text{Science Fiction}, \text{Drama}, \text{2010}, \text{2015}\}$
+- Relations: $R = \{\text{directed}, \text{acted_in}, \text{has_genre}, \text{released_in}, \text{won_oscar_for}\}$
+- Triples: $T = \{$
+  - $(\text{Christopher Nolan}, \text{directed}, \text{Inception})$,
+  - $(\text{Leonardo DiCaprio}, \text{acted_in}, \text{Inception})$,
+  - $(\text{Leonardo DiCaprio}, \text{acted_in}, \text{The Revenant})$,
+  - $(\text{Alejandro Iñárritu}, \text{directed}, \text{The Revenant})$,
+  - $(\text{Inception}, \text{has_genre}, \text{Science Fiction})$,
+  - $(\text{The Revenant}, \text{has_genre}, \text{Drama})$,
+  - $(\text{Inception}, \text{released_in}, \text{2010})$,
+  - $(\text{The Revenant}, \text{released_in}, \text{2015})$,
+  - $(\text{Leonardo DiCaprio}, \text{won_oscar_for}, \text{The Revenant})$ $\}$
+
+:::
+
+This example illustrates several key aspects of knowledge graphs:
+
+1. **Heterogeneous entities**: Entities can represent diverse concepts (people, movies, genres, years)
+2. **Typed relations**: Relations have specific meanings (directed, acted_in, has_genre)
+3. **Multi-relational**: The same entities can be connected through different relation types
+4. **Factual knowledge**: Each triple represents a specific fact about the world
+
+### Special types of knowledge graphs
+
+Some knowledge graphs have additional structure or constraints:
+
+::: {#def-ontology}
+
+## Ontology
+
+An **ontology** is a knowledge graph that includes class hierarchies, property constraints, and logical axioms. It defines a formal vocabulary and semantic constraints for a domain.
+
+:::
+
+::: {#def-knowledge-base}
+
+## Knowledge base
+
+A **knowledge base** is a knowledge graph that is used for automated reasoning and may include inference rules and axioms in addition to factual triples.
+
+:::
+
+Large-scale knowledge graphs often combine aspects of both ontologies (providing structure) and knowledge bases (supporting reasoning).
+
+## Real-world knowledge graphs
+
+To appreciate the significance of knowledge graphs, it's helpful to look at some prominent examples:
+
+### Public knowledge graphs
+
+Several major knowledge graphs are publicly available for research and commercial applications:
+
+1. **DBpedia**: Extracts structured information from Wikipedia, containing information about persons, places, organizations, and more.
+
+2. **Wikidata**: A collaborative knowledge base maintained by the Wikimedia Foundation, containing structured data to support Wikipedia and other projects.
+
+3. **YAGO (Yet Another Great Ontology)**: Combines information from Wikipedia, WordNet, and GeoNames, with a focus on temporal and spatial knowledge.
+
+4. **WordNet**: A lexical database that groups English words into sets of synonyms (synsets) and records various semantic relations between these synonym sets.
+
+5. **Freebase**: A large collaborative knowledge base that was acquired by Google and partially integrated into Google's Knowledge Graph before being shut down. Datasets derived from Freebase, such as FB15k, are still widely used in research.
+
+### Commercial knowledge graphs
+
+Major technology companies have developed proprietary knowledge graphs to power their products:
+
+1. **Google Knowledge Graph**: Powers Google's search engine to provide direct answers to queries and enhances search results with relevant information.
+
+2. **Facebook Graph API**: Represents information about Facebook users, their connections, and activities.
+
+3. **Microsoft Academic Graph**: Contains scientific publication records, citations, authors, and fields of study.
+
+4. **Amazon Product Graph**: Contains information about products, their attributes, and relationships, supporting Amazon's product recommendations.
+
+::: {#exm-google-kg}
+
+## Google Knowledge Graph in action
+
+When you search for "Albert Einstein" on Google, you receive not just links to websites but also a knowledge panel displaying key facts about Einstein: his birth date (March 14, 1879), death date (April 18, 1955), spouse (Elsa Einstein), children, notable awards (Nobel Prize in Physics), and much more. This information comes from Google's Knowledge Graph, which has organized facts about Einstein and can present them directly to users.
+
+:::
+
+## Applications of knowledge graphs
+
+Knowledge graphs enable numerous applications across various domains:
+
+### Search and question answering
+
+Knowledge graphs significantly enhance search capabilities by understanding the meaning behind search queries and providing direct answers rather than just links.
+
+::: {#exm-semantic-search}
+
+## Semantic search with knowledge graphs
+
+Consider the query "Who directed Inception?"
+
+A traditional keyword-based search might return documents containing both "directed" and "Inception," requiring the user to read through results to find the answer.
+
+A knowledge graph-powered search can directly return "Christopher Nolan" by querying the triple $(?, \text{directed}, \text{Inception})$ and returning the matching head entity.
+
+:::
+
+### Recommendation systems
+
+Knowledge graphs enable more sophisticated recommendation systems by capturing complex relationships between users and items.
+
+::: {#exm-movie-recommendations}
+
+## Knowledge graph-based movie recommendations
+
+Instead of simply recommending movies liked by similar users, a knowledge graph-based system can use paths like:
+
+User liked Inception → Inception directed_by Christopher Nolan → Christopher Nolan directed Interstellar → Recommend Interstellar
+
+This allows for explainable recommendations: "We recommend Interstellar because you liked Inception, which was also directed by Christopher Nolan."
+
+:::
+
+### Virtual assistants and conversational AI
+
+Knowledge graphs provide the factual knowledge that enables virtual assistants to answer questions and maintain context in conversations.
+
+::: {#exm-conversational-context}
+
+## Conversational context with knowledge graphs
+
+User: "Who wrote Romeo and Juliet?" Assistant: "William Shakespeare wrote Romeo and Juliet." User: "When was he born?"
+
+The knowledge graph helps the assistant understand that "he" refers to William Shakespeare and can retrieve his birth date (April 1564).
+
+:::
+
+### Data integration
+
+Knowledge graphs serve as a unifying framework for integrating heterogeneous data sources, aligning different vocabularies and data models.
+
+::: {#exm-data-integration}
+
+## Enterprise data integration
+
+A company might have customer data in a CRM system, product data in an inventory management system, and transaction data in a financial system. A knowledge graph can integrate these sources by mapping entities across systems (e.g., recognizing that Customer#1234 in the CRM system and User#5678 in the transaction system refer to the same person).
+
+:::
+
+## The challenge of incomplete knowledge graphs
+
+Despite their utility, real-world knowledge graphs face a significant challenge: incompleteness. Building comprehensive knowledge graphs is difficult for several reasons:
+
+1. **Scale**: The real world contains an enormous number of entities and relationships. Even large knowledge graphs like Freebase or Wikidata capture only a fraction of all possible facts.
+
+2. **Data acquisition**: Extracting structured knowledge from unstructured sources (text, images, etc.) is challenging and error-prone.
+
+3. **Evolving knowledge**: The world constantly changes, with new entities emerging and relationships evolving over time.
+
+4. **Long tail phenomena**: Many entities and relationships occur rarely, making them difficult to collect systematically.
+
+::: {#def-kg-completion}
+
+## Knowledge graph completion
+
+**Knowledge graph completion** is the task of adding missing triples to a knowledge graph. Given an incomplete knowledge graph $G = (E, R, T)$, the goal is to discover additional valid triples $T' \subseteq E \times R \times E$ such that $T' \not\subseteq T$.
+
+:::
+
+Knowledge graph completion is typically approached as a prediction problem: given the existing triples in a knowledge graph, can we predict which additional triples are likely to be true?
+
+## Link prediction in knowledge graphs
+
+The most common formulation of knowledge graph completion is link prediction:
+
+::: {#def-link-prediction}
+
+## Link prediction
+
+**Link prediction** in knowledge graphs is the task of predicting missing links (relationships) between entities. Formally, given a triple where either the head or tail entity is missing, $(?, r, t)$ or $(h, r, ?)$, the goal is to rank all possible entities from the knowledge graph based on their likelihood of completing the triple correctly.
+
+:::
+
+Link prediction can be viewed as answering questions like:
+
+- "Which city is the capital of France?" — predicting $(?, \text{capital_of}, \text{France})$
+- "What genre does the movie Inception belong to?" — predicting $(\text{Inception}, \text{has_genre}, ?)$
+
+::: {#exm-link-prediction}
+
+## Link prediction example
+
+Consider our movie knowledge graph example with a missing triple: $(\text{Leonardo DiCaprio}, \text{won_oscar_for}, ?)$
+
+A link prediction model would rank potential tail entities:
+
+1. The Revenant (correct)
+2. Inception (incorrect, but plausible)
+3. Christopher Nolan (implausible) ...
+
+The model's quality is assessed by how highly it ranks the correct answer.
+
+:::
+
+## Approaches to knowledge graph completion
+
+Researchers have developed various approaches to address the knowledge graph completion problem:
+
+### Rule-based methods
+
+Rule-based methods use logical rules to infer new facts from existing ones. For example, the rule:
+
+$$\text{born_in}(X, Y) \land \text{located_in}(Y, Z) \Rightarrow \text{nationality}(X, Z)$$
+
+could infer that someone born in Paris has French nationality, based on the fact that Paris is located in France.
+
+Rule-based approaches have the advantage of being interpretable but may struggle with noise and exceptions.
+
+### Graph-based methods
+
+Graph-based methods leverage the graph structure to predict missing links. These approaches may use metrics like common neighbors, path features, or random walk statistics to assess the likelihood of links between entities.
+
+::: {#exm-path-features}
+
+## Path features for link prediction
+
+Consider predicting whether Leonardo DiCaprio has worked with Christopher Nolan. A path-based feature might be:
+
+$(\text{Leonardo DiCaprio}, \text{acted_in}, \text{Inception}) \land (\text{Inception}, \text{directed_by}, \text{Christopher Nolan})$
+
+This path suggests a professional relationship between DiCaprio and Nolan.
+
+:::
+
+### Embedding-based methods
+
+Embedding-based methods represent entities and relations as vectors in a continuous space, where the geometric relationships between vectors capture semantic relationships.
+
+::: {#def-knowledge-graph-embedding}
+
+## Knowledge graph embedding
+
+**Knowledge graph embedding (KGE)** is the process of mapping entities and relations in a knowledge graph to continuous vector spaces while preserving the graph's structural and semantic properties. Formally:
+
+- Each entity $e \in E$ is mapped to a vector $\mathbf{e} \in \mathbb{R}^d$ (or in some models, $\mathbf{e} \in \mathbb{C}^d$)
+- Each relation $r \in R$ is mapped to a vector, matrix, or tensor representation, depending on the specific model
+
+:::
+
+The embedding approach has several advantages:
+
+1. **Computational efficiency**: Vector operations are fast and parallelizable
+2. **Generalization**: Embeddings can capture patterns that enable inferences beyond observed facts
+3. **Integration with machine learning**: Embeddings can be used as input features for various machine learning tasks
+
+::: {#exm-translation-embedding}
+
+## Translational embedding intuition
+
+In a translational embedding model like TransE, relationships are represented as translations in the vector space. For example, if we have:
+
+$\mathbf{France} + \mathbf{capital\_of} \approx \mathbf{Paris}$
+
+Then we might also expect:
+
+$\mathbf{Germany} + \mathbf{capital\_of} \approx \mathbf{Berlin}$
+
+This geometric structure enables the model to generalize from observed facts to new, similar facts.
+
+:::
+
+Embedding-based methods have become the dominant approach for knowledge graph completion, and the remainder of this book focuses on various embedding techniques, their properties, and applications.
+
+## Representing knowledge: symbolic vs. distributed approaches
+
+To better understand the significance of knowledge graph embeddings, it's helpful to contrast symbolic and distributed representations of knowledge.
+
+### Symbolic representations
+
+Symbolic representations store knowledge as discrete symbols and logical statements. Knowledge graphs in their raw form (as collections of triples) are symbolic representations.
+
+Advantages of symbolic representations:
+
+- Precise and interpretable
+- Support formal reasoning through logic
+- Accommodate structured queries
+
+Limitations of symbolic representations:
+
+- Struggle with uncertainty and noise
+- Limited generalization capabilities
+- Computationally expensive for large-scale reasoning
+- Difficult to integrate with neural models
+
+### Distributed representations
+
+Distributed representations encode knowledge as patterns of activation across many units (e.g., vectors of real numbers). Knowledge graph embeddings are distributed representations.
+
+Advantages of distributed representations:
+
+- Robust to noise and uncertainty
+- Enable similarity-based generalization
+- Computationally efficient
+- Compatible with neural networks and deep learning
+
+Limitations of distributed representations:
+
+- Less interpretable
+- May struggle with precise logical reasoning
+- Difficult to incorporate hard constraints
+
+::: {#exm-representation-comparison}
+
+## Comparison of representations
+
+Consider the fact "Paris is the capital of France":
+
+**Symbolic representation**:
+
+```
+(Paris, capital_of, France)
+```
+
+**Distributed representation (vectors)**:
+
+```
+Paris = [0.1, -0.2, 0.5, 0.3, ...]
+capital_of = [0.7, 0.1, -0.4, 0.2, ...]
+France = [0.4, -0.1, 0.9, 0.5, ...]
+```
+
+In the distributed representation, the relationship between entities might be captured by a mathematical operation like vector addition:
+
+```
+Paris ≈ France + capital_of
+```
+
+:::
+
+Knowledge graph embeddings aim to combine the best of both worlds: they start with symbolic knowledge in the form of triples but convert it to distributed representations that enable efficient computation and generalization.
+
+## Embedding space properties
+
+When embedding knowledge graphs into vector spaces, certain properties of the embedding space become important:
+
+### Dimensionality
+
+The dimension $d$ of the embedding space significantly impacts the model's capacity and performance:
+
+- **Low dimensionality** (e.g., $d = 50$) leads to more compact representations that may generalize better but might lose important details
+- **High dimensionality** (e.g., $d = 500$) allows for more expressive representations but may require more data to train effectively and could lead to overfitting
+
+### Distance and similarity measures
+
+Different embedding models use different notions of distance or similarity in the embedding space:
+
+::: {#def-distance-measures}
+
+## Common distance and similarity measures
+
+For vectors $\mathbf{x}, \mathbf{y} \in \mathbb{R}^d$:
+
+1. **Euclidean distance**: $d_{\text{Euclidean}}(\mathbf{x}, \mathbf{y}) = \|\mathbf{x} - \mathbf{y}\|_2 = \sqrt{\sum_{i=1}^d (x_i - y_i)^2}$
+
+2. **Manhattan distance**: $d_{\text{Manhattan}}(\mathbf{x}, \mathbf{y}) = \|\mathbf{x} - \mathbf{y}\|_1 = \sum_{i=1}^d |x_i - y_i|$
+
+3. **Cosine similarity**: $\text{sim}_{\text{cosine}}(\mathbf{x}, \mathbf{y}) = \frac{\mathbf{x} \cdot \mathbf{y}}{\|\mathbf{x}\|_2 \|\mathbf{y}\|_2} = \frac{\sum_{i=1}^d x_i y_i}{\sqrt{\sum_{i=1}^d x_i^2} \sqrt{\sum_{i=1}^d y_i^2}}$
+
+4. **Dot product**: $\text{sim}_{\text{dot}}(\mathbf{x}, \mathbf{y}) = \mathbf{x} \cdot \mathbf{y} = \sum_{i=1}^d x_i y_i$
+
+:::
+
+Different knowledge graph embedding models use different measures depending on how they conceptualize relationships in the embedding space.
+
+### Geometric transformations
+
+Knowledge graph embedding models often interpret relations as geometric transformations in the embedding space:
+
+- **Translations**: Relation vectors shift entity vectors (e.g., in TransE)
+- **Rotations**: Relation matrices rotate entity vectors (e.g., in RotatE)
+- **Projections**: Relation matrices project entities onto subspaces (e.g., in TransH)
+- **Scaling**: Relation vectors scale entity dimensions (e.g., in DistMult)
+
+The choice of transformation affects what types of relationship patterns the model can capture.
+
+## Scoring functions for link prediction
+
+At the heart of embedding-based link prediction is the scoring function, which assesses how likely a triple is to be true.
+
+::: {#def-scoring-function}
+
+## Scoring function
+
+A **scoring function** $f_r(h, t)$ in knowledge graph embedding models measures the plausibility of a triple $(h, r, t)$. Higher scores (or lower distances/energies) indicate that a triple is more likely to be valid. The specific form of the scoring function varies across different embedding models.
+
+:::
+
+Different models define different scoring functions. For example:
+
+- **TransE**: $f_r(h, t) = -\|\mathbf{h} + \mathbf{r} - \mathbf{t}\|$ (distance-based, lower is better)
+- **DistMult**: $f_r(h, t) = \mathbf{h}^\top \text{diag}(\mathbf{r}) \mathbf{t}$ (similarity-based, higher is better)
+
+The scoring function is crucial because it defines the geometry of the embedding space and determines what patterns the model can learn.
+
+## The link prediction task: formal definition
+
+Now that we understand the components of knowledge graph embeddings, let's formally define the link prediction task:
+
+::: {#def-link-prediction-formal}
+
+## Formal link prediction task
+
+Given:
+
+- A knowledge graph $G = (E, R, T)$
+- A query in the form $(h, r, ?)$ or $(?, r, t)$, where $?$ indicates a missing entity
+
+The task is to rank all entities $e \in E$ by the score $f_r(h, e)$ or $f_r(e, t)$, respectively, where $f_r$ is a scoring function.
+
+Performance is evaluated by the rank of the correct entity among all possible entities.
+
+:::
+
+In practice, link prediction involves these steps:
+
+1. Learn entity and relation embeddings from observed triples
+2. For each test query, compute scores for all candidate entities
+3. Rank candidates by score
+4. Evaluate using metrics like Mean Rank, Mean Reciprocal Rank, or Hits@k
+
+::: {#exm-link-prediction-ranking}
+
+## Link prediction ranking example
+
+Consider a query $(?, \text{capital_of}, \text{France})$ to find the capital of France.
+
+A model might produce these scores for candidate entities:
+
+- Paris: 0.95
+- Lyon: 0.65
+- Berlin: 0.30
+- London: 0.25
+- Rome: 0.20
+
+The correct answer (Paris) is ranked first, resulting in a perfect prediction in this case.
+
+:::
+
+## Summary
+
+In this chapter, we've established the foundations for understanding knowledge graphs and embedding approaches to link prediction:
+
+- Knowledge graphs represent factual information as triples of the form (head entity, relation, tail entity)
+- Real-world knowledge graphs like Freebase, DBpedia, and Google's Knowledge Graph power applications from search to recommendation systems
+- Knowledge graphs are inevitably incomplete, creating a need for techniques to predict missing links
+- Knowledge graph embeddings map entities and relations to continuous vector spaces, enabling efficient computation and generalization
+- Link prediction, the task of predicting missing entities in triples, is the primary application of knowledge graph embeddings
+
+The next chapter will delve into the fundamentals of vector space representations, which form the mathematical foundation for all knowledge graph embedding approaches.
+
+## Further reading
+
+### Books and surveys
+
+- Wang, Q., Mao, Z., Wang, B., & Guo, L. (2017). Knowledge graph embedding: A survey of approaches and applications. IEEE Transactions on Knowledge and Data Engineering, 29(12), 2724-2743.
+- Hogan, A., Blomqvist, E., Cochez, M., d'Amato, C., Melo, G. D., Gutierrez, C., ... & Zimmermann, A. (2021). Knowledge graphs. ACM Computing Surveys, 54(4), 1-37.
+- Getoor, L., & Taskar, B. (Eds.). (2007). Introduction to statistical relational learning. MIT press.
+
+### Knowledge graphs and applications
+
+- Singhal, A. (2012). Introducing the Knowledge Graph: things, not strings. Google Official Blog.
+- Nickel, M., Murphy, K., Tresp, V., & Gabrilovich, E. (2016). A review of relational machine learning for knowledge graphs. Proceedings of the IEEE, 104(1), 11-33.
+- Paulheim, H. (2017). Knowledge graph refinement: A survey of approaches and evaluation methods. Semantic Web, 8(3), 489-508.
+
+### Embedding models introductions
+
+- Bordes, A., Usunier, N., Garcia-Duran, A., Weston, J., & Yakhnenko, O. (2013). Translating embeddings for modeling multi-relational data. In Advances in Neural Information Processing Systems (pp. 2787-2795).
+- Yang, B., Yih, W. T., He, X., Gao, J., & Deng, L. (2015). Embedding entities and relations for learning and inference in knowledge bases. In International Conference on Learning Representations.
+- Trouillon, T., Welbl, J., Riedel, S., Gaussier, É., & Bouchard, G. (2016). Complex embeddings for simple link prediction. In International Conference on Machine Learning (pp. 2071-2080).

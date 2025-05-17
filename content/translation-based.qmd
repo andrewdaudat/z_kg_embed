@@ -1,0 +1,1150 @@
+# Translation-Based Embedding Models
+
+Translation-based models represent one of the most intuitive and influential approaches to knowledge graph embeddings. These models interpret relations as translations in the embedding space: if a relation connects a head entity to a tail entity, then adding the relation vector to the head entity vector should approximate the tail entity vector. This simple geometric interpretation has proven remarkably effective for capturing many types of relationships in knowledge graphs.
+
+This chapter explores the family of translation-based models, starting with the pioneering TransE model and progressing through various extensions that address its limitations. We'll examine how these models work, their geometric interpretations, their strengths and limitations, and how they perform on knowledge graph completion tasks. By understanding translation-based models, you'll gain insight into the core principles that underlie many knowledge graph embedding approaches.
+
+## The translation principle
+
+The fundamental idea behind translation-based models is to interpret relations as translations (displacement vectors) in the embedding space:
+
+::: {#def-translation-principle}
+
+## Translation principle
+
+In translation-based models, entities and relations are embedded in a shared vector space $\mathbb{R}^d$, where relations are interpreted as translations from head entities to tail entities. For a triple $(h, r, t)$, the model aims to enforce:
+
+$$\mathbf{h} + \mathbf{r} \approx \mathbf{t}$$
+
+where $\mathbf{h}, \mathbf{r}, \mathbf{t} \in \mathbb{R}^d$ are the vector embeddings of the head entity, relation, and tail entity, respectively.
+
+:::
+
+This principle draws inspiration from word embeddings, where semantic relationships are often captured as consistent vector offsets. For example, in word embeddings, we might observe that $\mathbf{king} - \mathbf{man} + \mathbf{woman} \approx \mathbf{queen}$, indicating that the gender relationship is captured as a consistent offset.
+
+Similarly, in a knowledge graph about geography, we might expect: $\mathbf{France} + \mathbf{has\_capital} \approx \mathbf{Paris}$ $\mathbf{Germany} + \mathbf{has\_capital} \approx \mathbf{Berlin}$ $\mathbf{Italy} + \mathbf{has\_capital} \approx \mathbf{Rome}$
+
+This implies that the "has_capital" relation is represented as a consistent translation vector that, when added to a country's embedding, approximates the embedding of its capital city.
+
+::: {#exm-translation-intuition}
+
+## Translation intuition
+
+Consider a simple knowledge graph about family relationships:
+
+- (John, is_father_of, Mary)
+- (Bob, is_father_of, Alice)
+- (Tom, is_father_of, James)
+
+In a translation-based model, the "is*father_of" relation would be represented as a vector $\mathbf{r}*{\text{is_father_of}}$ such that:
+
+- $\mathbf{John} + \mathbf{r}_{\text{is\_father\_of}} \approx \mathbf{Mary}$
+- $\mathbf{Bob} + \mathbf{r}_{\text{is\_father\_of}} \approx \mathbf{Alice}$
+- $\mathbf{Tom} + \mathbf{r}_{\text{is\_father\_of}} \approx \mathbf{James}$
+
+This means that the father-child relationship is captured as a consistent displacement in the embedding space, allowing the model to generalize to new entity pairs.
+
+:::
+
+## TransE: the pioneering translation model
+
+TransE, introduced by Bordes et al. (2013), was the first translation-based model for knowledge graph embeddings and remains one of the most influential models in the field.
+
+::: {#def-transe}
+
+## TransE model
+
+In the **TransE** model, entities and relations are embedded in the same vector space $\mathbb{R}^d$. For a triple $(h, r, t)$, the model enforces: $$\mathbf{h} + \mathbf{r} \approx \mathbf{t}$$
+
+The scoring function, which measures the plausibility of a triple, is defined as: $$f_r(h, t) = -\|\mathbf{h} + \mathbf{r} - \mathbf{t}\|$$ where $\|\cdot\|$ can be either the L1 or L2 norm.
+
+Lower scores (smaller distances) indicate more plausible triples.
+
+:::
+
+### Geometric interpretation
+
+TransE has a clear geometric interpretation: relations are translations in the embedding space. For a valid triple $(h, r, t)$, the tail entity $t$ should be close to the point reached by starting at head entity $h$ and moving along the relation vector $\mathbf{r}$.
+
+::: {#exm-transe-geometry}
+
+## TransE geometric example
+
+Consider a knowledge graph about countries and their capitals. In a well-trained TransE model, the embeddings might have the following properties:
+
+- $\mathbf{France} + \mathbf{has\_capital} \approx \mathbf{Paris}$
+- $\|\mathbf{France} + \mathbf{has\_capital} - \mathbf{Paris}\| \approx 0$ (low distance, high plausibility)
+- $\|\mathbf{France} + \mathbf{has\_capital} - \mathbf{London}\| \gg 0$ (high distance, low plausibility)
+
+For a query about the capital of France, TransE would rank all entities by their proximity to $\mathbf{France} + \mathbf{has\_capital}$. Paris would be ranked highly (ideally first) because it's close to this point.
+
+:::
+
+### Learning algorithm
+
+TransE is trained using a margin-based ranking loss:
+
+::: {#def-transe-loss}
+
+## TransE loss function
+
+The TransE model is trained by minimizing the following margin-based ranking loss:
+
+$$L = \sum_{(h,r,t) \in S} \sum_{(h',r,t') \in S'_{(h,r,t)}} [\gamma + f_r(h, t) - f_r(h', t')]_+$$
+
+where:
+
+- $S$ is the set of valid triples in the training set
+- $S'_{(h,r,t)}$ is the set of corrupted triples created by replacing either $h$ or $t$ with a random entity
+- $\gamma > 0$ is a margin hyperparameter
+- $[x]_+ = \max(0, x)$ denotes the positive part of $x$
+- $f_r(h, t) = -\|\mathbf{h} + \mathbf{r} - \mathbf{t}\|$ is the scoring function
+
+:::
+
+This loss function encourages valid triples to have lower scores (smaller distances) than corrupted ones by at least a margin of $\gamma$.
+
+::: {#exm-transe-learning}
+
+## TransE learning example
+
+Consider a valid triple (France, has_capital, Paris) and a corrupted triple (France, has_capital, London).
+
+The loss term for this pair would be: $[\gamma - \|\mathbf{France} + \mathbf{has\_capital} - \mathbf{Paris}\| + \|\mathbf{France} + \mathbf{has\_capital} - \mathbf{London}\|]_+$
+
+For effective training, we want: $\|\mathbf{France} + \mathbf{has\_capital} - \mathbf{Paris}\| < \|\mathbf{France} + \mathbf{has\_capital} - \mathbf{London}\| - \gamma$
+
+This means the distance for the valid triple should be smaller than the distance for the corrupted triple by at least the margin $\gamma$.
+
+:::
+
+### TransE algorithm
+
+Here's the algorithm for training a TransE model:
+
+::: {#def-transe-algorithm}
+
+## TransE training algorithm
+
+1. **Initialize** entity and relation embeddings randomly
+2. **Normalize** entity embeddings to have unit L2 norm: $\|\mathbf{e}\|_2 = 1$ for all entities $e$
+3. **For** each training iteration: a. Sample a mini-batch of valid triples $B \subset S$ b. For each triple $(h, r, t) \in B$, create a corrupted triple $(h', r, t')$ by replacing either $h$ or $t$ c. Compute the loss function for the mini-batch d. Update embeddings using stochastic gradient descent e. Re-normalize entity embeddings
+4. **Return** the learned entity and relation embeddings
+
+:::
+
+The normalization of entity embeddings is crucial for TransE. Without this constraint, the model could "cheat" by making the norms of entities very large while keeping relation norms small, satisfying the translation constraint without learning meaningful representations.
+
+### Strengths and limitations of TransE
+
+TransE has several strengths that contributed to its popularity:
+
+1. **Simplicity**: The model is conceptually simple and easy to implement
+2. **Efficiency**: With only $O(|E|d + |R|d)$ parameters, TransE is computationally efficient
+3. **Effectiveness**: Despite its simplicity, TransE performs well on many knowledge graph completion tasks
+
+However, TransE also has important limitations:
+
+1. **One-to-many, many-to-one, and many-to-many relations**: TransE struggles with these relation types because it enforces a single translation vector for each relation
+
+2. **Symmetric relations**: TransE cannot model symmetric relations well because if $\mathbf{h} + \mathbf{r} \approx \mathbf{t}$ and $\mathbf{t} + \mathbf{r} \approx \mathbf{h}$ (for a symmetric relation), then $\mathbf{r} \approx \mathbf{0}$
+
+3. **Reflexive relations**: Relations where an entity relates to itself (e.g., "is_similar_to") are challenging because they would require $\mathbf{r} \approx \mathbf{0}$
+
+::: {#exm-transe-limitations}
+
+## TransE limitations example
+
+Consider these triples with one-to-many relations:
+
+- (Barack_Obama, has_child, Malia_Obama)
+- (Barack_Obama, has_child, Sasha_Obama)
+
+TransE would try to enforce:
+
+- $\mathbf{Barack\_Obama} + \mathbf{has\_child} \approx \mathbf{Malia\_Obama}$
+- $\mathbf{Barack\_Obama} + \mathbf{has\_child} \approx \mathbf{Sasha\_Obama}$
+
+This implies $\mathbf{Malia\_Obama} \approx \mathbf{Sasha\_Obama}$, which is incorrect. The model cannot place the two children at different positions while maintaining the translation property for a single relation vector.
+
+:::
+
+These limitations motivated researchers to develop extensions to the TransE model, which we'll explore next.
+
+## TransH: modeling relations as hyperplanes
+
+TransH (Wang et al., 2014) addresses the limitations of TransE by modeling each relation as a hyperplane, allowing entities to have relation-specific representations.
+
+::: {#def-transh}
+
+## TransH model
+
+In the **TransH** model, each relation $r$ is associated with:
+
+1. A normal vector $\mathbf{w}_r$ defining a hyperplane
+2. A translation vector $\mathbf{d}_r$ on the hyperplane
+
+For a triple $(h, r, t)$, the model:
+
+1. Projects the head and tail entities onto the relation-specific hyperplane:
+   - $\mathbf{h}_{\perp} = \mathbf{h} - \mathbf{w}_r^T \mathbf{h} \mathbf{w}_r$
+   - $\mathbf{t}_{\perp} = \mathbf{t} - \mathbf{w}_r^T \mathbf{t} \mathbf{w}_r$
+2. Applies the translation on the hyperplane:
+   - $\mathbf{h}_{\perp} + \mathbf{d}_r \approx \mathbf{t}_{\perp}$
+
+The scoring function is: $$f_r(h, t) = -\|\mathbf{h}_{\perp} + \mathbf{d}_r - \mathbf{t}_{\perp}\|_2^2$$
+
+:::
+
+### Geometric interpretation
+
+In TransH, each relation corresponds to a different hyperplane in the embedding space. Entities are projected onto these hyperplanes before the translation is applied. This allows the same entity to have different representations when involved in different relations.
+
+::: {#exm-transh-geometry}
+
+## TransH geometric example
+
+Consider triples involving a one-to-many relation:
+
+- (Barack_Obama, has_child, Malia_Obama)
+- (Barack_Obama, has_child, Sasha_Obama)
+
+In TransH, Barack_Obama would be projected onto the "has_child" hyperplane, resulting in a specific representation for the "has_child" relation. Then:
+
+- $\mathbf{Barack\_Obama}_{\perp} + \mathbf{d}_{\text{has\_child}} \approx \mathbf{Malia\_Obama}_{\perp}$
+- $\mathbf{Barack\_Obama}_{\perp} + \mathbf{d}_{\text{has\_child}} \approx \mathbf{Sasha\_Obama}_{\perp}$
+
+Since the projections $\mathbf{Malia\_Obama}_{\perp}$ and $\mathbf{Sasha\_Obama}_{\perp}$ can be different from the original embeddings, TransH can model this one-to-many relation effectively.
+
+:::
+
+### Strengths and limitations of TransH
+
+TransH offers several advantages over TransE:
+
+1. **Better handling of complex relations**: TransH can model one-to-many, many-to-one, and many-to-many relations by using relation-specific entity representations
+
+2. **Symmetric relations**: TransH can model symmetric relations because the projections of head and tail entities can be the same while their original embeddings differ
+
+However, TransH also has limitations:
+
+1. **Increased complexity**: TransH has more parameters ($O(|E|d + 2|R|d)$) and is more complex than TransE
+
+2. **Limited expressiveness**: While TransH improves on TransE, it still has limitations in modeling certain relation patterns like composition
+
+## TransR: modeling relations in relation-specific spaces
+
+TransR (Lin et al., 2015) takes the idea of relation-specific representations further by projecting entities into entirely different vector spaces for each relation.
+
+::: {#def-transr}
+
+## TransR model
+
+In the **TransR** model:
+
+1. Entities are embedded in an entity space $\mathbb{R}^d$
+2. Relations are embedded in relation-specific spaces $\mathbb{R}^k$
+3. Each relation $r$ has:
+   - A projection matrix $\mathbf{M}_r \in \mathbb{R}^{k \times d}$ that maps from entity space to relation space
+   - A translation vector $\mathbf{r} \in \mathbb{R}^k$ in the relation space
+
+For a triple $(h, r, t)$, the model:
+
+1. Projects entities into the relation space:
+   - $\mathbf{h}_r = \mathbf{M}_r \mathbf{h}$
+   - $\mathbf{t}_r = \mathbf{M}_r \mathbf{t}$
+2. Applies the translation in the relation space:
+   - $\mathbf{h}_r + \mathbf{r} \approx \mathbf{t}_r$
+
+The scoring function is: $$f_r(h, t) = -\|\mathbf{M}_r \mathbf{h} + \mathbf{r} - \mathbf{M}_r \mathbf{t}\|_2^2$$
+
+:::
+
+### Geometric interpretation
+
+TransR uses different vector spaces for different relations. The projection matrices $\mathbf{M}_r$ transform entities from the entity space to relation-specific spaces, where translations are then applied.
+
+::: {#exm-transr-geometry}
+
+## TransR geometric example
+
+Consider the different semantics of relations:
+
+- "is_capital_of" relates cities to countries
+- "was_born_in" relates people to locations
+
+In TransR, these relations would have different projection matrices that transform entities into relation-specific spaces:
+
+- $\mathbf{M}_{\text{is\_capital\_of}}$ projects entities into a space suitable for capital-country relationships
+- $\mathbf{M}_{\text{was\_born\_in}}$ projects entities into a space suitable for person-birthplace relationships
+
+This allows TransR to capture the different semantic properties of each relation type.
+
+:::
+
+### Cluster-based TransR (CTransR)
+
+To further improve TransR, the authors proposed a cluster-based variant called CTransR, which clusters entity pairs for each relation and learns a distinct projection for each cluster.
+
+::: {#def-ctransr}
+
+## CTransR model
+
+The **CTransR** model extends TransR by:
+
+1. For each relation $r$, clustering the entity pairs $(h, t)$ into several groups
+2. Learning a distinct translation vector $\mathbf{r}_c$ for each cluster $c$ of a relation $r$
+3. Using the same projection matrix $\mathbf{M}_r$ for all clusters of a relation
+
+The scoring function becomes: $$f_{r,c}(h, t) = -\|\mathbf{M}_r \mathbf{h} + \mathbf{r}_c - \mathbf{M}_r \mathbf{t}\|_2^2$$
+
+where $c$ is the cluster assignment for the entity pair $(h, t)$ under relation $r$.
+
+:::
+
+This approach allows for more fine-grained modeling of relations, as different semantic aspects of a relation can be captured by different clusters.
+
+### Strengths and limitations of TransR
+
+TransR offers several advantages:
+
+1. **High expressiveness**: By using relation-specific spaces, TransR can model complex relations more effectively than TransE and TransH
+
+2. **Semantic differentiation**: TransR can capture the different semantic characteristics of relations through their projection matrices
+
+However, TransR also has significant limitations:
+
+1. **High computational complexity**: With $O(|E|d + |R|k + |R|kd)$ parameters, TransR is much more computationally expensive than TransE and TransH
+
+2. **Risk of overfitting**: The large number of parameters can lead to overfitting, especially for relations with few training examples
+
+## TransD: dynamic mapping matrices
+
+TransD (Ji et al., 2015) addresses the high computational complexity of TransR by using dynamic mapping matrices constructed from entity and relation vectors.
+
+::: {#def-transd}
+
+## TransD model
+
+In the **TransD** model:
+
+1. Each entity $e$ has two vector representations:
+   - A standard embedding $\mathbf{e} \in \mathbb{R}^d$
+   - A projection vector $\mathbf{e}_p \in \mathbb{R}^m$
+2. Each relation $r$ has two vector representations:
+   - A standard embedding $\mathbf{r} \in \mathbb{R}^k$
+   - A projection vector $\mathbf{r}_p \in \mathbb{R}^n$
+3. Mapping matrices are dynamically constructed:
+   - $\mathbf{M}_{rh} = \mathbf{r}_p \mathbf{h}_p^T + \mathbf{I}_{m \times n}$
+   - $\mathbf{M}_{rt} = \mathbf{r}_p \mathbf{t}_p^T + \mathbf{I}_{m \times n}$ where $\mathbf{I}_{m \times n}$ is a matrix with 1s on the diagonal and 0s elsewhere
+
+The scoring function is: $$f_r(h, t) = -\|\mathbf{M}_{rh} \mathbf{h} + \mathbf{r} - \mathbf{M}_{rt} \mathbf{t}\|_2^2$$
+
+:::
+
+### Geometric interpretation
+
+TransD creates entity-relation-specific projection matrices by combining entity and relation projection vectors. This allows for more flexibility than TransR while maintaining computational efficiency.
+
+::: {#exm-transd-geometry}
+
+## TransD geometric example
+
+Consider an entity "Barack_Obama" involved in different relations:
+
+- (Barack_Obama, was_president_of, United_States)
+- (Barack_Obama, has_child, Malia_Obama)
+
+With TransD, "Barack_Obama" would have:
+
+- A standard embedding $\mathbf{Barack\_Obama}$
+- A projection vector $\mathbf{Barack\_Obama}_p$
+
+For each relation, different mapping matrices would be constructed:
+
+- $\mathbf{M}_{\text{was\_president\_of, Barack\_Obama}} = \mathbf{was\_president\_of}_p \mathbf{Barack\_Obama}_p^T + \mathbf{I}$
+- $\mathbf{M}_{\text{has\_child, Barack\_Obama}} = \mathbf{has\_child}_p \mathbf{Barack\_Obama}_p^T + \mathbf{I}$
+
+This allows for entity-relation-specific projections with fewer parameters than TransR.
+
+:::
+
+### Strengths and limitations of TransD
+
+TransD offers several advantages:
+
+1. **Reduced complexity**: With $O(|E|(d+m) + |R|(k+n))$ parameters, TransD is more efficient than TransR while still allowing for entity-relation-specific projections
+
+2. **Flexibility**: The dynamic mapping matrices can capture both entity-specific and relation-specific features
+
+However, TransD still has limitations:
+
+1. **Increased complexity compared to TransE and TransH**: The additional projection vectors add complexity to the model
+
+2. **Limited projection capacity**: The rank-1 projection matrices may not capture all necessary transformations for complex relations
+
+## TranSparse: adaptive sparse matrices
+
+TranSparse (Ji et al., 2016) introduces sparse mapping matrices to further reduce computational complexity while maintaining expressive power.
+
+::: {#def-transparse}
+
+## TranSparse model
+
+The **TranSparse** model extends TransR by using sparse projection matrices:
+
+1. Each relation $r$ has a sparsity degree $\theta_r \in [0, 1]$
+2. The projection matrix $\mathbf{M}_r$ has a sparsity of $\theta_r$ (proportion of elements set to zero)
+3. Sparsity degrees are determined based on the number of entity pairs involving the relation
+
+Two variants exist:
+
+1. **TranSparse(share)**: Uses the same sparse pattern for all relations
+2. **TranSparse(separate)**: Uses different sparse patterns for each relation
+
+The scoring function is similar to TransR: $$f_r(h, t) = -\|\mathbf{M}_r(\theta_r) \mathbf{h} + \mathbf{r} - \mathbf{M}_r(\theta_r) \mathbf{t}\|_2^2$$
+
+where $\mathbf{M}_r(\theta_r)$ is the sparse projection matrix for relation $r$ with sparsity $\theta_r$.
+
+:::
+
+### Adaptive sparsity
+
+A key innovation in TranSparse is the use of adaptive sparsity based on the frequency of relations:
+
+1. Frequent relations (with many training examples) can use sparser matrices because they have sufficient data to learn even with fewer parameters
+
+2. Rare relations (with few training examples) use denser matrices to maintain expressive power despite limited data
+
+::: {#exm-transparse}
+
+## TranSparse example
+
+Consider two relations:
+
+- "is_capital_of" (appears in 200 triples)
+- "won_nobel_prize_in" (appears in 20 triples)
+
+TranSparse might assign:
+
+- $\theta_{\text{is\_capital\_of}} = 0.8$ (80% sparsity, only 20% of matrix elements are non-zero)
+- $\theta_{\text{won\_nobel\_prize\_in}} = 0.3$ (30% sparsity, 70% of matrix elements are non-zero)
+
+This balances model complexity with the amount of available training data for each relation.
+
+:::
+
+### Strengths and limitations of TranSparse
+
+TranSparse offers several advantages:
+
+1. **Adaptive complexity**: The sparsity of projection matrices adapts to the frequency of relations, reducing overfitting
+
+2. **Computational efficiency**: Sparse matrices require less memory and computational resources than dense matrices
+
+However, TranSparse still has limitations:
+
+1. **Complex implementation**: The management of sparse matrices adds implementation complexity
+
+2. **Determining sparsity**: Finding optimal sparsity degrees for each relation can be challenging
+
+## RotatE: rotation in complex space
+
+RotatE (Sun et al., 2019) is a more recent translation-based model that represents relations as rotations in complex vector space, allowing it to model various relation patterns.
+
+::: {#def-rotate}
+
+## RotatE model
+
+In the **RotatE** model:
+
+1. Entities and relations are embedded in complex space $\mathbb{C}^d$
+2. Relations are modeled as rotations in the complex plane
+3. For a triple $(h, r, t)$, the model enforces: $\mathbf{t} = \mathbf{h} \circ \mathbf{r}$ where $\circ$ is the Hadamard (element-wise) product, and $|\mathbf{r}_i| = 1$ for all components $i$
+
+The scoring function is: $$f_r(h, t) = -\|\mathbf{h} \circ \mathbf{r} - \mathbf{t}\|^2$$
+
+:::
+
+### Geometric interpretation
+
+In RotatE, each relation is a rotation in the complex plane. For each dimension of the embedding, the relation rotates the head entity's component by a specific angle to approximate the tail entity's component.
+
+::: {#exm-rotate-geometry}
+
+## RotatE geometric example
+
+Consider a single dimension in the complex embedding space:
+
+- Head entity component: $h_i = a + bi$
+- Relation component: $r_i = \cos\theta + i\sin\theta$ (unit modulus complex number)
+- Tail entity component: $t_i = c + di$
+
+The rotation is: $h_i \cdot r_i = (a + bi)(\cos\theta + i\sin\theta) = a\cos\theta - b\sin\theta + i(a\sin\theta + b\cos\theta)$
+
+This rotates the complex number $h_i$ by angle $\theta$ in the complex plane.
+
+For symmetric relations (e.g., "is_sibling_of"), the rotation angle would be 0 or π, meaning $r_i = 1$ or $r_i = -1$.
+
+For asymmetric relations (e.g., "is_parent_of"), the rotation angle would be neither 0 nor π.
+
+For inverse relations (e.g., "is*parent_of" and "is_child_of"), the rotation angles would be negatives of each other, meaning $r*{\text{is_child_of}} = \overline{r\_{\text{is_parent_of}}}$ (complex conjugate).
+
+:::
+
+### Modeling relation patterns with RotatE
+
+RotatE can model various relation patterns:
+
+1. **Symmetry**: For a symmetric relation, $r_i = 1$ or $r_i = -1$ for all dimensions $i$
+2. **Antisymmetry**: For an antisymmetric relation, $r_i \neq 1$ and $r_i \neq -1$ for some dimensions $i$
+3. **Inversion**: For inverse relations $r_1$ and $r_2$, $r_2 = \overline{r_1}$ (complex conjugate)
+4. **Composition**: For relations $r_1$, $r_2$, and $r_3$ where $r_1 \circ r_2 = r_3$, the rotation angles add: $\theta_{r_3} = \theta_{r_1} + \theta_{r_2}$
+
+::: {#exm-rotate-patterns}
+
+## RotatE relation patterns example
+
+Consider these relation patterns:
+
+1. **Symmetry** (e.g., "is_sibling_of"): If $\mathbf{h} \circ \mathbf{r} = \mathbf{t}$ and $\mathbf{t} \circ \mathbf{r} = \mathbf{h}$, then $\mathbf{r} \circ \mathbf{r} = \mathbf{1}$, meaning $r_i = 1$ or $r_i = -1$ for all $i$.
+
+2. **Inversion** (e.g., "is_parent_of" and "is_child_of"): If $\mathbf{h} \circ \mathbf{r}_1 = \mathbf{t}$ and $\mathbf{t} \circ \mathbf{r}_2 = \mathbf{h}$, then $\mathbf{r}_1 \circ \mathbf{r}_2 = \mathbf{1}$, meaning $r_2 = \overline{r_1}$.
+
+3. **Composition** (e.g., "is_born_in" and "is_located_in" compose to "has_nationality"): If $\mathbf{h} \circ \mathbf{r}_1 = \mathbf{e}$ and $\mathbf{e} \circ \mathbf{r}_2 = \mathbf{t}$, then $\mathbf{h} \circ (\mathbf{r}_1 \circ \mathbf{r}_2) = \mathbf{t}$, meaning $\mathbf{r}_3 = \mathbf{r}_1 \circ \mathbf{r}_2$.
+
+:::
+
+### Self-adversarial negative sampling
+
+RotatE introduces an advanced training technique called self-adversarial negative sampling:
+
+::: {#def-self-adversarial}
+
+## Self-adversarial negative sampling
+
+In **self-adversarial negative sampling**, the weight of a negative sample $(h', r, t')$ is determined by its current score according to the model:
+
+$$p(h', r, t') = \frac{\exp(\alpha f_r(h', t'))}{\sum_{(h_j', r, t_j') \in S'_{(h,r,t)}} \exp(\alpha f_r(h_j', t_j'))}$$
+
+where $\alpha$ is a temperature hyperparameter.
+
+The negative sampling loss becomes: $$L = -\log\sigma(\gamma - f_r(h, t)) - \sum_{(h', r, t') \in S'_{(h,r,t)}} p(h', r, t') \log\sigma(f_r(h', t') - \gamma)$$
+
+where $\sigma$ is the sigmoid function and $\gamma$ is the margin.
+
+:::
+
+This approach weights negative samples based on their current scores, focusing training on "hard" negative samples (those that the model incorrectly scores as plausible).
+
+### Strengths and limitations of RotatE
+
+RotatE offers several advantages:
+
+1. **Modeling relation patterns**: RotatE can model symmetry, antisymmetry, inversion, and composition relations in a unified framework
+
+2. **Parameter efficiency**: With $O(|E|d + |R|d)$ parameters (where $d$ is the dimension of the complex space), RotatE is as efficient as TransE
+
+3. **State-of-the-art performance**: RotatE achieves strong results on various benchmark datasets
+
+However, RotatE still has limitations:
+
+1. **Complex embeddings**: Working with complex numbers adds some computational complexity
+
+2. **Limited to rotation transformations**: While rotations are powerful, some relation patterns might require more general transformations
+
+## Comparing translation-based models
+
+Let's compare the key characteristics of the translation-based models we've discussed:
+
+::: {#def-model-comparison}
+
+## Comparison of translation-based models
+
+| Model | Entity Space | Relation Space | Transformation | Parameters |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| TransE | $\mathbb{R}^d$ | $\mathbb{R}^d$ | Translation: $\mathbf{h} + \mathbf{r} \approx \mathbf{t}$ | $O( | E | d + | R | d)$ |
+| TransH | $\mathbb{R}^d$ | Hyperplanes in $\mathbb{R}^d$ | Projection + Translation: $\mathbf{h}_{\perp} + \mathbf{d}_r \approx \mathbf{t}_{\perp}$ | $O( | E | d + 2 | R | d)$ |
+| TransR | $\mathbb{R}^d$ | $\mathbb{R}^k$ | Projection + Translation: $\mathbf{M}_r \mathbf{h} + \mathbf{r} \approx \mathbf{M}_r \mathbf{t}$ | $O( | E | d + | R | k + | R | kd)$ |
+| TransD | $\mathbb{R}^d, \mathbb{R}^m$ | $\mathbb{R}^k, \mathbb{R}^n$ | Dynamic Projection + Translation: $\mathbf{M}_{rh} \mathbf{h} + \mathbf{r} \approx \mathbf{M}_{rt} \mathbf{t}$ | $O( | E | (d+m) + | R | (k+n))$ |
+| TranSparse | $\mathbb{R}^d$ | $\mathbb{R}^k$ | Sparse Projection + Translation: $\mathbf{M}_r(\theta_r) \mathbf{h} + \mathbf{r} \approx \mathbf{M}_r(\theta_r) \mathbf{t}$ | $O( | E | d + | R | k + (1-\theta) | R | kd)$ |
+| RotatE | $\mathbb{C}^d$ | Complex rotations | Rotation: $\mathbf{h} \circ \mathbf{r} \approx \mathbf{t}$ | $O( | E | d + | R | d)$ |
+
+:::
+
+Each model makes different trade-offs between expressiveness, parameter efficiency, and computational complexity. The evolution of these models reflects a progression toward more flexible representations while trying to maintain computational efficiency.
+
+::: {#exm-model-evolution}
+
+## Model evolution example
+
+Consider modeling a symmetric relation like "is_sibling_of":
+
+1. **TransE** would struggle because it would require $\mathbf{r} \approx \mathbf{0}$, which doesn't distinguish the relation from others.
+
+2. **TransH** would project entities onto a relation-specific hyperplane, allowing for symmetric relationships through equivalent projections.
+
+3. **TransR** would project entities into a relation-specific space where the translation could effectively model symmetry.
+
+4. **RotatE** would model the relation as rotations by 0 or π in the complex plane, naturally capturing symmetry.
+
+This evolution shows how each model addressed limitations of its predecessors.
+
+:::
+
+## Relation patterns and model capabilities
+
+Different translation-based models have different capabilities for modeling relation patterns:
+
+::: {#def-pattern-capabilities}
+
+## Model capabilities for relation patterns
+
+| Relation Pattern | TransE | TransH | TransR | TransD | RotatE |
+| ---------------- | ------ | ------ | ------ | ------ | ------ |
+| 1-to-1           | Strong | Strong | Strong | Strong | Strong |
+| 1-to-many        | Weak   | Strong | Strong | Strong | Medium |
+| Many-to-1        | Weak   | Strong | Strong | Strong | Medium |
+| Many-to-many     | Weak   | Medium | Strong | Strong | Medium |
+| Symmetry         | Weak   | Medium | Strong | Strong | Strong |
+| Antisymmetry     | Strong | Strong | Strong | Strong | Strong |
+| Inversion        | Medium | Medium | Medium | Medium | Strong |
+| Composition      | Medium | Medium | Medium | Medium | Strong |
+
+:::
+
+Understanding these capabilities helps in selecting the appropriate model for specific knowledge graphs based on the prevalent relation patterns.
+
+::: {#exm-pattern-selection}
+
+## Model selection example
+
+Consider different knowledge graphs:
+
+1. **Geographic knowledge graph** (mostly 1-to-1 relations like "is_capital_of"):
+
+   - TransE might be sufficient and computationally efficient
+
+2. **Family relationship knowledge graph** (many symmetric relations like "is_sibling_of" and inverse relations like "is_parent_of"/"is_child_of"):
+
+   - RotatE would be a good choice for capturing these patterns
+
+3. **Academic knowledge graph** (many-to-many relations like "author_of" where an author can write multiple papers and a paper can have multiple authors):
+   - TransR or TransD might be more appropriate to handle the complex relationships
+
+:::
+
+## Implementation considerations
+
+When implementing translation-based models, several practical considerations are important:
+
+### Normalization constraints
+
+Many translation-based models apply normalization constraints to entity and relation embeddings:
+
+::: {#def-normalization-constraints}
+
+## Common normalization constraints
+
+1. **TransE**: Entity embeddings are often constrained to unit L2 norm: $\|\mathbf{e}\|_2 = 1$
+
+2. **TransH**: Both entity embeddings and hyperplane normal vectors are normalized: $\|\mathbf{e}\|_2 = 1$ and $\|\mathbf{w}_r\|_2 = 1$
+
+3. **TransR/TransD**: Entity embeddings are normalized, and sometimes additional orthogonality constraints are applied to projection matrices
+
+4. **RotatE**: Relation embeddings are constrained to have unit modulus: $|r_i| = 1$ for all components $i$
+
+:::
+
+These constraints prevent the model from "cheating" by scaling embeddings arbitrarily and ensure that the geometric interpretations remain valid.
+
+### Initialization strategies
+
+Proper initialization of embeddings is crucial for effective training:
+
+::: {#def-initialization-strategies}
+
+## Initialization strategies
+
+1. **Uniform initialization**: Sample from a uniform distribution, e.g., $U(-\frac{1}{\sqrt{d}}, \frac{1}{\sqrt{d}})$
+
+2. **Normal initialization**: Sample from a normal distribution, e.g., $N(0, \frac{1}{d})$
+
+3. **Xavier/Glorot initialization**: Scale based on input and output dimensions
+
+4. **Complex initialization**: For RotatE, initialize relation embeddings with random phases but unit modulus
+
+:::
+
+::: {#exm-initialization}
+
+## Initialization example
+
+For TransE with embedding dimension $d = 100$:
+
+1. Initialize entity embeddings from $U(-0.1, 0.1)$
+2. Initialize relation embeddings from $U(-0.1, 0.1)$
+3. Normalize entity embeddings to have unit L2 norm
+4. Begin training with these normalized initializations
+
+:::
+
+### Negative sampling strategies
+
+The selection of negative samples significantly impacts training effectiveness:
+
+::: {#def-negative-sampling}
+
+## Negative sampling strategies
+
+1. **Random sampling**: Replace head or tail entity with a random entity from the knowledge graph
+
+2. **Bernoulli sampling**: Choose whether to corrupt the head or tail based on the relation's mapping properties (implemented in TransH, TransR, etc.)
+
+3. **Self-adversarial sampling**: Weight negative samples based on their current scores (implemented in RotatE)
+
+:::
+
+::: {#exm-bernoulli-sampling}
+
+## Bernoulli sampling example
+
+For a 1-to-many relation like "has_child":
+
+- The head entity (parent) has fewer valid tails than a tail entity (child) has valid heads
+- We should corrupt the head entity more often than the tail entity
+- Bernoulli sampling might use a head corruption probability of 0.8 and tail corruption probability of 0.2
+
+For a many-to-1 relation like "born_in":
+
+- The head entity (person) has fewer valid tails than a tail entity (location) has valid heads
+- We should corrupt the tail entity more often than the head entity
+- Bernoulli sampling might use a head corruption probability of 0.2 and tail corruption probability of 0.8
+
+:::
+
+### Optimization algorithms
+
+Various optimization algorithms can be used to train translation-based models:
+
+::: {#def-optimization}
+
+## Optimization algorithms
+
+1. **Stochastic Gradient Descent (SGD)**: Simple and widely used, but may require careful learning rate tuning
+
+2. **AdaGrad**: Adapts learning rates for each parameter based on historical gradients
+
+3. **Adam**: Combines adaptive learning rates with momentum for faster convergence
+
+4. **L-BFGS**: A second-order method that can work well for smaller datasets
+
+:::
+
+The choice of optimization algorithm depends on the specific model, dataset size, and computational resources.
+
+## Performance analysis
+
+Let's analyze the empirical performance of translation-based models on standard benchmark datasets:
+
+### Benchmark datasets
+
+Several benchmark datasets are commonly used to evaluate knowledge graph embedding models:
+
+::: {#def-benchmarks}
+
+## Common benchmark datasets
+
+1. **FB15k**: A subset of Freebase with 14,951 entities, 1,345 relations, and 592,213 triples
+
+2. **FB15k-237**: A modified version of FB15k with inverse relations removed, containing 14,541 entities, 237 relations, and 310,116 triples
+
+3. **WN18**: A subset of WordNet with 40,943 entities, 18 relations, and 151,442 triples
+
+4. **WN18RR**: A modified version of WN18 with inverse relations removed, containing 40,943 entities, 11 relations, and 93,003 triples
+
+5. **YAGO3-10**: A subset of YAGO3 with 123,182 entities, 37 relations, and 1,089,040 triples
+
+:::
+
+### Evaluation metrics
+
+Knowledge graph embedding models are typically evaluated using link prediction metrics:
+
+::: {#def-evaluation-metrics}
+
+## Common evaluation metrics
+
+1. **Mean Rank (MR)**: The average rank of the correct entity among all entities in the knowledge graph
+
+2. **Mean Reciprocal Rank (MRR)**: The average of the reciprocal ranks of the correct entities $$\text{MRR} = \frac{1}{|Q|} \sum_{i=1}^{|Q|} \frac{1}{\text{rank}_i}$$
+
+3. **Hits@k**: The percentage of test cases where the correct entity appears in the top k predictions $$\text{Hits@k} = \frac{1}{|Q|} \sum_{i=1}^{|Q|} \mathbf{1}[\text{rank}_i \leq k]$$ where $\mathbf{1}[\cdot]$ is the indicator function
+
+:::
+
+Lower MR and higher MRR and Hits@k indicate better performance.
+
+::: {#exm-evaluation}
+
+## Evaluation example
+
+Consider a test triple (France, has_capital, Paris) and a model that ranks all entities for the query (France, has_capital, ?):
+
+If the model ranks Paris as the 3rd entity (with Rome and Berlin incorrectly ranked higher):
+
+- Rank = 3
+- Reciprocal Rank = 1/3
+- Hits@1 = 0 (incorrect)
+- Hits@3 = 1 (correct)
+- Hits@10 = 1 (correct)
+
+:::
+
+### Comparative results
+
+Based on published results, here's a comparison of translation-based models on benchmark datasets:
+
+::: {#def-comparative-results}
+
+## Performance comparison (Hits@10 in %)
+
+| Model  | FB15k | WN18 | FB15k-237 | WN18RR |
+| ------ | ----- | ---- | --------- | ------ |
+| TransE | 47.1  | 89.2 | 42.8      | 43.3   |
+| TransH | 64.4  | 86.7 | 41.5      | 43.0   |
+| TransR | 68.7  | 92.0 | 40.8      | 43.2   |
+| TransD | 77.3  | 92.2 | 41.2      | 43.5   |
+| RotatE | 83.1  | 95.9 | 47.6      | 57.1   |
+
+:::
+
+These results show a general trend of improved performance with more sophisticated models, with RotatE achieving the best results across datasets.
+
+::: {#exm-performance-analysis}
+
+## Performance analysis example
+
+On FB15k, the progression from TransE (47.1%) to RotatE (83.1%) shows a dramatic improvement in Hits@10, likely due to:
+
+1. TransE's limitations with complex relations (FB15k contains many 1-to-many, many-to-1, and many-to-many relations)
+2. RotatE's ability to model various relation patterns through complex rotations
+3. RotatE's self-adversarial negative sampling technique, which improves training efficiency
+
+On simpler datasets like WN18, even basic models like TransE perform well (89.2% Hits@10) because the relations are primarily hierarchical and fit well with the translation approach.
+
+:::
+
+## Advanced topics
+
+Several advanced topics extend the basic translation-based models:
+
+### Entity type constraints
+
+Incorporating entity type information can improve performance by restricting the set of possible entities for a given relation:
+
+::: {#def-type-constraints}
+
+## Entity type constraints
+
+**Entity type constraints** limit the possible head and tail entities for a relation based on their types.
+
+For example, the relation "director_of" might constrain:
+
+- Head entities to be of type "Person"
+- Tail entities to be of type "Movie" or "TVShow"
+
+These constraints can be integrated into translation-based models by:
+
+1. Assigning types to entities in preprocessing
+2. Only considering entities of the correct type during link prediction
+3. Incorporating type information into the embedding space
+
+:::
+
+Type constraints can significantly improve performance by reducing the search space for link prediction.
+
+### Temporal knowledge graphs
+
+Many real-world facts are valid only during specific time periods. Temporal knowledge graph embedding models extend translation-based approaches to handle time:
+
+::: {#def-temporal-kg}
+
+## Temporal knowledge graph embeddings
+
+**Temporal knowledge graph embeddings** represent quadruples $(h, r, t, \tau)$ where $\tau$ is a time point or interval.
+
+Extensions of translation-based models include:
+
+1. **TTransE**: Adds a temporal translation vector
+2. **HyTE**: Projects entities and relations onto time-specific hyperplanes
+3. **TA-TransE**: Uses temporal attention mechanisms
+
+:::
+
+::: {#exm-temporal}
+
+## Temporal knowledge graph example
+
+Consider the fact "Barack Obama was president of the United States from 2009 to 2017."
+
+In a temporal knowledge graph, this might be represented as: (Barack_Obama, president_of, United_States, [2009, 2017])
+
+A temporal embedding model would learn to predict not only the entities and relations but also when the fact was valid.
+
+:::
+
+### Multi-modal knowledge graphs
+
+Some knowledge graphs incorporate multiple modalities, such as text, images, and numerical values:
+
+::: {#def-multimodal}
+
+## Multi-modal knowledge graph embeddings
+
+**Multi-modal knowledge graph embeddings** integrate information from different modalities:
+
+1. Text descriptions of entities and relations
+2. Visual information (images) associated with entities
+3. Numerical attributes of entities
+
+Extensions of translation-based models include:
+
+1. **IKRL**: Incorporates image information into entity embeddings
+2. **KDCoE**: Jointly learns from textual descriptions and structured knowledge
+3. **TransEA**: Incorporates numerical attributes
+
+:::
+
+::: {#exm-multimodal}
+
+## Multi-modal knowledge graph example
+
+For the entity "Eiffel Tower," a multi-modal knowledge graph might include:
+
+- Structured facts: (Eiffel_Tower, located_in, Paris)
+- Textual description: "The Eiffel Tower is a wrought-iron lattice tower on the Champ de Mars in Paris, France."
+- Images: Several photographs of the Eiffel Tower
+- Numerical attributes: Height: 330m, Built: 1889
+
+A multi-modal embedding model would learn to integrate all these sources of information into a unified embedding space.
+
+:::
+
+### Uncertainty modeling
+
+Real-world knowledge often involves uncertainty. Several extensions of translation-based models incorporate uncertainty:
+
+::: {#def-uncertainty}
+
+## Uncertainty in knowledge graph embeddings
+
+**Uncertainty modeling** in knowledge graph embeddings represents entities and relations as distributions rather than point vectors:
+
+1. **KG2E**: Models entities and relations as Gaussian distributions
+2. **TransG**: Uses Gaussian mixtures for multi-component relations
+3. **UKGE**: Incorporates uncertainty through Bayesian approaches
+
+:::
+
+::: {#exm-uncertainty}
+
+## Uncertainty modeling example
+
+In KG2E, instead of representing the entity "Paris" as a vector $\mathbf{Paris}$, it would be represented as a Gaussian distribution $\mathcal{N}(\boldsymbol{\mu}_{\text{Paris}}, \boldsymbol{\Sigma}_{\text{Paris}})$.
+
+The mean vector $\boldsymbol{\mu}_{\text{Paris}}$ represents the central tendency of the entity's embedding, while the covariance matrix $\boldsymbol{\Sigma}_{\text{Paris}}$ represents the uncertainty about this embedding.
+
+Facts with high certainty would have lower variance, while facts with uncertainty would have higher variance.
+
+:::
+
+## Applications of translation-based models
+
+Translation-based knowledge graph embedding models have been applied to various domains:
+
+### Recommendation systems
+
+Knowledge graph embeddings can enhance recommendation systems by capturing complex relationships between users, items, and their attributes:
+
+::: {#def-recommendation}
+
+## Knowledge graph-based recommendation
+
+**Knowledge graph-based recommendation** systems use embeddings to:
+
+1. Represent users, items, and their attributes in a unified embedding space
+2. Model complex interaction patterns through relation embeddings
+3. Generate recommendations based on embedding similarities or translations
+
+:::
+
+::: {#exm-recommendation}
+
+## Recommendation system example
+
+Consider a movie recommendation system:
+
+1. **Entities**: Users, movies, actors, directors, genres
+2. **Relations**: watched, acted_in, directed, has_genre
+3. **Triples**: (User1, watched, Movie1), (Actor1, acted_in, Movie1), (Movie1, has_genre, Action)
+
+A translation-based model might predict: $\mathbf{User1} + \mathbf{likes} \approx \mathbf{Action}$
+
+This could be used to recommend action movies that the user hasn't watched yet.
+
+:::
+
+### Question answering
+
+Knowledge graph embeddings can support question answering systems by enabling semantic matching and inference:
+
+::: {#def-question-answering}
+
+## Knowledge graph-based question answering
+
+**Knowledge graph-based question answering** systems use embeddings to:
+
+1. Map natural language questions to knowledge graph queries
+2. Perform link prediction to find answers
+3. Rank candidate answers based on embedding scores
+
+:::
+
+::: {#exm-question-answering}
+
+## Question answering example
+
+For the question "Who directed Inception?", a system might:
+
+1. Identify "Inception" as an entity and "directed" as a relation
+2. Formulate a query (?, directed, Inception)
+3. Use a translation-based model to rank entities based on $\|\mathbf{e} + \mathbf{directed} - \mathbf{Inception}\|$
+4. Return "Christopher Nolan" as the top-ranked entity
+
+:::
+
+### Information extraction
+
+Knowledge graph embeddings can assist in information extraction by providing semantic context for entity and relation extraction:
+
+::: {#def-information-extraction}
+
+## Knowledge graph-based information extraction
+
+**Knowledge graph-based information extraction** uses embeddings to:
+
+1. Identify candidate entities and relations in text
+2. Score candidate triples based on their plausibility in the knowledge graph
+3. Filter or rank extraction results based on embedding scores
+
+:::
+
+::: {#exm-information-extraction}
+
+## Information extraction example
+
+Given the text "Tim Cook is the CEO of Apple, which is headquartered in Cupertino":
+
+1. An information extraction system might identify candidate triples:
+
+   - (Tim_Cook, is_CEO_of, Apple)
+   - (Apple, headquartered_in, Cupertino)
+
+2. A translation-based model could score these triples based on existing knowledge graph embeddings
+
+3. High scores would indicate consistency with existing knowledge, supporting the extraction
+
+:::
+
+## Future directions
+
+Translation-based models continue to evolve, with several promising research directions:
+
+### Inductive learning
+
+Most current translation-based models are transductive, meaning they can only make predictions about entities seen during training. Inductive models aim to handle new entities:
+
+::: {#def-inductive-learning}
+
+## Inductive translation-based models
+
+**Inductive translation-based models** can generate embeddings for previously unseen entities based on their relations with known entities or their attributes.
+
+Approaches include:
+
+1. **Graph neural network extensions** that generate embeddings based on local graph structure
+2. **Textual description incorporation** to generate embeddings from entity names or descriptions
+3. **Attribute-based models** that leverage entity attributes for inductive learning
+
+:::
+
+### Neural architecture integration
+
+Integrating translation-based models with neural architectures can enhance their expressiveness:
+
+::: {#def-neural-integration}
+
+## Neural-enhanced translation models
+
+**Neural-enhanced translation models** combine the geometric intuition of translation-based models with the expressive power of neural networks:
+
+1. **Graph neural networks** for entity representation learning
+2. **Attention mechanisms** to dynamically weight different aspects of embeddings
+3. **Transformer-based architectures** for context-aware embeddings
+
+:::
+
+### Explainable embeddings
+
+Enhancing the explainability of translation-based models is another important research direction:
+
+::: {#def-explainable-embeddings}
+
+## Explainable translation-based models
+
+**Explainable translation-based models** provide interpretable justifications for their predictions:
+
+1. **Path-based explanations** that identify relevant paths in the knowledge graph
+2. **Rule-based interpretations** that extract symbolic rules from embeddings
+3. **Attribution methods** that identify the most influential components of embeddings
+
+:::
+
+## Summary
+
+In this chapter, we've explored translation-based embedding models for knowledge graphs, starting with the foundational TransE model and progressing through various extensions:
+
+- TransE introduced the basic idea of representing relations as translations in the embedding space
+- TransH extended this by projecting entities onto relation-specific hyperplanes
+- TransR further generalized the approach by mapping entities to relation-specific spaces
+- TransD optimized the projection matrices through dynamic construction
+- TranSparse introduced adaptive sparse matrices to balance expressiveness and efficiency
+- RotatE leveraged complex vector spaces to model various relation patterns through rotations
+
+These models demonstrate a progression toward more flexible and expressive representations while trying to maintain computational efficiency. Each model makes different trade-offs and has different capabilities for modeling various relation patterns.
+
+Translation-based models provide an intuitive geometric interpretation of knowledge graph relationships and serve as the foundation for many more sophisticated approaches. Despite the development of alternative paradigms, the principles introduced by translation-based models continue to influence the field of knowledge graph embeddings.
+
+## Further reading
+
+### Original papers
+
+- Bordes, A., Usunier, N., Garcia-Duran, A., Weston, J., & Yakhnenko, O. (2013). Translating Embeddings for Modeling Multi-relational Data. In Advances in Neural Information Processing Systems (pp. 2787-2795).
+- Wang, Z., Zhang, J., Feng, J., & Chen, Z. (2014). Knowledge Graph Embedding by Translating on Hyperplanes. In AAAI Conference on Artificial Intelligence (pp. 1112-1119).
+- Lin, Y., Liu, Z., Sun, M., Liu, Y., & Zhu, X. (2015). Learning Entity and Relation Embeddings for Knowledge Graph Completion. In AAAI Conference on Artificial Intelligence (pp. 2181-2187).
+- Ji, G., He, S., Xu, L., Liu, K., & Zhao, J. (2015). Knowledge Graph Embedding via Dynamic Mapping Matrix. In Proceedings of the 53rd Annual Meeting of the Association for Computational Linguistics (pp. 687-696).
+- Ji, G., Liu, K., He, S., & Zhao, J. (2016). Knowledge Graph Completion with Adaptive Sparse Transfer Matrix. In AAAI Conference on Artificial Intelligence (pp. 985-991).
+- Sun, Z., Deng, Z. H., Nie, J. Y., & Tang, J. (2019). RotatE: Knowledge Graph Embedding by Relational Rotation in Complex Space. In International Conference on Learning Representations.
+
+### Surveys and comparative analyses
+
+- Wang, Q., Mao, Z., Wang, B., & Guo, L. (2017). Knowledge Graph Embedding: A Survey of Approaches and Applications. IEEE Transactions on Knowledge and Data Engineering, 29(12), 2724-2743.
+- Rossi, A., Barbosa, D., Firmani, D., Matinata, A., & Merialdo, P. (2021). Knowledge Graph Embedding for Link Prediction: A Comparative Analysis. ACM Transactions on Knowledge Discovery from Data, 15(2), 1-49.
+- Ali, M., Berrendorf, M., Hoyt, C. T., Vermue, L., Galkin, M., Sharifzadeh, S., ... & Lehmann, J. (2021). PyKEEN 1.0: A Python Library for Training and Evaluating Knowledge Graph Embeddings. Journal of Machine Learning Research, 22(82), 1-6.
+
+### Applications and extensions
+
+- Zhang, F., Yuan, N. J., Lian, D., Xie, X., & Ma, W. Y. (2016). Collaborative Knowledge Base Embedding for Recommender Systems. In Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (pp. 353-362).
+- Xie, R., Liu, Z., & Sun, M. (2016). Representation Learning of Knowledge Graphs with Hierarchical Types. In Proceedings of the Twenty-Fifth International Joint Conference on Artificial Intelligence (pp. 2965-2971).
+- Lacroix, T., Usunier, N., & Obozinski, G. (2018). Canonical Tensor Decomposition for Knowledge Base Completion. In Proceedings of the 35th International Conference on Machine Learning (pp. 2863-2872).

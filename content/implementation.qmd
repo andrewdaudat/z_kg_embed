@@ -1,0 +1,2413 @@
+# Implementing Knowledge Graph Embedding Systems
+
+Transitioning from theoretical understanding to practical implementation is a critical step in deploying knowledge graph embedding models for real-world applications. While previous chapters focused on the mathematical foundations and model architectures, this chapter addresses the engineering challenges and best practices for building effective knowledge graph embedding systems.
+
+Implementing a knowledge graph embedding system involves numerous considerations: from data preparation and model selection to training optimization, hyperparameter tuning, and deployment strategies. These practical aspects can significantly impact the performance, efficiency, and maintainability of the system. Moreover, scaling knowledge graph embeddings to handle large graphs with millions of entities and billions of relations requires specialized techniques and infrastructure.
+
+This chapter provides a comprehensive guide to implementing knowledge graph embedding systems, covering the entire pipeline from data processing to deployment. We'll discuss software frameworks, hardware considerations, optimization techniques, and system architectures. By the end of this chapter, you'll have a practical understanding of how to build efficient and effective knowledge graph embedding systems for various applications.
+
+## The knowledge graph embedding pipeline
+
+Implementing a knowledge graph embedding system involves several interconnected components that form a complete pipeline:
+
+::: {#def-kge-pipeline}
+
+## Knowledge graph embedding pipeline
+
+The **knowledge graph embedding pipeline** typically includes:
+
+1. **Data acquisition**: Collecting or accessing knowledge graph data
+2. **Preprocessing**: Cleaning, filtering, and transforming the data
+3. **Model selection**: Choosing appropriate embedding models
+4. **Training**: Optimizing model parameters
+5. **Evaluation**: Assessing model performance
+6. **Deployment**: Making the model available for applications
+7. **Monitoring and maintenance**: Ensuring ongoing system health and performance
+
+Each stage involves specific challenges and considerations that impact the overall system effectiveness.
+
+:::
+
+::: {#exm-pipeline}
+
+## Pipeline example
+
+For a recommendation system based on knowledge graph embeddings:
+
+1. **Data acquisition**: Collect user-item interaction data, item attributes, and user profile information
+2. **Preprocessing**: Convert to a knowledge graph format, handle missing values, remove duplicates
+3. **Model selection**: Choose RotatE for its ability to model various relation patterns
+4. **Training**: Optimize embeddings using self-adversarial negative sampling and GPU acceleration
+5. **Evaluation**: Measure performance using ranking metrics on a held-out test set
+6. **Deployment**: Integrate embeddings into a recommendation API
+7. **Monitoring**: Track recommendation quality and retrain as new data becomes available
+
+Each stage requires careful implementation to ensure the final system performs effectively.
+
+:::
+
+## Data preparation and preprocessing
+
+Effective data preparation is crucial for knowledge graph embedding systems:
+
+### Data formats and standards
+
+Knowledge graphs can be represented in various formats:
+
+::: {#def-data-formats}
+
+## Knowledge graph data formats
+
+Common formats include:
+
+1. **RDF (Resource Description Framework)**: Represents data as triples (subject, predicate, object)
+   - Serializations include RDF/XML, Turtle, N-Triples, JSON-LD
+2. **Property Graph**: Nodes and edges with properties (e.g., Neo4j's format)
+3. **Edge list**: Simple representation of triples as (head, relation, tail)
+4. **Adjacency matrix**: Sparse matrix representation of the graph structure
+5. **Specialized formats**: Dataset-specific formats like FB15k or WN18
+
+Most knowledge graph embedding libraries use simple edge list formats for training.
+
+:::
+
+::: {#exm-data-format}
+
+## Data format example
+
+The same knowledge about Paris could be represented in different formats:
+
+**RDF (Turtle format)**:
+
+```
+<http://example.org/Paris> <http://example.org/isCapitalOf> <http://example.org/France> .
+<http://example.org/Paris> <http://example.org/hasPopulation> "2161000"^^<http://www.w3.org/2001/XMLSchema#integer> .
+```
+
+**Edge list format**:
+
+```
+Paris isCapitalOf France
+Paris hasPopulation 2161000
+```
+
+For knowledge graph embedding, the edge list format is typically preprocessed further into numeric IDs:
+
+```
+42 7 17
+42 12 2161000
+```
+
+where 42 might be the ID for Paris, 7 for isCapitalOf, etc.
+
+:::
+
+### Data cleaning and filtering
+
+Data cleaning is essential for high-quality embeddings:
+
+::: {#def-data-cleaning}
+
+## Data cleaning for knowledge graphs
+
+Important data cleaning steps include:
+
+1. **Entity resolution**: Identifying and merging duplicate entities
+2. **Relation normalization**: Standardizing relation names and types
+3. **Handling missing values**: Deciding how to treat incomplete information
+4. **Removing noise**: Filtering out erroneous or low-confidence triples
+5. **Handling special cases**: Addressing literals, numerical values, and other non-entity objects
+
+:::
+
+::: {#exm-data-cleaning}
+
+## Data cleaning example
+
+Consider a knowledge graph with these issues:
+
+- The entity "NYC" and "New York City" refer to the same entity
+- The relations "born_in" and "birthplace" represent the same relationship
+- Some population values are missing
+- Some triples contain obvious errors (e.g., "New York City, capital_of, United States")
+
+Cleaning steps would include:
+
+1. Merging "NYC" and "New York City" into a single entity
+2. Standardizing "born_in" and "birthplace" to a single relation type
+3. Marking missing populations for special handling
+4. Removing the incorrect "capital_of" relationship
+
+:::
+
+### Graph partitioning
+
+For large knowledge graphs, partitioning can improve training efficiency:
+
+::: {#def-graph-partitioning}
+
+## Graph partitioning
+
+**Graph partitioning** divides a large graph into smaller subgraphs:
+
+1. **Random partitioning**: Randomly assign nodes to partitions
+2. **Balanced partitioning**: Ensure similar sizes for each partition
+3. **Minimum cut partitioning**: Minimize edges between partitions
+4. **Community-based partitioning**: Group nodes based on community structure
+5. **Relation-based partitioning**: Separate subgraphs based on relation types
+
+Effective partitioning can enable parallel processing and reduce memory requirements.
+
+:::
+
+::: {#exm-partitioning}
+
+## Graph partitioning example
+
+For a large e-commerce knowledge graph:
+
+1. Partition by product category (electronics, clothing, home goods, etc.)
+2. Train embeddings for each partition independently
+3. Optionally, align the embedding spaces using shared entities
+4. Combine the aligned embeddings for downstream tasks
+
+This approach allows training on smaller subgraphs that fit in memory while maintaining the ability to reason across categories.
+
+:::
+
+### Dataset splitting
+
+Proper dataset splitting is crucial for evaluating knowledge graph embeddings:
+
+::: {#def-dataset-splitting}
+
+## Dataset splitting strategies
+
+Common splitting approaches include:
+
+1. **Random split**: Randomly assign triples to train/validation/test sets
+2. **Time-based split**: Use temporal information to create chronological splits
+3. **Entity-based split**: Ensure certain entities appear only in specific splits (for testing inductive capabilities)
+4. **Relation-based split**: Hold out certain relation types for testing
+5. **Transductive vs. inductive splits**: Different splits depending on whether the goal is transductive or inductive learning
+
+:::
+
+::: {#exm-splitting}
+
+## Dataset splitting example
+
+Different splitting strategies for different evaluation goals:
+
+**For standard link prediction (transductive setting)**:
+
+- Random 80/10/10 split of triples into train/validation/test
+- Ensure all entities appear in the training set
+
+**For inductive evaluation**:
+
+- Select 20% of entities to appear only in test set
+- Remove all triples containing these entities from train/validation
+- Use these "unseen" entities to evaluate inductive capabilities
+
+**For temporal prediction**:
+
+- Sort triples by timestamp
+- Use older triples for training, newer ones for testing
+
+:::
+
+### Negative sampling strategies
+
+Negative sampling is crucial for efficient training:
+
+::: {#def-negative-sampling-impl}
+
+## Implementing negative sampling
+
+Key considerations for negative sampling:
+
+1. **Batch preparation**: Generate negative samples on-the-fly or pre-compute them
+2. **Sampling distribution**: Uniform random sampling vs. relation-aware strategies
+3. **Filtering**: Avoid sampling false negatives (triples that actually exist)
+4. **Self-adversarial sampling**: Implement dynamic weighting based on current model scores
+5. **Negative sample ratio**: Balance between positive and negative samples
+
+:::
+
+::: {#exm-negative-sampling-impl}
+
+## Negative sampling implementation example
+
+For efficient implementation of self-adversarial negative sampling:
+
+1. For each positive triple $(h, r, t)$ in a batch
+2. Generate multiple corrupted triples by replacing $h$ or $t$ with random entities
+3. Compute scores for all corrupted triples using the current model
+4. Calculate sampling weights: $p(h', r, t') = \frac{\exp(\alpha f_r(h', t'))}{\sum_{j} \exp(\alpha f_r(h_j', t_j'))}$
+5. Apply these weights when computing the loss gradient
+
+This implementation dynamically focuses training on "hard" negative examples that the model incorrectly scores highly.
+
+:::
+
+## Software frameworks and tools
+
+Several software frameworks are available for implementing knowledge graph embeddings:
+
+### Open-source libraries
+
+::: {#def-kge-libraries}
+
+## Knowledge graph embedding libraries
+
+Popular open-source libraries include:
+
+1. **PyKEEN**: Comprehensive Python library with implementations of many KGE models
+2. **OpenKE**: Open-source framework for knowledge embedding in Python/C++
+3. **DGL-KE**: Knowledge graph embedding built on Deep Graph Library
+4. **TorchKGE**: PyTorch-based library for knowledge graph embedding
+5. **AmpliGraph**: TensorFlow-based library with focus on scalability
+6. **GraphVite**: High-performance graph embedding with CPU-GPU hybrid architecture
+
+:::
+
+::: {#exm-pykeen}
+
+## PyKEEN example
+
+Using PyKEEN to train a TransE model:
+
+```python
+import pykeen.pipeline
+from pykeen.datasets import FB15k237
+
+# Load a benchmark dataset
+dataset = FB15k237()
+
+# Run the pipeline
+results = pykeen.pipeline.pipeline(
+    dataset=dataset,
+    model='TransE',
+    model_kwargs=dict(
+        embedding_dim=200,
+        scoring_function_norm=1,
+    ),
+    optimizer='Adam',
+    optimizer_kwargs=dict(lr=0.0005),
+    loss='MarginRankingLoss',
+    loss_kwargs=dict(margin=1.0),
+    training_loop='sLCWA',  # Self-adversarial negative sampling
+    negative_sampler='basic',
+    negative_sampler_kwargs=dict(num_negs_per_pos=5),
+    epochs=1000,
+    batch_size=128,
+    random_seed=42,
+)
+
+# Evaluate the model
+results.evaluate()
+
+# Save the model
+results.save_to_directory('transe_fb15k237')
+```
+
+This code demonstrates how libraries like PyKEEN simplify the implementation process by providing high-level interfaces to state-of-the-art models and training procedures.
+
+:::
+
+### Custom implementation considerations
+
+Sometimes custom implementations are necessary:
+
+::: {#def-custom-implementation}
+
+## Custom implementation considerations
+
+When building custom implementations, consider:
+
+1. **Framework selection**: PyTorch, TensorFlow, JAX, or other deep learning frameworks
+2. **Computational graph optimization**: Static vs. dynamic computation graphs
+3. **Memory management**: Techniques for handling large embedding tables
+4. **Batch processing**: Efficient batch generation and processing strategies
+5. **Data loading**: Zero-copy data loading and transfer techniques
+6. **Device utilization**: CPU, GPU, TPU, or multi-device strategies
+
+:::
+
+::: {#exm-custom-impl}
+
+## Custom implementation example
+
+A custom PyTorch implementation of RotatE optimized for performance:
+
+```python
+import torch
+from torch import nn
+
+class RotatE(nn.Module):
+    def __init__(self, num_entities, num_relations, embedding_dim, margin=1.0, epsilon=2.0):
+        super(RotatE, self).__init__()
+        # Complex embeddings (real and imaginary parts)
+        self.entity_dim = embedding_dim * 2
+        self.relation_dim = embedding_dim
+
+        # Initialize embeddings
+        self.entity_embedding = nn.Embedding(num_entities, self.entity_dim)
+        self.relation_embedding = nn.Embedding(num_relations, self.relation_dim)
+
+        # Initialize with uniform distribution
+        nn.init.uniform_(self.entity_embedding.weight, -1.0, 1.0)
+        nn.init.uniform_(self.relation_embedding.weight, -1.0, 1.0)
+
+        self.margin = margin
+        self.epsilon = epsilon
+
+    def forward(self, head, relation, tail, mode='single'):
+        """Forward function for computing score"""
+        batch_size = head.size(0)
+
+        # Get embeddings
+        head_emb = self.entity_embedding(head)
+        relation_emb = self.relation_embedding(relation)
+        tail_emb = self.entity_embedding(tail)
+
+        # Split real and imaginary parts
+        head_re, head_im = torch.chunk(head_emb, 2, dim=-1)
+        tail_re, tail_im = torch.chunk(tail_emb, 2, dim=-1)
+
+        # Make relation phases with constrained modulus of 1
+        relation_phase = relation_emb / (self.relation_dim / self.margin) * self.epsilon
+        relation_re = torch.cos(relation_phase)
+        relation_im = torch.sin(relation_phase)
+
+        # Perform rotation in complex space
+        re_score = head_re * relation_re - head_im * relation_im - tail_re
+        im_score = head_re * relation_im + head_im * relation_re - tail_im
+
+        # Compute distance in complex space
+        score = torch.stack([re_score, im_score], dim=0)
+        score = score.norm(dim=0)
+
+        # Return negative distance as score (higher is better)
+        return -score.sum(dim=-1)
+```
+
+This implementation includes optimizations like:
+
+1. Efficient complex number handling with real and imaginary parts
+2. Proper initialization and normalization
+3. Vectorized operations for better GPU utilization
+
+:::
+
+### Integration with graph databases
+
+Knowledge graph embeddings can be integrated with graph databases:
+
+::: {#def-graph-db-integration}
+
+## Graph database integration
+
+Approaches for integrating with graph databases:
+
+1. **Real-time embedding**: Computing embeddings on-demand from database content
+2. **Periodic synchronization**: Regularly updating embeddings based on database changes
+3. **Vector storage**: Storing pre-computed embeddings alongside graph data
+4. **Hybrid querying**: Combining graph queries with embedding-based similarity
+5. **Plugin architecture**: Extending graph databases with embedding capabilities
+
+:::
+
+::: {#exm-neo4j-integration}
+
+## Neo4j integration example
+
+Integrating knowledge graph embeddings with Neo4j:
+
+```python
+from neo4j import GraphDatabase
+import numpy as np
+
+# Neo4j connection
+driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "password"))
+
+# Load pre-trained embeddings
+entity_embeddings = np.load('entity_embeddings.npy')
+relation_embeddings = np.load('relation_embeddings.npy')
+entity_map = {id: idx for idx, id in enumerate(np.load('entity_ids.npy'))}
+
+def get_similar_entities(tx, entity_name, top_k=10):
+    # Get the entity ID from Neo4j
+    result = tx.run("MATCH (e {name: $name}) RETURN id(e) AS id", name=entity_name)
+    entity_id = result.single()["id"]
+
+    # Get the embedding vector
+    if entity_id in entity_map:
+        entity_vector = entity_embeddings[entity_map[entity_id]]
+
+        # Compute similarities
+        similarities = np.dot(entity_embeddings, entity_vector)
+        most_similar = np.argsort(similarities)[-top_k-1:-1][::-1]
+
+        # Query Neo4j for the similar entities
+        similar_ids = [int(id) for id, idx in entity_map.items() if idx in most_similar]
+        similar_entities = tx.run(
+            "MATCH (e) WHERE id(e) IN $ids RETURN e.name AS name",
+            ids=similar_ids
+        ).values()
+
+        return [name[0] for name in similar_entities]
+    return []
+
+with driver.session() as session:
+    similar = session.read_transaction(get_similar_entities, "Albert_Einstein")
+    print(f"Entities similar to Albert Einstein: {similar}")
+```
+
+This example demonstrates how pre-trained embeddings can be used with a graph database to provide similarity-based queries that go beyond explicit graph connections.
+
+:::
+
+## Training and optimization
+
+Efficient training of knowledge graph embeddings requires careful optimization:
+
+### Hardware acceleration
+
+Hardware acceleration is essential for training large models:
+
+::: {#def-hardware-acceleration}
+
+## Hardware acceleration techniques
+
+Hardware acceleration approaches include:
+
+1. **GPU training**: Using GPUs for parallel computation of embeddings
+2. **Multi-GPU training**: Distributing training across multiple GPUs
+3. **CPU optimizations**: Leveraging SIMD instructions and multithreading
+4. **TPU acceleration**: Using Tensor Processing Units for specific models
+5. **FPGA and ASIC solutions**: Custom hardware for embedding computation
+6. **Memory hierarchy optimization**: Efficient use of CPU/GPU memory hierarchy
+
+:::
+
+::: {#exm-gpu-optimization}
+
+## GPU optimization example
+
+Optimizing TransE training for GPU:
+
+```python
+import torch
+from torch.utils.data import DataLoader
+
+# Move model to GPU
+model = TransE(num_entities, num_relations, embedding_dim).cuda()
+
+# Use pinned memory for faster CPU-to-GPU transfers
+dataloader = DataLoader(
+    dataset,
+    batch_size=1024,
+    shuffle=True,
+    pin_memory=True,
+    num_workers=4
+)
+
+# Mixed precision training
+scaler = torch.cuda.amp.GradScaler()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0005)
+
+for epoch in range(num_epochs):
+    for batch in dataloader:
+        # Move batch to GPU
+        positive_triples = batch["positive"].cuda(non_blocking=True)
+        negative_triples = batch["negative"].cuda(non_blocking=True)
+
+        # Mixed precision forward pass
+        with torch.cuda.amp.autocast():
+            positive_scores = model(positive_triples)
+            negative_scores = model(negative_triples)
+            loss = loss_function(positive_scores, negative_scores)
+
+        # Mixed precision backward pass and optimization
+        optimizer.zero_grad()
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
+```
+
+This example includes several GPU optimizations:
+
+1. Pinned memory for faster data transfer
+2. Non-blocking transfers for better CPU-GPU overlap
+3. Mixed precision training to improve performance
+4. Larger batch size to better utilize GPU parallelism
+
+:::
+
+### Distributed training
+
+Distributed training enables scaling to very large knowledge graphs:
+
+::: {#def-distributed-training}
+
+## Distributed training approaches
+
+Approaches for distributed training:
+
+1. **Data parallelism**: Each worker processes different batches of triples
+2. **Model parallelism**: Embedding tables are sharded across multiple devices
+3. **Parameter server architecture**: Centralized embedding tables with distributed workers
+4. **Decentralized training**: Peer-to-peer communication between workers
+5. **Mixed approaches**: Combining data and model parallelism
+
+:::
+
+::: {#exm-distributed}
+
+## Distributed training example
+
+Using PyTorch's DistributedDataParallel for knowledge graph embedding:
+
+```python
+import torch.distributed as dist
+import torch.multiprocessing as mp
+from torch.nn.parallel import DistributedDataParallel as DDP
+
+def setup(rank, world_size):
+    # Initialize process group
+    dist.init_process_group("nccl", rank=rank, world_size=world_size)
+
+def train(rank, world_size):
+    setup(rank, world_size)
+
+    # Create model and move to GPU
+    model = TransE(num_entities, num_relations, embedding_dim).to(rank)
+
+    # Wrap model with DDP
+    model = DDP(model, device_ids=[rank])
+
+    # Create dataloader with DistributedSampler
+    sampler = DistributedSampler(dataset, num_replicas=world_size, rank=rank)
+    dataloader = DataLoader(dataset, batch_size=batch_size, sampler=sampler)
+
+    # Training loop
+    for epoch in range(num_epochs):
+        sampler.set_epoch(epoch)  # Important for proper shuffling
+        for batch in dataloader:
+            # Process batch
+            # ...
+
+# Start multiple processes
+world_size = torch.cuda.device_count()
+mp.spawn(train, args=(world_size,), nprocs=world_size, join=True)
+```
+
+This implementation distributes training across multiple GPUs, with each GPU processing different batches of the dataset.
+
+:::
+
+### Memory optimization
+
+Memory optimization is crucial for handling large knowledge graphs:
+
+::: {#def-memory-optimization}
+
+## Memory optimization techniques
+
+Memory optimization approaches include:
+
+1. **Embedding table sharding**: Distributing large embedding tables across devices
+2. **Sparse embeddings**: Using sparse representations for entities with few connections
+3. **Quantization**: Reducing precision of embedding values (e.g., FP32 to FP16 or INT8)
+4. **Feature hashing**: Using hash functions to reduce embedding table size
+5. **On-the-fly embedding generation**: Computing embeddings from smaller parameter sets
+6. **Gradient accumulation**: Processing smaller batches and accumulating gradients
+
+:::
+
+::: {#exm-memory-opt}
+
+## Memory optimization example
+
+Implementing quantized embeddings:
+
+```python
+import torch
+from torch.quantization import quantize_per_tensor
+
+class QuantizedEmbedding(torch.nn.Module):
+    def __init__(self, num_embeddings, embedding_dim):
+        super().__init__()
+        # Initialize full precision embeddings
+        self.embedding = torch.nn.Embedding(num_embeddings, embedding_dim)
+        self.register_buffer('scale', torch.ones(1))
+        self.register_buffer('zero_point', torch.zeros(1, dtype=torch.long))
+
+    def forward(self, indices):
+        # Quantize embeddings during forward pass (for inference)
+        if not self.training:
+            # Quantize to 8-bit
+            quantized_weight = quantize_per_tensor(
+                self.embedding.weight,
+                scale=self.scale,
+                zero_point=self.zero_point,
+                dtype=torch.quint8
+            )
+            # Dequantize for computation
+            dequantized_weight = quantized_weight.dequantize()
+            return torch.nn.functional.embedding(indices, dequantized_weight)
+        # Use full precision during training
+        return self.embedding(indices)
+
+    def quantize_for_inference(self):
+        # Compute scale and zero point based on weight distribution
+        weight = self.embedding.weight.detach()
+        min_val = weight.min().item()
+        max_val = weight.max().item()
+
+        # Compute scale and zero point for uniform quantization
+        scale = (max_val - min_val) / 255.0
+        zero_point = round(0 - min_val / scale)
+
+        self.scale[0] = scale
+        self.zero_point[0] = zero_point
+```
+
+This implementation uses 8-bit quantization to reduce the memory footprint of embedding tables, which is especially beneficial for inference.
+
+:::
+
+### Hyperparameter optimization
+
+Effective hyperparameter tuning is essential for optimal performance:
+
+::: {#def-hyperparameter-optimization}
+
+## Hyperparameter optimization
+
+Approaches for hyperparameter optimization:
+
+1. **Grid search**: Exhaustive search over a parameter grid
+2. **Random search**: Sampling random combinations of parameters
+3. **Bayesian optimization**: Sequential model-based optimization
+4. **Population-based training**: Evolutionary algorithms for parameter search
+5. **Hyperband and ASHA**: Multi-armed bandit approaches for efficient resource allocation
+6. **Early stopping strategies**: Avoiding wasted computation on poor configurations
+
+:::
+
+::: {#exm-hyperopt}
+
+## Hyperparameter optimization example
+
+Using Ray Tune for hyperparameter optimization:
+
+```python
+import ray
+from ray import tune
+from ray.tune.schedulers import ASHAScheduler
+
+def train_kg_embedding(config):
+    # Create model with hyperparameters from config
+    model = TransE(
+        num_entities=num_entities,
+        num_relations=num_relations,
+        embedding_dim=config["embedding_dim"],
+        margin=config["margin"],
+        norm=config["norm"]
+    )
+
+    optimizer = torch.optim.Adam(
+        model.parameters(),
+        lr=config["lr"],
+        weight_decay=config["weight_decay"]
+    )
+
+    # Train for several epochs
+    for epoch in range(config["num_epochs"]):
+        # Training loop...
+
+        # Evaluate on validation set
+        val_mrr = evaluate_model(model, val_dataset)
+
+        # Report metrics to Ray Tune
+        tune.report(mrr=val_mrr)
+
+# Define hyperparameter search space
+search_space = {
+    "embedding_dim": tune.choice([50, 100, 200, 300]),
+    "margin": tune.uniform(0.5, 5.0),
+    "norm": tune.choice([1, 2]),
+    "lr": tune.loguniform(1e-4, 1e-2),
+    "weight_decay": tune.loguniform(1e-6, 1e-3),
+    "num_epochs": 50
+}
+
+# Use ASHA scheduler for efficient early stopping
+scheduler = ASHAScheduler(
+    max_t=50,  # Maximum number of epochs
+    grace_period=5,  # Minimum epochs before stopping
+    reduction_factor=2
+)
+
+# Run hyperparameter search
+analysis = tune.run(
+    train_kg_embedding,
+    config=search_space,
+    num_samples=50,  # Number of trials
+    scheduler=scheduler,
+    resources_per_trial={"cpu": 4, "gpu": 1}
+)
+
+# Get best configuration
+best_config = analysis.get_best_config(metric="mrr", mode="max")
+print(f"Best hyperparameters: {best_config}")
+```
+
+This example uses Ray Tune with the ASHA scheduler to efficiently search for optimal hyperparameters, automatically stopping underperforming trials.
+
+:::
+
+### Regularization techniques
+
+Regularization helps prevent overfitting in embedding models:
+
+::: {#def-regularization-techniques}
+
+## Regularization techniques
+
+Common regularization approaches:
+
+1. **L2 regularization**: Penalizing large embedding norms
+2. **Dropout**: Randomly zeroing embeddings during training
+3. **Spectral regularization**: Constraining singular values of relation matrices
+4. **Noise injection**: Adding random noise to embeddings
+5. **Early stopping**: Monitoring validation performance to avoid overfitting
+6. **Adversarial regularization**: Adding adversarial perturbations during training
+
+:::
+
+::: {#exm-regularization}
+
+## Regularization example
+
+Implementing various regularization techniques:
+
+```python
+class RegularizedTransE(nn.Module):
+    def __init__(self, num_entities, num_relations, embedding_dim):
+        super().__init__()
+        self.entity_embedding = nn.Embedding(num_entities, embedding_dim)
+        self.relation_embedding = nn.Embedding(num_relations, embedding_dim)
+        self.entity_dropout = nn.Dropout(0.2)
+        self.relation_dropout = nn.Dropout(0.2)
+
+    def forward(self, head, relation, tail):
+        h = self.entity_dropout(self.entity_embedding(head))
+        r = self.relation_dropout(self.relation_embedding(relation))
+        t = self.entity_dropout(self.entity_embedding(tail))
+
+        # L2 normalization
+        h = F.normalize(h, p=2, dim=1)
+        t = F.normalize(t, p=2, dim=1)
+
+        # Score calculation
+        score = -torch.norm(h + r - t, p=1, dim=1)
+        return score
+
+    def regularization_loss(self):
+        # L2 regularization
+        entity_reg = torch.norm(self.entity_embedding.weight, p=2)
+        relation_reg = torch.norm(self.relation_embedding.weight, p=2)
+        return entity_reg + relation_reg
+
+# During training
+optimizer.zero_grad()
+scores = model(head, relation, tail)
+loss = base_loss(scores) + reg_weight * model.regularization_loss()
+loss.backward()
+optimizer.step()
+```
+
+This implementation combines multiple regularization techniques:
+
+1. Dropout on entity and relation embeddings
+2. L2 normalization of entity embeddings
+3. Explicit L2 regularization loss term
+
+:::
+
+## Scaling to large knowledge graphs
+
+Scaling knowledge graph embeddings to very large graphs requires specialized approaches:
+
+### Partitioning and parallel processing
+
+Partitioning can enable processing of large graphs:
+
+::: {#def-partitioning-implementation}
+
+## Partitioning implementation
+
+Implementation strategies for partitioning:
+
+1. **Graph partitioning algorithms**: METIS, Louvain, or spectral clustering
+2. **Partition-aware training**: Training on subgraphs while considering cross-partition edges
+3. **Partition synchronization**: Coordinating updates between partitions
+4. **Embedding alignment**: Ensuring consistent embeddings across partitions
+5. **Load balancing**: Distributing partitions evenly across computational resources
+
+:::
+
+::: {#exm-partition-impl}
+
+## Partitioning implementation example
+
+Implementing partition-based training:
+
+```python
+import networkx as nx
+from metis import part_graph
+
+# Construct networkx graph from triples
+G = nx.Graph()
+for h, r, t in triples:
+    G.add_edge(h, t)
+
+# Partition the graph into 8 parts
+_, parts = part_graph(G, 8)
+
+# Create partition mapping
+node_to_partition = {node: partition for node, partition in enumerate(parts)}
+
+# Create partition-specific datasets
+partition_datasets = [[] for _ in range(8)]
+for h, r, t in triples:
+    h_part = node_to_partition[h]
+    t_part = node_to_partition[t]
+
+    # Add to both partitions if cross-partition edge
+    if h_part == t_part:
+        partition_datasets[h_part].append((h, r, t))
+    else:
+        partition_datasets[h_part].append((h, r, t))
+        partition_datasets[t_part].append((h, r, t))
+
+# Train models for each partition
+partition_models = []
+for partition_id, partition_data in enumerate(partition_datasets):
+    model = TransE(num_entities, num_relations, embedding_dim)
+    # Train model on partition_data
+    # ...
+    partition_models.append(model)
+
+# Combine embeddings from partition models
+def get_entity_embedding(entity_id):
+    partition_id = node_to_partition[entity_id]
+    return partition_models[partition_id].entity_embedding(entity_id)
+```
+
+This approach uses METIS for graph partitioning and trains separate models for each partition, handling cross-partition edges by including them in both partitions.
+
+:::
+
+### Embedding compression techniques
+
+Compression can reduce the memory footprint of embeddings:
+
+::: {#def-embedding-compression}
+
+## Embedding compression techniques
+
+Approaches for embedding compression:
+
+1. **Quantization**: Reducing precision from 32-bit to 16-bit, 8-bit, or lower
+2. **Pruning**: Removing less important dimensions or entities
+3. **Tensor decomposition**: Factorizing embedding matrices into smaller components
+4. **Knowledge distillation**: Training a smaller model to mimic a larger one
+5. **Hashing tricks**: Using hash functions to reduce parameter count
+6. **Mixed precision**: Using different precisions for different parts of the model
+
+:::
+
+::: {#exm-compression}
+
+## Embedding compression example
+
+Implementing tensor decomposition for relation matrices:
+
+```python
+class CompressedRESCAL(nn.Module):
+    def __init__(self, num_entities, num_relations, embedding_dim, rank=10):
+        super().__init__()
+        self.entity_embedding = nn.Embedding(num_entities, embedding_dim)
+
+        # Low-rank decomposition of relation matrices
+        # Instead of storing full d×d matrices (O(r*d²)), store factors (O(r*d*k))
+        self.relation_factor1 = nn.Embedding(num_relations, embedding_dim * rank)
+        self.relation_factor2 = nn.Embedding(num_relations, rank * embedding_dim)
+
+        self.embedding_dim = embedding_dim
+        self.rank = rank
+
+    def forward(self, head, relation, tail):
+        h = self.entity_embedding(head)
+        t = self.entity_embedding(tail)
+
+        # Reshape factors to matrices
+        r1 = self.relation_factor1(relation).view(-1, self.embedding_dim, self.rank)
+        r2 = self.relation_factor2(relation).view(-1, self.rank, self.embedding_dim)
+
+        # Compute R = r1 @ r2 implicitly
+        # h @ R @ t = h @ (r1 @ r2) @ t = (h @ r1) @ (r2 @ t)
+        h_r1 = torch.bmm(h.unsqueeze(1), r1).squeeze(1)  # Batch matrix multiply
+        r2_t = torch.bmm(r2, t.unsqueeze(2)).squeeze(2)  # Batch matrix multiply
+
+        # Compute final score
+        score = torch.sum(h_r1 * r2_t, dim=1)
+        return score
+```
+
+This implementation uses a low-rank decomposition of relation matrices in RESCAL, reducing the parameter count from O(r*d²) to O(r*d\*k) where k is the rank (typically k << d).
+
+:::
+
+### Out-of-core training
+
+Out-of-core techniques handle knowledge graphs larger than memory:
+
+::: {#def-out-of-core}
+
+## Out-of-core training
+
+Out-of-core training approaches:
+
+1. **Streaming algorithms**: Processing the graph in streams rather than loading it entirely
+2. **Disk-based embeddings**: Storing embeddings on disk and loading as needed
+3. **Embedding swapping**: Swapping embeddings between CPU and GPU memory
+4. **Caching strategies**: Caching frequently used embeddings in faster memory
+5. **Minibatch selection**: Selecting minibatches to maximize cache efficiency
+6. **On-the-fly embedding generation**: Computing embeddings from compressed representations
+
+:::
+
+::: {#exm-out-of-core}
+
+## Out-of-core training example
+
+Implementing embedding swapping between CPU and GPU:
+
+```python
+class OutOfCoreEmbedding:
+    def __init__(self, num_entities, embedding_dim):
+        # Store embeddings in CPU memory
+        self.embeddings = torch.randn(num_entities, embedding_dim, device='cpu')
+        self.embedding_dim = embedding_dim
+
+        # Cache for GPU embeddings
+        self.cache_size = 100000  # Number of embeddings to cache on GPU
+        self.gpu_cache = torch.zeros(self.cache_size, embedding_dim, device='cuda')
+        self.cache_indices = torch.full((self.cache_size,), -1, dtype=torch.long, device='cuda')
+
+        # Tracking for LRU cache replacement
+        self.access_count = torch.zeros(self.cache_size, dtype=torch.long, device='cuda')
+        self.current_step = 0
+
+    def lookup(self, indices):
+        self.current_step += 1
+        batch_size = indices.size(0)
+        result = torch.zeros(batch_size, self.embedding_dim, device='cuda')
+
+        # Check which indices are in cache
+        cache_hits = torch.zeros(batch_size, dtype=torch.bool, device='cuda')
+        for i in range(batch_size):
+            idx = indices[i].item()
+            cache_pos = (self.cache_indices == idx).nonzero(as_tuple=True)[0]
+            if len(cache_pos) > 0:
+                cache_hits[i] = True
+                pos = cache_pos[0].item()
+                result[i] = self.gpu_cache[pos]
+                self.access_count[pos] = self.current_step
+
+        # Handle cache misses
+        miss_indices = indices[~cache_hits].cpu()
+        if len(miss_indices) > 0:
+            miss_embeddings = self.embeddings[miss_indices].cuda()
+            result[~cache_hits] = miss_embeddings
+
+            # Add to cache, replacing least recently used entries if needed
+            for i, idx in enumerate(miss_indices):
+                idx = idx.item()
+
+                # Find LRU entry to replace
+                replace_idx = torch.argmin(self.access_count).item()
+
+                # Update cache
+                self.gpu_cache[replace_idx] = miss_embeddings[i]
+                self.cache_indices[replace_idx] = idx
+                self.access_count[replace_idx] = self.current_step
+
+        return result
+
+    def update(self, indices, gradients):
+        # Apply gradients to CPU embeddings
+        self.embeddings[indices.cpu()] -= gradients.cpu()
+
+        # Update cache if present
+        for i, idx in enumerate(indices):
+            idx = idx.item()
+            cache_pos = (self.cache_indices == idx).nonzero(as_tuple=True)[0]
+            if len(cache_pos) > 0:
+                pos = cache_pos[0].item()
+                self.gpu_cache[pos] -= gradients[i]
+```
+
+This implementation uses an LRU (Least Recently Used) cache to keep frequently accessed embeddings in GPU memory while storing the full embedding table in CPU memory.
+
+:::
+
+### Entity and relation filtering
+
+Filtering techniques can focus computation on the most important entities and relations:
+
+::: {#def-filtering}
+
+## Entity and relation filtering
+
+Filtering approaches include:
+
+1. **Frequency-based filtering**: Focusing on frequent entities and relations
+2. **Centrality-based filtering**: Prioritizing central nodes in the graph
+3. **Task-specific filtering**: Selecting entities and relations relevant to the target task
+4. **Hierarchical modeling**: Modeling important entities in detail and others more coarsely
+5. **Dynamic entity selection**: Adaptively selecting entities based on the current context
+
+:::
+
+::: {#exm-filtering}
+
+## Entity filtering example
+
+Implementing frequency-based entity filtering:
+
+```python
+import collections
+
+# Count entity frequencies
+entity_counts = collections.Counter()
+for h, r, t in triples:
+    entity_counts[h] += 1
+    entity_counts[t] += 1
+
+# Select top-k entities for detailed modeling
+k = 100000
+important_entities = set([entity for entity, _ in entity_counts.most_common(k)])
+
+# Create two-tier modeling system
+class TwoTierTransE(nn.Module):
+    def __init__(self, num_entities, num_relations, primary_dim=200, secondary_dim=50):
+        super().__init__()
+        self.important_entities = important_entities
+
+        # High-dimensional embeddings for important entities
+        self.primary_entity_embedding = nn.Embedding(k, primary_dim)
+
+        # Lower-dimensional embeddings for less important entities
+        self.secondary_entity_embedding = nn.Embedding(num_entities - k, secondary_dim)
+
+        # Projection for secondary embeddings to match primary dimension
+        self.secondary_projection = nn.Linear(secondary_dim, primary_dim, bias=False)
+
+        # Relation embeddings
+        self.relation_embedding = nn.Embedding(num_relations, primary_dim)
+
+        # Entity ID mappings
+        self.primary_mapping = {entity: idx for idx, entity in enumerate(important_entities)}
+        self.secondary_mapping = {entity: idx for idx, entity in
+                                 enumerate(set(range(num_entities)) - important_entities)}
+
+    def get_entity_embedding(self, entity_ids):
+        result = torch.zeros(len(entity_ids), self.primary_dim, device=entity_ids.device)
+
+        # Process primary entities
+        primary_mask = torch.tensor([e in self.important_entities for e in entity_ids], device=entity_ids.device)
+        if primary_mask.any():
+            primary_ids = torch.tensor([self.primary_mapping[e] for e in entity_ids[primary_mask]],
+                                       device=entity_ids.device)
+            result[primary_mask] = self.primary_entity_embedding(primary_ids)
+
+        # Process secondary entities
+        secondary_mask = ~primary_mask
+        if secondary_mask.any():
+            secondary_ids = torch.tensor([self.secondary_mapping[e] for e in entity_ids[secondary_mask]],
+                                         device=entity_ids.device)
+            secondary_emb = self.secondary_entity_embedding(secondary_ids)
+            result[secondary_mask] = self.secondary_projection(secondary_emb)
+
+        return result
+
+    def forward(self, head, relation, tail):
+        h = self.get_entity_embedding(head)
+        r = self.relation_embedding(relation)
+        t = self.get_entity_embedding(tail)
+
+        # Score calculation
+        score = -torch.norm(h + r - t, p=1, dim=1)
+        return score
+```
+
+This implementation uses high-dimensional embeddings for frequent entities and lower-dimensional embeddings (with projection) for less frequent entities, reducing the overall parameter count while maintaining performance on important entities.
+
+:::
+
+## Evaluation and validation
+
+Proper evaluation is crucial for knowledge graph embedding systems:
+
+### Evaluation metrics
+
+::: {#def-evaluation-metrics}
+
+## Evaluation metrics implementation
+
+Common evaluation metrics include:
+
+1. **Mean Rank (MR)**: Average rank of correct entities
+2. **Mean Reciprocal Rank (MRR)**: Average of reciprocal ranks
+3. **Hits@k**: Percentage of test cases where correct entity is in top k
+4. **Filtered metrics**: Metrics calculated after removing other correct answers
+5. **Area Under the ROC Curve (AUC)**: For triple classification tasks
+6. **Precision, Recall, F1-score**: For triple classification with threshold
+
+:::
+
+::: {#exm-evaluation}
+
+## Evaluation implementation example
+
+Implementing filtered evaluation metrics:
+
+```python
+def evaluate_model(model, test_triples, all_triples, entity_ids, relation_ids, batch_size=128):
+    model.eval()
+    ranks = []
+    hits_at_1 = 0
+    hits_at_3 = 0
+    hits_at_10 = 0
+
+    with torch.no_grad():
+        for batch_start in range(0, len(test_triples), batch_size):
+            batch_end = min(batch_start + batch_size, len(test_triples))
+            batch = test_triples[batch_start:batch_end]
+
+            for h, r, t in batch:
+                # Tail prediction
+                heads = torch.tensor([h] * len(entity_ids), device=model.device)
+                relations = torch.tensor([r] * len(entity_ids), device=model.device)
+                tails = torch.tensor(entity_ids, device=model.device)
+
+                scores = model(heads, relations, tails)
+
+                # Filter out existing triples
+                for h_tmp, r_tmp, t_tmp in all_triples:
+                    if h_tmp == h and r_tmp == r and t_tmp != t:
+                        # This is another valid tail for (h,r)
+                        idx = entity_ids.index(t_tmp)
+                        scores[idx] = float('-inf')
+
+                # Get rank
+                _, sorted_indices = torch.sort(scores, descending=True)
+                rank = (sorted_indices == entity_ids.index(t)).nonzero(as_tuple=True)[0].item() + 1
+                ranks.append(rank)
+
+                # Calculate hits
+                if rank <= 1:
+                    hits_at_1 += 1
+                if rank <= 3:
+                    hits_at_3 += 1
+                if rank <= 10:
+                    hits_at_10 += 1
+
+                # Head prediction (similar process)
+                # ...
+
+    # Calculate metrics
+    mr = sum(ranks) / len(ranks)
+    mrr = sum(1.0 / rank for rank in ranks) / len(ranks)
+    hits_at_1 = hits_at_1 / len(ranks)
+    hits_at_3 = hits_at_3 / len(ranks)
+    hits_at_10 = hits_at_10 / len(ranks)
+
+    return {
+        'MR': mr,
+        'MRR': mrr,
+        'Hits@1': hits_at_1,
+        'Hits@3': hits_at_3,
+        'Hits@10': hits_at_10
+    }
+```
+
+This implementation handles filtered evaluation, which removes other known correct answers when computing ranks to avoid penalizing the model for predicting valid alternatives.
+
+:::
+
+### Validation strategies
+
+Proper validation ensures reliable model selection:
+
+::: {#def-validation}
+
+## Validation strategies
+
+Effective validation approaches:
+
+1. **Cross-validation**: Evaluating on multiple train/test splits
+2. **Time-based validation**: Using chronological splits for temporal data
+3. **Entity-based validation**: Holding out specific entities for inductive evaluation
+4. **Relation-based validation**: Testing generalization to specific relation types
+5. **Adversarial validation**: Testing robustness against adversarial examples
+6. **Out-of-distribution validation**: Testing generalization to new domains
+
+:::
+
+::: {#exm-validation}
+
+## Validation strategy example
+
+Implementing time-based validation for temporal knowledge graphs:
+
+```python
+import pandas as pd
+from datetime import datetime
+
+# Load triples with timestamps
+triples_df = pd.DataFrame({
+    'head': [h for h, _, _, _ in temporal_triples],
+    'relation': [r for _, r, _, _ in temporal_triples],
+    'tail': [t for _, _, t, _ in temporal_triples],
+    'timestamp': [ts for _, _, _, ts in temporal_triples]
+})
+
+# Sort by timestamp
+triples_df['date'] = pd.to_datetime(triples_df['timestamp'])
+triples_df = triples_df.sort_values('date')
+
+# Create chronological splits
+train_cutoff = datetime(2018, 1, 1)
+val_cutoff = datetime(2019, 1, 1)
+
+train_df = triples_df[triples_df['date'] < train_cutoff]
+val_df = triples_df[(triples_df['date'] >= train_cutoff) & (triples_df['date'] < val_cutoff)]
+test_df = triples_df[triples_df['date'] >= val_cutoff]
+
+print(f"Train: {len(train_df)} triples from {train_df['date'].min()} to {train_df['date'].max()}")
+print(f"Validation: {len(val_df)} triples from {val_df['date'].min()} to {val_df['date'].max()}")
+print(f"Test: {len(test_df)} triples from {test_df['date'].min()} to {test_df['date'].max()}")
+
+# Convert back to triples
+train_triples = [(row['head'], row['relation'], row['tail']) for _, row in train_df.iterrows()]
+val_triples = [(row['head'], row['relation'], row['tail']) for _, row in val_df.iterrows()]
+test_triples = [(row['head'], row['relation'], row['tail']) for _, row in test_df.iterrows()]
+```
+
+This approach creates chronological train/validation/test splits for temporal knowledge graphs, simulating the real-world scenario where models are trained on historical data and used to predict future relationships.
+
+:::
+
+### Reproducibility considerations
+
+Ensuring reproducibility is important for reliable evaluation:
+
+::: {#def-reproducibility}
+
+## Reproducibility considerations
+
+Key reproducibility practices:
+
+1. **Fixed random seeds**: Setting all random seeds for deterministic behavior
+2. **Documented hyperparameters**: Clearly recording all hyperparameter values
+3. **Environment specification**: Documenting software versions and hardware
+4. **Dataset versioning**: Tracking dataset versions and preprocessing steps
+5. **Code versioning**: Using version control for implementation code
+6. **Model checkpointing**: Saving models at key points for later verification
+
+:::
+
+::: {#exm-reproducibility}
+
+## Reproducibility example
+
+Setting up a reproducible environment:
+
+```python
+def set_seed(seed):
+    """Set all random seeds for reproducibility."""
+    import random
+    import numpy as np
+    import torch
+
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+    return seed
+
+def get_environment_info():
+    """Get information about the current environment."""
+    import platform
+    import torch
+    import sys
+
+    info = {
+        'python_version': platform.python_version(),
+        'pytorch_version': torch.__version__,
+        'cuda_version': torch.version.cuda,
+        'cuda_available': torch.cuda.is_available(),
+        'gpu_count': torch.cuda.device_count(),
+        'gpu_names': [torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())],
+        'system': platform.system(),
+        'processor': platform.processor(),
+        'packages': {pkg: pkg_info.version for pkg, pkg_info in sys.modules.items()
+                     if hasattr(pkg_info, '__version__')}
+    }
+
+    return info
+
+# Set up reproducible environment
+seed = set_seed(42)
+env_info = get_environment_info()
+
+# Log environment and configuration
+import json
+with open('experiment_metadata.json', 'w') as f:
+    json.dump({
+        'seed': seed,
+        'environment': env_info,
+        'hyperparameters': {
+            'embedding_dim': 200,
+            'batch_size': 512,
+            'learning_rate': 0.0005,
+            'margin': 1.0,
+            'epochs': 1000,
+            'negative_samples': 5
+        }
+    }, f, indent=2)
+```
+
+This implementation sets up a reproducible environment by fixing random seeds and documenting the software versions, hardware, and hyperparameters.
+
+:::
+
+## Deployment architectures
+
+Deploying knowledge graph embedding systems requires careful architectural design:
+
+### Serving architectures
+
+::: {#def-serving}
+
+## Serving architectures
+
+Common serving architectures include:
+
+1. **Batch processing**: Running inference on batches of queries
+2. **Real-time serving**: Providing low-latency responses to individual queries
+3. **Hybrid approaches**: Combining pre-computed and real-time results
+4. **Client-server architecture**: Separating embedding lookup from application logic
+5. **Serverless deployment**: Using cloud functions for scalable serving
+6. **Edge deployment**: Running inference on edge devices for low-latency applications
+
+:::
+
+::: {#exm-serving}
+
+## Serving architecture example
+
+Implementing a real-time serving API:
+
+```python
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import torch
+import numpy as np
+
+app = FastAPI(title="Knowledge Graph Embedding API")
+
+# Load pre-trained model
+model = torch.load('models/transe_model.pt')
+model.eval()  # Set to evaluation mode
+
+# Load entity and relation mappings
+entity_to_id = torch.load('models/entity_to_id.pt')
+id_to_entity = {v: k for k, v in entity_to_id.items()}
+relation_to_id = torch.load('models/relation_to_id.pt')
+id_to_relation = {v: k for k, v in relation_to_id.items()}
+
+# Request models
+class LinkPredictionRequest(BaseModel):
+    head: str = None
+    relation: str = None
+    tail: str = None
+    k: int = 10
+
+@app.post("/predict_links")
+async def predict_links(request: LinkPredictionRequest):
+    # Validate request
+    if sum(x is None for x in [request.head, request.relation, request.tail]) != 1:
+        raise HTTPException(status_code=400, detail="Exactly one of head, relation, or tail must be None")
+
+    try:
+        # Predict missing entity
+        if request.head is None:
+            # Head prediction
+            r_id = relation_to_id[request.relation]
+            t_id = entity_to_id[request.tail]
+
+            # Generate scores for all entities as head
+            with torch.no_grad():
+                heads = torch.arange(len(entity_to_id)).to(model.device)
+                relations = torch.full_like(heads, r_id).to(model.device)
+                tails = torch.full_like(heads, t_id).to(model.device)
+
+                scores = model(heads, relations, tails)
+
+            # Get top-k entities
+            top_k_scores, top_k_indices = torch.topk(scores, k=request.k)
+
+            # Convert to entity names
+            results = [
+                {"entity": id_to_entity[idx.item()], "score": score.item()}
+                for idx, score in zip(top_k_indices, top_k_scores)
+            ]
+
+            return {
+                "query": {"relation": request.relation, "tail": request.tail},
+                "predictions": results
+            }
+
+        elif request.relation is None:
+            # Relation prediction
+            # (Similar implementation)
+            pass
+
+        else:  # request.tail is None
+            # Tail prediction
+            # (Similar implementation)
+            pass
+
+    except KeyError as e:
+        raise HTTPException(status_code=404, detail=f"Entity or relation not found: {str(e)}")
+```
+
+This example implements a FastAPI-based service for real-time link prediction, which can be deployed as a microservice in a containerized environment.
+
+:::
+
+### Caching strategies
+
+Caching can significantly improve performance:
+
+::: {#def-caching}
+
+## Caching strategies
+
+Effective caching approaches:
+
+1. **Entity embedding cache**: Caching frequently accessed entity embeddings
+2. **Query result cache**: Caching results of common queries
+3. **Hierarchical caching**: Using multiple cache levels with different characteristics
+4. **Distributed caching**: Spreading the cache across multiple machines
+5. **Predictive caching**: Pre-loading embeddings based on access patterns
+6. **Cache invalidation**: Strategies for refreshing the cache when models are updated
+
+:::
+
+::: {#exm-caching}
+
+## Caching implementation example
+
+Implementing a query result cache:
+
+```python
+from functools import lru_cache
+import hashlib
+import pickle
+
+class KGEmbeddingService:
+    def __init__(self, model, entity_map, relation_map, cache_size=10000):
+        self.model = model
+        self.entity_map = entity_map
+        self.relation_map = relation_map
+        self.id_to_entity = {v: k for k, v in entity_map.items()}
+        self.id_to_relation = {v: k for k, v in relation_map.items()}
+
+        # Setup caches
+        self.entity_embedding_cache = {}
+        self.setup_query_cache(cache_size)
+
+    def setup_query_cache(self, cache_size):
+        # Use LRU cache for query results
+        @lru_cache(maxsize=cache_size)
+        def cached_query_fn(query_hash):
+            # Deserialize the query from the hash
+            query_data = self.query_hash_map.get(query_hash)
+            if not query_data:
+                return None
+
+            # Execute the actual query
+            query_type, head, relation, tail, k = pickle.loads(query_data)
+
+            if query_type == 'head':
+                return self._predict_head(relation, tail, k)
+            elif query_type == 'relation':
+                return self._predict_relation(head, tail, k)
+            else:  # query_type == 'tail'
+                return self._predict_tail(head, relation, k)
+
+        self.query_cache = cached_query_fn
+        self.query_hash_map = {}
+
+    def _hash_query(self, query_type, head, relation, tail, k):
+        """Create a hash for the query parameters."""
+        query_data = pickle.dumps((query_type, head, relation, tail, k))
+        query_hash = hashlib.md5(query_data).hexdigest()
+        self.query_hash_map[query_hash] = query_data
+        return query_hash
+
+    def _get_entity_embedding(self, entity_id):
+        """Get entity embedding with caching."""
+        if entity_id in self.entity_embedding_cache:
+            return self.entity_embedding_cache[entity_id]
+
+        with torch.no_grad():
+            embedding = self.model.entity_embedding(torch.tensor([entity_id]).to(self.model.device))[0]
+
+        # Cache the embedding
+        self.entity_embedding_cache[entity_id] = embedding
+        return embedding
+
+    def predict_tail(self, head, relation, k=10):
+        """Predict top-k tail entities with caching."""
+        # Convert names to IDs
+        try:
+            head_id = self.entity_map.get(head)
+            relation_id = self.relation_map.get(relation)
+            if head_id is None or relation_id is None:
+                return {"error": "Entity or relation not found"}
+
+            # Check cache
+            query_hash = self._hash_query('tail', head_id, relation_id, None, k)
+            result = self.query_cache(query_hash)
+
+            if result is None:
+                # Cache miss, compute the result
+                result = self._predict_tail(head_id, relation_id, k)
+
+            return result
+
+        except Exception as e:
+            return {"error": str(e)}
+
+    def _predict_tail(self, head_id, relation_id, k):
+        """Internal implementation of tail prediction."""
+        # Implementation details
+        pass
+```
+
+This implementation uses a combination of LRU caching for query results and a simple dictionary cache for entity embeddings, significantly reducing computation for repeated queries.
+
+:::
+
+### Monitoring and maintenance
+
+Ongoing monitoring is essential for production systems:
+
+::: {#def-monitoring}
+
+## Monitoring and maintenance
+
+Key monitoring considerations:
+
+1. **Performance tracking**: Monitoring key metrics over time
+2. **Data drift detection**: Identifying changes in the input distribution
+3. **Model drift detection**: Detecting when model performance degrades
+4. **Resource monitoring**: Tracking memory, CPU, and GPU usage
+5. **Alerting systems**: Setting up alerts for anomalies or performance issues
+6. **Continuous evaluation**: Regularly evaluating against benchmark datasets
+7. **Automated retraining**: Setting up pipelines for model refreshing
+
+:::
+
+::: {#exm-monitoring}
+
+## Monitoring implementation example
+
+Setting up basic model monitoring:
+
+```python
+import time
+import logging
+import datetime
+import pandas as pd
+import matplotlib.pyplot as plt
+from prometheus_client import start_http_server, Summary, Counter, Gauge
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger("kge_monitoring")
+
+# Set up Prometheus metrics
+QUERY_TIME = Summary('query_processing_seconds', 'Time spent processing query')
+QUERY_COUNT = Counter('queries_total', 'Total number of queries', ['query_type'])
+CACHE_HITS = Counter('cache_hits_total', 'Total number of cache hits')
+CACHE_MISSES = Counter('cache_misses_total', 'Total number of cache misses')
+MODEL_PERFORMANCE = Gauge('model_mrr', 'Model MRR on evaluation set')
+
+# Performance history
+performance_history = []
+
+class MonitoredKGEmbeddingService:
+    def __init__(self, base_service, evaluation_dataset, evaluation_frequency=24*60*60):
+        self.service = base_service
+        self.evaluation_dataset = evaluation_dataset
+        self.evaluation_frequency = evaluation_frequency
+        self.last_evaluation_time = 0
+
+        # Start Prometheus metrics server
+        start_http_server(8000)
+
+        # Initial evaluation
+        self.evaluate_model()
+
+    def predict_tail(self, head, relation, k=10):
+        # Track query time
+        with QUERY_TIME.time():
+            # Increment query counter
+            QUERY_COUNT.labels(query_type='tail').inc()
+
+            # Check if cache hit
+            # (Implementation details)
+
+            result = self.service.predict_tail(head, relation, k)
+
+            # Check if it's time to re-evaluate
+            current_time = time.time()
+            if current_time - self.last_evaluation_time > self.evaluation_frequency:
+                self.evaluate_model()
+
+            return result
+
+    def evaluate_model(self):
+        """Evaluate model on benchmark dataset and log results."""
+        try:
+            logger.info("Starting model evaluation")
+
+            # Evaluate model
+            # (Implementation details)
+            metrics = {'MRR': 0.75, 'Hits@10': 0.85}  # Example metrics
+
+            # Update Prometheus gauge
+            MODEL_PERFORMANCE.set(metrics['MRR'])
+
+            # Record metrics with timestamp
+            metrics['timestamp'] = datetime.datetime.now()
+            performance_history.append(metrics)
+
+            # Save history to file
+            pd.DataFrame(performance_history).to_csv('performance_history.csv', index=False)
+
+            # Generate performance plot
+            self._generate_performance_plot()
+
+            # Update last evaluation time
+            self.last_evaluation_time = time.time()
+
+            logger.info(f"Model evaluation complete: MRR={metrics['MRR']}, Hits@10={metrics['Hits@10']}")
+
+            # Check for performance degradation
+            if len(performance_history) >= 2:
+                current_mrr = metrics['MRR']
+                previous_mrr = performance_history[-2]['MRR']
+                if current_mrr < previous_mrr * 0.9:  # 10% degradation
+                    logger.warning(f"Performance degradation detected! MRR dropped from {previous_mrr} to {current_mrr}")
+
+        except Exception as e:
+            logger.error(f"Error during model evaluation: {str(e)}")
+
+    def _generate_performance_plot(self):
+        """Generate performance trend plot."""
+        df = pd.DataFrame(performance_history)
+        plt.figure(figsize=(10, 6))
+        plt.plot(df['timestamp'], df['MRR'], marker='o', label='MRR')
+        plt.plot(df['timestamp'], df['Hits@10'], marker='s', label='Hits@10')
+        plt.xlabel('Time')
+        plt.ylabel('Score')
+        plt.title('Model Performance Over Time')
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        plt.savefig('performance_trend.png')
+        plt.close()
+```
+
+This implementation sets up monitoring using Prometheus metrics, logging, and periodic evaluation to track model performance over time and detect degradation.
+
+:::
+
+### Incremental learning
+
+Continuous learning from new data is important for keeping models up-to-date:
+
+::: {#def-incremental}
+
+## Incremental learning
+
+Incremental learning approaches:
+
+1. **Online learning**: Updating the model with each new observation
+2. **Mini-batch updates**: Accumulating updates and applying in small batches
+3. **Periodic retraining**: Regularly retraining the model on updated data
+4. **Transfer learning**: Initializing new models with previous embeddings
+5. **Continual learning**: Techniques to avoid catastrophic forgetting
+6. **Active learning**: Selectively incorporating new data based on uncertainty
+
+:::
+
+::: {#exm-incremental}
+
+## Incremental learning example
+
+Implementing continuous learning for a production system:
+
+```python
+class ContinuousLearningKGEmbeddingSystem:
+    def __init__(self, model, optimizer, data_store, update_frequency=1000, batch_size=64):
+        self.model = model
+        self.optimizer = optimizer
+        self.data_store = data_store
+        self.update_frequency = update_frequency
+        self.batch_size = batch_size
+
+        # Tracking new data
+        self.new_triples = []
+        self.last_update_time = time.time()
+
+        # Lock for thread safety
+        self.update_lock = threading.Lock()
+
+    def add_new_triple(self, head, relation, tail, confidence=1.0):
+        """Add a new triple to the learning queue."""
+        try:
+            # Convert names to IDs
+            head_id = self.data_store.get_entity_id(head, create_if_missing=True)
+            relation_id = self.data_store.get_relation_id(relation, create_if_missing=True)
+            tail_id = self.data_store.get_entity_id(tail, create_if_missing=True)
+
+            with self.update_lock:
+                self.new_triples.append((head_id, relation_id, tail_id, confidence))
+
+            # Check if it's time to update
+            if len(self.new_triples) >= self.update_frequency:
+                self.update_model()
+
+            return {"status": "success", "message": "Triple added to learning queue"}
+
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+
+    def update_model(self):
+        """Update the model with new triples."""
+        with self.update_lock:
+            if not self.new_triples:
+                return
+
+            logging.info(f"Updating model with {len(self.new_triples)} new triples")
+
+            # Prepare for training
+            self.model.train()
+            new_triples = self.new_triples.copy()
+            self.new_triples = []
+
+        # Perform update in batches
+        for batch_start in range(0, len(new_triples), self.batch_size):
+            batch_end = min(batch_start + self.batch_size, len(new_triples))
+            batch = new_triples[batch_start:batch_end]
+
+            # Prepare batch
+            heads = torch.tensor([t[0] for t in batch], device=self.model.device)
+            relations = torch.tensor([t[1] for t in batch], device=self.model.device)
+            tails = torch.tensor([t[2] for t in batch], device=self.model.device)
+            confidences = torch.tensor([t[3] for t in batch], device=self.model.device)
+
+            # Generate negative samples
+            neg_heads, neg_tails = self._generate_negative_samples(heads, relations, tails)
+
+            # Compute positive and negative scores
+            pos_scores = self.model(heads, relations, tails)
+            neg_scores = self.model(neg_heads, relations, neg_tails)
+
+            # Compute loss with confidence weighting
+            loss = self._compute_loss(pos_scores, neg_scores, confidences)
+
+            # Update model
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+
+            # Normalize embeddings if needed
+            self._normalize_embeddings()
+
+        # Update data store with new embeddings
+        self.data_store.update_embeddings(self.model.entity_embedding.weight.detach().cpu(),
+                                         self.model.relation_embedding.weight.detach().cpu())
+
+        # Set model back to evaluation mode
+        self.model.eval()
+
+        # Record update time
+        self.last_update_time = time.time()
+
+        logging.info("Model update complete")
+
+    def _generate_negative_samples(self, heads, relations, tails):
+        """Generate negative samples for training."""
+        batch_size = heads.size(0)
+
+        # Corrupt either head or tail
+        corrupt_head = torch.rand(batch_size) < 0.5
+
+        # Create negative samples
+        neg_heads = heads.clone()
+        neg_tails = tails.clone()
+
+        # Corrupt heads
+        head_corruptions = torch.randint(0, self.data_store.num_entities, (batch_size,), device=heads.device)
+        neg_heads[corrupt_head] = head_corruptions[corrupt_head]
+
+        # Corrupt tails
+        tail_corruptions = torch.randint(0, self.data_store.num_entities, (batch_size,), device=tails.device)
+        neg_tails[~corrupt_head] = tail_corruptions[~corrupt_head]
+
+        return neg_heads, neg_tails
+
+    def _compute_loss(self, pos_scores, neg_scores, confidences):
+        """Compute margin loss with confidence weighting."""
+        margin = 1.0
+        loss = torch.mean(confidences * torch.relu(margin - pos_scores + neg_scores))
+        return loss
+
+    def _normalize_embeddings(self):
+        """Normalize entity embeddings to unit L2 norm."""
+        with torch.no_grad():
+            self.model.entity_embedding.weight.div_(
+                self.model.entity_embedding.weight.norm(p=2, dim=1, keepdim=True).clamp_min(1e-8)
+            )
+
+    def schedule_periodic_update(self, interval_seconds=3600):
+        """Schedule periodic model updates."""
+        def update_task():
+            while True:
+                time.sleep(interval_seconds)
+                current_time = time.time()
+
+                # Check if we have new data and it's been a while since last update
+                with self.update_lock:
+                    has_new_data = len(self.new_triples) > 0
+                    time_since_update = current_time - self.last_update_time
+
+                if has_new_data and time_since_update >= interval_seconds:
+                    logging.info(f"Performing scheduled update after {time_since_update:.1f} seconds")
+                    self.update_model()
+
+        # Start update thread
+        update_thread = threading.Thread(target=update_task, daemon=True)
+        update_thread.start()
+
+        return update_thread
+```
+
+This implementation enables continuous learning by accumulating new triples and periodically updating the model with batches of new data, maintaining entity and relation embeddings over time.
+
+:::
+
+## Integration with other systems
+
+Knowledge graph embedding systems often need to integrate with other components:
+
+### Integration with recommendation systems
+
+::: {#def-recommendation-integration}
+
+## Recommendation system integration
+
+Integration approaches for recommendation systems:
+
+1. **Entity-based recommendations**: Using entity embeddings for similarity-based recommendations
+2. **Path-based recommendations**: Using multi-hop paths for explainable recommendations
+3. **Hybrid recommendation**: Combining knowledge graph embeddings with collaborative filtering
+4. **Cold-start handling**: Using knowledge graph information for new users or items
+5. **Context-aware recommendations**: Incorporating context through knowledge graph relations
+
+:::
+
+::: {#exm-recommender}
+
+## Recommendation system integration example
+
+Implementing a knowledge graph-enhanced recommender:
+
+```python
+class KGEnhancedRecommender:
+    def __init__(self, kg_model, collaborative_model, kg_weight=0.5):
+        self.kg_model = kg_model
+        self.collaborative_model = collaborative_model
+        self.kg_weight = kg_weight
+
+        # Mapping between recommendation and KG entities
+        self.user_to_entity = {}
+        self.item_to_entity = {}
+        self.entity_to_item = {}
+
+    def map_user_to_entity(self, user_id, entity_id):
+        """Map a recommendation user to a KG entity."""
+        self.user_to_entity[user_id] = entity_id
+
+    def map_item_to_entity(self, item_id, entity_id):
+        """Map a recommendation item to a KG entity."""
+        self.item_to_entity[item_id] = entity_id
+        self.entity_to_item[entity_id] = item_id
+
+    def get_recommendations(self, user_id, n=10, include_kg_explanations=True):
+        """Get recommendations for a user."""
+        try:
+            # Get collaborative filtering recommendations
+            cf_recommendations = self.collaborative_model.recommend(user_id, n=n)
+
+            # If user not in KG, return CF recommendations only
+            if user_id not in self.user_to_entity:
+                return {"recommendations": cf_recommendations, "source": "collaborative_only"}
+
+            # Get KG-based recommendations
+            user_entity_id = self.user_to_entity[user_id]
+
+            # Relation that connects users to items they might like
+            relation_id = self.kg_model.relation_to_id["might_like"]
+
+            # Predict potential items
+            with torch.no_grad():
+                heads = torch.tensor([user_entity_id], device=self.kg_model.device)
+                relations = torch.tensor([relation_id], device=self.kg_model.device)
+
+                # Score all entities as potential tails
+                all_tails = torch.arange(self.kg_model.num_entities, device=self.kg_model.device)
+                scores = self.kg_model(heads.expand_as(all_tails),
+                                     relations.expand_as(all_tails),
+                                     all_tails)
+
+                # Get top entities
+                top_scores, top_indices = torch.topk(scores, k=n*2)  # Get more, as some might not be items
+
+                # Convert to item IDs
+                kg_recommendations = []
+                for entity_id, score in zip(top_indices.cpu().numpy(), top_scores.cpu().numpy()):
+                    entity_id = entity_id.item()
+                    if entity_id in self.entity_to_item:
+                        item_id = self.entity_to_item[entity_id]
+                        kg_recommendations.append({"item_id": item_id, "score": float(score)})
+
+                        # Add explanation paths if requested
+                        if include_kg_explanations:
+                            explanation_paths = self._find_explanation_paths(user_entity_id, entity_id)
+                            kg_recommendations[-1]["explanations"] = explanation_paths
+
+                kg_recommendations = kg_recommendations[:n]
+
+            # Combine recommendations
+            if self.kg_weight == 1.0:
+                return {"recommendations": kg_recommendations, "source": "kg_only"}
+            elif self.kg_weight == 0.0:
+                return {"recommendations": cf_recommendations, "source": "collaborative_only"}
+            else:
+                # Hybrid recommendations with weighted scores
+                return self._combine_recommendations(cf_recommendations, kg_recommendations)
+
+        except Exception as e:
+            logging.error(f"Error generating recommendations: {str(e)}")
+            return {"error": str(e)}
+
+    def _find_explanation_paths(self, user_entity_id, item_entity_id, max_paths=3, max_length=3):
+        """Find explanation paths between user and item in the knowledge graph."""
+        # Implementation using breadth-first search or pre-computed paths
+        # ...
+        return ["example_path_1", "example_path_2"]
+
+    def _combine_recommendations(self, cf_recommendations, kg_recommendations):
+        """Combine collaborative filtering and KG recommendations."""
+        # Create a unified scoring
+        item_scores = {}
+
+        # Add CF scores
+        for rec in cf_recommendations:
+            item_scores[rec["item_id"]] = {"cf_score": rec["score"], "kg_score": 0.0}
+
+        # Add KG scores
+        for rec in kg_recommendations:
+            if rec["item_id"] in item_scores:
+                item_scores[rec["item_id"]]["kg_score"] = rec["score"]
+            else:
+                item_scores[rec["item_id"]] = {"cf_score": 0.0, "kg_score": rec["score"]}
+
+        # Compute combined scores
+        combined_recommendations = []
+        for item_id, scores in item_scores.items():
+            combined_score = (1 - self.kg_weight) * scores["cf_score"] + self.kg_weight * scores["kg_score"]
+            recommendation = {"item_id": item_id, "score": combined_score,
+                             "cf_score": scores["cf_score"], "kg_score": scores["kg_score"]}
+
+            # Add explanations if available
+            for rec in kg_recommendations:
+                if rec["item_id"] == item_id and "explanations" in rec:
+                    recommendation["explanations"] = rec["explanations"]
+                    break
+
+            combined_recommendations.append(recommendation)
+
+        # Sort by combined score
+        combined_recommendations.sort(key=lambda x: x["score"], reverse=True)
+
+        return {"recommendations": combined_recommendations[:10], "source": "hybrid"}
+```
+
+This implementation integrates a knowledge graph embedding model with a collaborative filtering recommender system, providing hybrid recommendations with explanations derived from knowledge graph paths.
+
+:::
+
+### Integration with search systems
+
+::: {#def-search-integration}
+
+## Search system integration
+
+Integration approaches for search systems:
+
+1. **Entity expansion**: Expanding queries with related entities
+2. **Semantic search**: Using embeddings for semantic matching
+3. **Query understanding**: Mapping queries to knowledge graph entities and relations
+4. **Ranking enhancement**: Using knowledge graph features for result ranking
+5. **Question answering**: Supporting complex queries through knowledge graph traversal
+
+:::
+
+::: {#exm-search}
+
+## Search integration example
+
+Implementing entity-based search enhancement:
+
+```python
+class KGEnhancedSearch:
+    def __init__(self, kg_model, search_engine, entity_recognizer):
+        self.kg_model = kg_model
+        self.search_engine = search_engine
+        self.entity_recognizer = entity_recognizer
+
+    def search(self, query, max_results=10, enhance_with_kg=True):
+        """Perform enhanced search using knowledge graph."""
+        # Extract entities from query
+        entities = self.entity_recognizer.extract_entities(query)
+
+        if not enhance_with_kg or not entities:
+            # Fallback to regular search if no entities or enhancement disabled
+            return self.search_engine.search(query, max_results)
+
+        # Get KG entity IDs for recognized entities
+        kg_entities = []
+        for entity in entities:
+            entity_id = self.kg_model.entity_to_id.get(entity)
+            if entity_id is not None:
+                kg_entities.append((entity, entity_id))
+
+        if not kg_entities:
+            # No recognized entities in KG, fallback to regular search
+            return self.search_engine.search(query, max_results)
+
+        # Find related entities in KG
+        related_entities = self._find_related_entities(kg_entities)
+
+        # Expand query with related entities
+        expanded_query = self._expand_query(query, related_entities)
+
+        # Perform search with expanded query
+        search_results = self.search_engine.search(expanded_query, max_results)
+
+        # Re-rank results using KG information
+        reranked_results = self._rerank_results(search_results, kg_entities, related_entities)
+
+        return {
+            "original_query": query,
+            "expanded_query": expanded_query,
+            "results": reranked_results,
+            "kg_entities": [e[0] for e in kg_entities],
+            "related_entities": [e["entity"] for e in related_entities]
+        }
+
+    def _find_related_entities(self, kg_entities, max_per_entity=5):
+        """Find related entities in the knowledge graph."""
+        related_entities = []
+
+        for entity_name, entity_id in kg_entities:
+            # Get entity embedding
+            with torch.no_grad():
+                entity_emb = self.kg_model.entity_embedding(
+                    torch.tensor([entity_id], device=self.kg_model.device)
+                )[0]
+
+            # Compute similarity with all other entities
+            all_emb = self.kg_model.entity_embedding.weight
+            similarities = torch.nn.functional.cosine_similarity(
+                entity_emb.unsqueeze(0), all_emb
+            )
+
+            # Get top similar entities
+            top_k = min(max_per_entity, len(similarities) - 1)
+            top_scores, top_indices = torch.topk(similarities, k=top_k + 1)
+
+            # Skip the entity itself (should be the most similar)
+            for i in range(1, len(top_indices)):
+                idx = top_indices[i].item()
+                score = top_scores[i].item()
+
+                # Convert ID to entity name
+                related_name = self.kg_model.id_to_entity[idx]
+
+                # Add to list of related entities
+                related_entities.append({
+                    "entity": related_name,
+                    "score": score,
+                    "source_entity": entity_name
+                })
+
+        return related_entities
+
+    def _expand_query(self, original_query, related_entities, max_expansions=3):
+        """Expand search query with related entities."""
+        # Select top related entities for expansion
+        expansion_entities = sorted(related_entities, key=lambda x: x["score"], reverse=True)[:max_expansions]
+
+        # Create expanded query
+        expanded_query = original_query + " " + " ".join([e["entity"] for e in expansion_entities])
+
+        return expanded_query
+
+    def _rerank_results(self, search_results, query_entities, related_entities):
+        """Re-rank search results using KG information."""
+        # Extract entities from search results
+        for result in search_results:
+            result_entities = self.entity_recognizer.extract_entities(result["title"] + " " + result["snippet"])
+            result["entities"] = result_entities
+
+            # Calculate KG relevance score
+            kg_score = self._calculate_kg_relevance(result_entities, query_entities, related_entities)
+
+            # Combine with original score
+            original_score = result["score"]
+            result["combined_score"] = 0.7 * original_score + 0.3 * kg_score
+
+        # Re-rank based on combined score
+        reranked_results = sorted(search_results, key=lambda x: x["combined_score"], reverse=True)
+
+        return reranked_results
+
+    def _calculate_kg_relevance(self, result_entities, query_entities, related_entities):
+        """Calculate relevance score based on KG relationships."""
+        # Implementation details
+        # ...
+        return 0.5  # Example score
+```
+
+This example demonstrates how knowledge graph embeddings can enhance search by expanding queries with related entities and re-ranking results based on knowledge graph relationships.
+
+:::
+
+### Integration with natural language processing
+
+::: {#def-nlp-integration}
+
+## NLP integration
+
+Integration approaches with NLP systems:
+
+1. **Entity linking**: Connecting text mentions to knowledge graph entities
+2. **Relation extraction**: Identifying relationships between entities in text
+3. **Knowledge-enhanced language models**: Incorporating knowledge graph information into language models
+4. **Question answering**: Answering natural language questions using knowledge graphs
+5. **Text generation**: Generating text grounded in knowledge graph facts
+
+:::
+
+::: {#exm-nlp}
+
+## NLP integration example
+
+Implementing knowledge graph-enhanced question answering:
+
+```python
+class KGQuestionAnsweringSystem:
+    def __init__(self, kg_model, nlp_model, entity_linker, relation_extractor):
+        self.kg_model = kg_model
+        self.nlp_model = nlp_model
+        self.entity_linker = entity_linker
+        self.relation_extractor = relation_extractor
+
+    def answer_question(self, question):
+        """Answer a natural language question using KG."""
+        # Parse question to identify query type
+        question_type = self._classify_question_type(question)
+
+        # Extract entities and relations from question
+        entities = self.entity_linker.extract_entities(question)
+        relations = self.relation_extractor.extract_relations(question)
+
+        if not entities:
+            return {
+                "answer": None,
+                "confidence": 0.0,
+                "error": "No entities found in question"
+            }
+
+        # Map to KG entities and relations
+        kg_entities = [(e, self.kg_model.entity_to_id.get(e)) for e in entities]
+        kg_entities = [(e, eid) for e, eid in kg_entities if eid is not None]
+
+        kg_relations = [(r, self.kg_model.relation_to_id.get(r)) for r in relations]
+        kg_relations = [(r, rid) for r, rid in kg_relations if rid is not None]
+
+        if not kg_entities:
+            return {
+                "answer": None,
+                "confidence": 0.0,
+                "error": "No recognized entities in knowledge graph"
+            }
+
+        # Generate answer based on question type
+        if question_type == "factoid":
+            return self._answer_factoid_question(question, kg_entities, kg_relations)
+        elif question_type == "list":
+            return self._answer_list_question(question, kg_entities, kg_relations)
+        elif question_type == "complex":
+            return self._answer_complex_question(question, kg_entities, kg_relations)
+        else:
+            # Fall back to general NLP model
+            return {
+                "answer": self.nlp_model.generate_answer(question),
+                "confidence": 0.3,
+                "source": "language_model"
+            }
+
+    def _classify_question_type(self, question):
+        """Classify the question as factoid, list, or complex."""
+        # Implementation using NLP techniques
+        # ...
+        return "factoid"
+
+    def _answer_factoid_question(self, question, kg_entities, kg_relations):
+        """Answer a factoid question using KG."""
+        # Simple case: one entity, one potential relation
+        if len(kg_entities) == 1 and len(kg_relations) >= 1:
+            entity_name, entity_id = kg_entities[0]
+
+            # Try each potential relation
+            for relation_name, relation_id in kg_relations:
+                # Query KG for (entity, relation, ?)
+                with torch.no_grad():
+                    heads = torch.tensor([entity_id], device=self.kg_model.device)
+                    relations = torch.tensor([relation_id], device=self.kg_model.device)
+
+                    # Score all entities as potential tails
+                    all_tails = torch.arange(self.kg_model.num_entities, device=self.kg_model.device)
+                    scores = self.kg_model(heads.expand_as(all_tails),
+                                         relations.expand_as(all_tails),
+                                         all_tails)
+
+                    # Get top answers
+                    top_scores, top_indices = torch.topk(scores, k=5)
+
+                    # Convert to entity names
+                    answers = []
+                    for idx, score in zip(top_indices.cpu().numpy(), top_scores.cpu().numpy()):
+                        idx = idx.item()
+                        answer_name = self.kg_model.id_to_entity[idx]
+                        answers.append({"entity": answer_name, "score": float(score)})
+
+                    if answers and answers[0]["score"] > 0.5:
+                        return {
+                            "answer": answers[0]["entity"],
+                            "confidence": answers[0]["score"],
+                            "alternative_answers": answers[1:],
+                            "source": "knowledge_graph"
+                        }
+
+        # If no good answer found, try more complex reasoning or fall back to NLP
+        return {
+            "answer": self.nlp_model.generate_answer(question),
+            "confidence": 0.3,
+            "source": "language_model"
+        }
+
+    def _answer_list_question(self, question, kg_entities, kg_relations):
+        """Answer a list question using KG."""
+        # Implementation details for list questions
+        # ...
+        return {"answer": "list answer"}
+
+    def _answer_complex_question(self, question, kg_entities, kg_relations):
+        """Answer a complex question using multi-hop reasoning on KG."""
+        # Implementation details for complex questions
+        # ...
+        return {"answer": "complex answer"}
+```
+
+This example demonstrates integrating knowledge graph embeddings with NLP components for question answering, handling different question types and combining knowledge graph inference with language model capabilities.
+
+:::
+
+## Summary
+
+In this chapter, we've explored the practical aspects of implementing knowledge graph embedding systems, covering the entire pipeline from data preparation to deployment and integration. We've discussed:
+
+1. **Data preparation and preprocessing**: Handling various knowledge graph formats, cleaning data, and preparing for embedding
+2. **Software frameworks and tools**: Using existing libraries and developing custom implementations for knowledge graph embeddings
+3. **Training and optimization**: Leveraging hardware acceleration, distributed training, and memory optimization techniques
+4. **Scaling to large knowledge graphs**: Applying partitioning, compression, and out-of-core techniques for large-scale knowledge graphs
+5. **Evaluation and validation**: Implementing proper evaluation metrics and ensuring reproducible results
+6. **Deployment architectures**: Designing systems for serving knowledge graph embeddings
+7. **Integration with other systems**: Combining knowledge graph embeddings with recommendation, search, and NLP systems
+
+Implementing effective knowledge graph embedding systems requires balancing theoretical understanding with practical engineering considerations. The approaches discussed in this chapter provide a foundation for building real-world systems that can leverage the power of knowledge graph embeddings for various applications.
+
+By applying the techniques covered in this chapter, you can develop knowledge graph embedding systems that scale to millions of entities and billions of relations, deliver predictions with low latency, and integrate seamlessly with other components of your AI infrastructure.
+
+## Further reading
+
+### Software frameworks and implementation
+
+- Ali, M., Berrendorf, M., Hoyt, C. T., Vermue, L., Sharifzadeh, S., Tresp, V., & Lehmann, J. (2021). PyKEEN 1.0: A Python Library for Training and Evaluating Knowledge Graph Embeddings. Journal of Machine Learning Research, 22(82), 1-6.
+- Han, X., Cao, S., Lv, X., Lin, Y., Liu, Z., Sun, M., & Li, J. (2018). OpenKE: An Open Toolkit for Knowledge Embedding. In Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing: System Demonstrations (pp. 139-144).
+- Zheng, D., Song, X., Ma, C., Tan, Z., Ye, Z., Dong, J., Xiong, H., Zhang, Z., & Karypis, G. (2020). DGL-KE: Training Knowledge Graph Embeddings at Scale. In Proceedings of the 43rd International ACM SIGIR Conference on Research and Development in Information Retrieval (pp. 739-748).
+
+### Scaling and optimization
+
+- Lerer, A., Wu, L., Shen, J., Lacroix, T., Wehrstedt, L., Bose, A., & Peysakhovich, A. (2019). PyTorch-BigGraph: A Large-scale Graph Embedding System. In Proceedings of the 2nd Conference on Systems and Machine Learning (SysML).
+- Zhu, Z., Wang, X., Bai, J., Zhang, Z., Wang, W., & Wang, J. (2020). GraphVite: A High-Performance CPU-GPU Hybrid System for Node Embedding. In The World Wide Web Conference (pp. 2494-2504).
+- Kochsiek, A., & Gemulla, R. (2022). Parallel Training of Knowledge Graph Embedding Models: A Comparison of Techniques. Proceedings of the VLDB Endowment, 15(8), 1628-1641.
+
+### Deployment and integration
+
+- Pan, Z., Wang, P., Liu, W., Zhu, Y., & Yang, X. (2021). BlazeKG: A System for Real-time Knowledge Graph Embedding. In Proceedings of the 47th International Conference on Very Large Data Bases (VLDB).
+- Dietz, L., Xiong, C., Dalton, J., & Meij, E. (2020). Special Issue on Knowledge Graphs and Semantics in Text Analysis and Retrieval. Information Retrieval Journal, 23, 103-106.
+- Tay, Y., Dehghani, M., Bahri, D., & Metzler, D. (2022). Efficient Methods for Natural Language Processing: A Survey. IEEE Transactions on Neural Networks and Learning Systems.

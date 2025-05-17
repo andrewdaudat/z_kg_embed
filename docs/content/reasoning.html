@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.43">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>11&nbsp; Reasoning with Knowledge Graph Embeddings – Knowledge Graph Embeddings for Link Prediction and Reasoning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../content/applications.html" rel="next">
+<link href="../content/additional-knowledge.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-d4d76bf8491c20bad77d141916dc28e1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-bdec3157979715d7154bb60f5aa24e58.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../content/reasoning.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Reasoning with Knowledge Graph Embeddings</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Knowledge Graph Embeddings for Link Prediction and Reasoning</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/summary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Summary</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/outline.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Outline</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Introduction to Knowledge Graphs and Representations</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/embedding.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Fundamentals of Vector Space Representations</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/translation-based.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Translation-Based Embedding Models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/semantic-matching.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Semantic Matching Models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/rotation-nn.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Advanced Models: Rotations and Neural Networks</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/training.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Training and Optimization Techniques</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/evaluation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Evaluation Methodologies and Benchmarks</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/additional-knowledge.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Incorporating Additional Information</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/reasoning.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Reasoning with Knowledge Graph Embeddings</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/applications.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Practical Applications and Case Studies</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/implementation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Implementing Knowledge Graph Embedding Systems</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/frontier.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Advanced Topics and Research Frontiers</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/appendix-a.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Appendix A: Mathematical Foundations</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../content/appendix-b.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Appendix B: Resources and Tools</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="-1">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction-to-reasoning-with-knowledge-graph-embeddings" id="toc-introduction-to-reasoning-with-knowledge-graph-embeddings" class="nav-link active" data-scroll-target="#introduction-to-reasoning-with-knowledge-graph-embeddings"><span class="header-section-number">11.1</span> Introduction to Reasoning with Knowledge Graph Embeddings</a></li>
+  <li><a href="#symbolic-vs.-embedding-based-reasoning" id="toc-symbolic-vs.-embedding-based-reasoning" class="nav-link" data-scroll-target="#symbolic-vs.-embedding-based-reasoning"><span class="header-section-number">11.2</span> Symbolic vs.&nbsp;Embedding-Based Reasoning</a></li>
+  <li><a href="#relation-path-modeling-and-composition" id="toc-relation-path-modeling-and-composition" class="nav-link" data-scroll-target="#relation-path-modeling-and-composition"><span class="header-section-number">11.3</span> Relation Path Modeling and Composition</a>
+  <ul class="collapse">
+  <li><a href="#path-patterns-in-knowledge-graphs" id="toc-path-patterns-in-knowledge-graphs" class="nav-link" data-scroll-target="#path-patterns-in-knowledge-graphs"><span class="header-section-number">11.3.1</span> Path Patterns in Knowledge Graphs</a></li>
+  <li><a href="#compositional-translation-models" id="toc-compositional-translation-models" class="nav-link" data-scroll-target="#compositional-translation-models"><span class="header-section-number">11.3.2</span> Compositional Translation Models</a></li>
+  <li><a href="#ptranse-and-path-based-embeddings" id="toc-ptranse-and-path-based-embeddings" class="nav-link" data-scroll-target="#ptranse-and-path-based-embeddings"><span class="header-section-number">11.3.3</span> PTransE and Path-Based Embeddings</a></li>
+  <li><a href="#matrix-factorization-for-composition" id="toc-matrix-factorization-for-composition" class="nav-link" data-scroll-target="#matrix-factorization-for-composition"><span class="header-section-number">11.3.4</span> Matrix Factorization for Composition</a></li>
+  </ul></li>
+  <li><a href="#rule-mining-from-knowledge-graph-embeddings" id="toc-rule-mining-from-knowledge-graph-embeddings" class="nav-link" data-scroll-target="#rule-mining-from-knowledge-graph-embeddings"><span class="header-section-number">11.4</span> Rule Mining from Knowledge Graph Embeddings</a>
+  <ul class="collapse">
+  <li><a href="#embedding-based-rule-mining" id="toc-embedding-based-rule-mining" class="nav-link" data-scroll-target="#embedding-based-rule-mining"><span class="header-section-number">11.4.1</span> Embedding-Based Rule Mining</a></li>
+  <li><a href="#amie-and-neural-rule-mining" id="toc-amie-and-neural-rule-mining" class="nav-link" data-scroll-target="#amie-and-neural-rule-mining"><span class="header-section-number">11.4.2</span> AMIE and Neural Rule Mining</a></li>
+  <li><a href="#rule-confidence-and-embedding-similarity" id="toc-rule-confidence-and-embedding-similarity" class="nav-link" data-scroll-target="#rule-confidence-and-embedding-similarity"><span class="header-section-number">11.4.3</span> Rule Confidence and Embedding Similarity</a></li>
+  </ul></li>
+  <li><a href="#multi-hop-reasoning" id="toc-multi-hop-reasoning" class="nav-link" data-scroll-target="#multi-hop-reasoning"><span class="header-section-number">11.5</span> Multi-Hop Reasoning</a>
+  <ul class="collapse">
+  <li><a href="#path-based-inference" id="toc-path-based-inference" class="nav-link" data-scroll-target="#path-based-inference"><span class="header-section-number">11.5.1</span> Path-Based Inference</a></li>
+  <li><a href="#neural-multi-hop-reasoning" id="toc-neural-multi-hop-reasoning" class="nav-link" data-scroll-target="#neural-multi-hop-reasoning"><span class="header-section-number">11.5.2</span> Neural Multi-Hop Reasoning</a></li>
+  <li><a href="#deeppath-and-minerva" id="toc-deeppath-and-minerva" class="nav-link" data-scroll-target="#deeppath-and-minerva"><span class="header-section-number">11.5.3</span> DeepPath and MINERVA</a></li>
+  </ul></li>
+  <li><a href="#complex-query-answering" id="toc-complex-query-answering" class="nav-link" data-scroll-target="#complex-query-answering"><span class="header-section-number">11.6</span> Complex Query Answering</a>
+  <ul class="collapse">
+  <li><a href="#logical-operators-in-embedding-space" id="toc-logical-operators-in-embedding-space" class="nav-link" data-scroll-target="#logical-operators-in-embedding-space"><span class="header-section-number">11.6.1</span> Logical Operators in Embedding Space</a></li>
+  <li><a href="#query2box-and-query-embeddings" id="toc-query2box-and-query-embeddings" class="nav-link" data-scroll-target="#query2box-and-query-embeddings"><span class="header-section-number">11.6.2</span> Query2Box and Query Embeddings</a></li>
+  <li><a href="#gqe-and-complex-query-embeddings" id="toc-gqe-and-complex-query-embeddings" class="nav-link" data-scroll-target="#gqe-and-complex-query-embeddings"><span class="header-section-number">11.6.3</span> GQE and Complex Query Embeddings</a></li>
+  <li><a href="#neural-query-execution" id="toc-neural-query-execution" class="nav-link" data-scroll-target="#neural-query-execution"><span class="header-section-number">11.6.4</span> Neural Query Execution</a></li>
+  </ul></li>
+  <li><a href="#probabilistic-reasoning" id="toc-probabilistic-reasoning" class="nav-link" data-scroll-target="#probabilistic-reasoning"><span class="header-section-number">11.7</span> Probabilistic Reasoning</a>
+  <ul class="collapse">
+  <li><a href="#uncertainty-representation" id="toc-uncertainty-representation" class="nav-link" data-scroll-target="#uncertainty-representation"><span class="header-section-number">11.7.1</span> Uncertainty Representation</a></li>
+  <li><a href="#bayesian-knowledge-graph-embeddings" id="toc-bayesian-knowledge-graph-embeddings" class="nav-link" data-scroll-target="#bayesian-knowledge-graph-embeddings"><span class="header-section-number">11.7.2</span> Bayesian Knowledge Graph Embeddings</a></li>
+  <li><a href="#reasoning-with-probabilistic-logic" id="toc-reasoning-with-probabilistic-logic" class="nav-link" data-scroll-target="#reasoning-with-probabilistic-logic"><span class="header-section-number">11.7.3</span> Reasoning with Probabilistic Logic</a></li>
+  </ul></li>
+  <li><a href="#explainable-reasoning" id="toc-explainable-reasoning" class="nav-link" data-scroll-target="#explainable-reasoning"><span class="header-section-number">11.8</span> Explainable Reasoning</a>
+  <ul class="collapse">
+  <li><a href="#path-based-explanations" id="toc-path-based-explanations" class="nav-link" data-scroll-target="#path-based-explanations"><span class="header-section-number">11.8.1</span> Path-Based Explanations</a></li>
+  <li><a href="#rule-based-explanations" id="toc-rule-based-explanations" class="nav-link" data-scroll-target="#rule-based-explanations"><span class="header-section-number">11.8.2</span> Rule-Based Explanations</a></li>
+  <li><a href="#attention-based-explanations" id="toc-attention-based-explanations" class="nav-link" data-scroll-target="#attention-based-explanations"><span class="header-section-number">11.8.3</span> Attention-Based Explanations</a></li>
+  </ul></li>
+  <li><a href="#case-studies-and-applications" id="toc-case-studies-and-applications" class="nav-link" data-scroll-target="#case-studies-and-applications"><span class="header-section-number">11.9</span> Case Studies and Applications</a>
+  <ul class="collapse">
+  <li><a href="#biomedical-reasoning" id="toc-biomedical-reasoning" class="nav-link" data-scroll-target="#biomedical-reasoning"><span class="header-section-number">11.9.1</span> Biomedical Reasoning</a></li>
+  <li><a href="#question-answering-systems" id="toc-question-answering-systems" class="nav-link" data-scroll-target="#question-answering-systems"><span class="header-section-number">11.9.2</span> Question Answering Systems</a></li>
+  <li><a href="#recommendation-systems" id="toc-recommendation-systems" class="nav-link" data-scroll-target="#recommendation-systems"><span class="header-section-number">11.9.3</span> Recommendation Systems</a></li>
+  </ul></li>
+  <li><a href="#practical-considerations" id="toc-practical-considerations" class="nav-link" data-scroll-target="#practical-considerations"><span class="header-section-number">11.10</span> Practical Considerations</a>
+  <ul class="collapse">
+  <li><a href="#computational-efficiency" id="toc-computational-efficiency" class="nav-link" data-scroll-target="#computational-efficiency"><span class="header-section-number">11.10.1</span> Computational Efficiency</a></li>
+  <li><a href="#handling-inconsistency" id="toc-handling-inconsistency" class="nav-link" data-scroll-target="#handling-inconsistency"><span class="header-section-number">11.10.2</span> Handling Inconsistency</a></li>
+  <li><a href="#integrating-with-symbolic-reasoners" id="toc-integrating-with-symbolic-reasoners" class="nav-link" data-scroll-target="#integrating-with-symbolic-reasoners"><span class="header-section-number">11.10.3</span> Integrating with Symbolic Reasoners</a></li>
+  </ul></li>
+  <li><a href="#evaluation-of-reasoning-capabilities" id="toc-evaluation-of-reasoning-capabilities" class="nav-link" data-scroll-target="#evaluation-of-reasoning-capabilities"><span class="header-section-number">11.11</span> Evaluation of Reasoning Capabilities</a>
+  <ul class="collapse">
+  <li><a href="#reasoning-benchmarks" id="toc-reasoning-benchmarks" class="nav-link" data-scroll-target="#reasoning-benchmarks"><span class="header-section-number">11.11.1</span> Reasoning Benchmarks</a></li>
+  <li><a href="#metrics-for-reasoning-quality" id="toc-metrics-for-reasoning-quality" class="nav-link" data-scroll-target="#metrics-for-reasoning-quality"><span class="header-section-number">11.11.2</span> Metrics for Reasoning Quality</a></li>
+  <li><a href="#human-evaluation" id="toc-human-evaluation" class="nav-link" data-scroll-target="#human-evaluation"><span class="header-section-number">11.11.3</span> Human Evaluation</a></li>
+  </ul></li>
+  <li><a href="#future-directions" id="toc-future-directions" class="nav-link" data-scroll-target="#future-directions"><span class="header-section-number">11.12</span> Future Directions</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">11.13</span> Conclusion</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading"><span class="header-section-number">11.14</span> Further Reading</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-body" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Reasoning with Knowledge Graph Embeddings</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta column-body">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction-to-reasoning-with-knowledge-graph-embeddings" class="level2" data-number="11.1">
+<h2 data-number="11.1" class="anchored" data-anchor-id="introduction-to-reasoning-with-knowledge-graph-embeddings"><span class="header-section-number">11.1</span> Introduction to Reasoning with Knowledge Graph Embeddings</h2>
+<p>Knowledge graph embeddings (KGEs) have proven effective for link prediction and knowledge graph completion, but their potential extends far beyond these basic tasks. One of the most promising applications of KGEs is enabling various forms of reasoning over knowledge graphs. While traditional symbolic reasoning approaches rely on explicit rules and logic, embedding-based reasoning leverages the geometric properties of the embedding space to perform inferences that may be difficult or impossible with purely symbolic methods.</p>
+<p>In this chapter, we explore how knowledge graph embeddings can support different forms of reasoning, from simple relation path modeling to complex logical queries. We examine the theoretical foundations of embedding-based reasoning, discuss practical implementations, and highlight the strengths and limitations compared to traditional approaches. The goal is to provide a comprehensive understanding of how KGEs can serve as a foundation for sophisticated reasoning capabilities over knowledge graphs.</p>
+<p>Let’s begin by examining the relationship between traditional symbolic reasoning and embedding-based reasoning in the context of knowledge graphs.</p>
+</section>
+<section id="symbolic-vs.-embedding-based-reasoning" class="level2" data-number="11.2">
+<h2 data-number="11.2" class="anchored" data-anchor-id="symbolic-vs.-embedding-based-reasoning"><span class="header-section-number">11.2</span> Symbolic vs.&nbsp;Embedding-Based Reasoning</h2>
+<p>Reasoning over knowledge graphs has traditionally been approached through symbolic methods, but embedding-based approaches offer alternative capabilities with distinct advantages and limitations.</p>
+<div id="def-reasoning-approaches" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.1 (Symbolic vs.&nbsp;Embedding-Based Reasoning)</strong></span> <strong>Symbolic Reasoning</strong>:</p>
+<ol type="1">
+<li>Relies on explicit logical rules and axioms</li>
+<li>Performs reasoning through formal logical operations</li>
+<li>Provides explicit reasoning paths and explanations</li>
+<li>Struggles with uncertainty and incomplete information</li>
+</ol>
+<p><strong>Embedding-Based Reasoning</strong>:</p>
+<ol type="1">
+<li>Represents entities and relations as vectors in a continuous space</li>
+<li>Performs reasoning through geometric operations in the embedding space</li>
+<li>Handles uncertainty and incomplete information naturally</li>
+<li>May sacrifice explicitness and interpretability</li>
+</ol>
+</div>
+<p>Rather than viewing these approaches as competing alternatives, they can be seen as complementary, with potential for hybrid methods that leverage the strengths of both.</p>
+<div id="exm-reasoning-approaches" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.1 (Example of Reasoning Approaches)</strong></span> Consider the reasoning pattern: “If A is the capital of B, and B is in continent C, then A is in continent C.”</p>
+<p><strong>Symbolic approach</strong>: Define a logical rule:</p>
+<pre><code>∀ A, B, C: capitalOf(A, B) ∧ inContinent(B, C) → inContinent(A, C)</code></pre>
+<p><strong>Embedding approach</strong>: Learn embeddings where:</p>
+<pre><code>e_A + r_inContinent ≈ e_C when A is the capital of B and B is in continent C</code></pre>
+<p>The symbolic approach provides an explicit, interpretable rule, while the embedding approach captures the pattern implicitly in the geometric structure of the embedding space.</p>
+</div>
+</section>
+<section id="relation-path-modeling-and-composition" class="level2" data-number="11.3">
+<h2 data-number="11.3" class="anchored" data-anchor-id="relation-path-modeling-and-composition"><span class="header-section-number">11.3</span> Relation Path Modeling and Composition</h2>
+<p>One of the fundamental reasoning capabilities enabled by knowledge graph embeddings is modeling paths of relations and their compositions.</p>
+<section id="path-patterns-in-knowledge-graphs" class="level3" data-number="11.3.1">
+<h3 data-number="11.3.1" class="anchored" data-anchor-id="path-patterns-in-knowledge-graphs"><span class="header-section-number">11.3.1</span> Path Patterns in Knowledge Graphs</h3>
+<p>Relation paths represent sequences of relations that connect entities across multiple hops in the knowledge graph.</p>
+<div id="def-relation-paths" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.2 (Relation Paths)</strong></span> A relation path is a sequence of relations <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mn>1</mn></msub><mo>,</mo><msub><mi>r</mi><mn>2</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msub><mi>r</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">r_1, r_2, ..., r_n</annotation></semantics></math> such that:</p>
+<ol type="1">
+<li>There exist entities <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>e</mi><mn>0</mn></msub><mo>,</mo><msub><mi>e</mi><mn>1</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msub><mi>e</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">e_0, e_1, ..., e_n</annotation></semantics></math> where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>e</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>,</mo><msub><mi>r</mi><mi>i</mi></msub><mo>,</mo><msub><mi>e</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(e_{i-1}, r_i, e_i)</annotation></semantics></math> is a valid triple for all <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">[</mo><mn>1</mn><mo>,</mo><mi>n</mi><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">i \in [1, n]</annotation></semantics></math></li>
+<li>The path connects entity <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>e</mi><mn>0</mn></msub><annotation encoding="application/x-tex">e_0</annotation></semantics></math> to entity <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>e</mi><mi>n</mi></msub><annotation encoding="application/x-tex">e_n</annotation></semantics></math> via intermediate entities</li>
+<li>The composition of these relations may imply a direct relationship between <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>e</mi><mn>0</mn></msub><annotation encoding="application/x-tex">e_0</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>e</mi><mi>n</mi></msub><annotation encoding="application/x-tex">e_n</annotation></semantics></math></li>
+</ol>
+</div>
+<p>Relation paths are a key element in multi-hop reasoning and can reveal implicit relationships not explicitly stated in the knowledge graph.</p>
+<div id="exm-relation-path" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.2 (Example of Relation Path)</strong></span> Consider the following triples in a knowledge graph:</p>
+<ul>
+<li>(Barack Obama, bornIn, Honolulu)</li>
+<li>(Honolulu, cityIn, Hawaii)</li>
+<li>(Hawaii, stateIn, USA)</li>
+</ul>
+<p>These form a relation path: bornIn → cityIn → stateIn</p>
+<p>This path connects “Barack Obama” to “USA” and implies the relationship (Barack Obama, citizenOf, USA), even if this triple is not explicitly present in the knowledge graph.</p>
+</div>
+</section>
+<section id="compositional-translation-models" class="level3" data-number="11.3.2">
+<h3 data-number="11.3.2" class="anchored" data-anchor-id="compositional-translation-models"><span class="header-section-number">11.3.2</span> Compositional Translation Models</h3>
+<p>Several knowledge graph embedding models have been designed to capture relation composition through translations in the embedding space.</p>
+<div id="def-compositional-translation" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.3 (Compositional Translation for Relation Paths)</strong></span> In compositional translation models:</p>
+<ol type="1">
+<li>Each relation <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math> is represented as a translation vector <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐫</mi><annotation encoding="application/x-tex">\mathbf{r}</annotation></semantics></math> in the embedding space</li>
+<li>The composition of relations <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mn>1</mn></msub><mo>,</mo><msub><mi>r</mi><mn>2</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msub><mi>r</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">r_1, r_2, ..., r_n</annotation></semantics></math> is modeled as the sum of their translation vectors: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐫</mi><mn>1</mn></msub><mo>+</mo><msub><mi>𝐫</mi><mn>2</mn></msub><mo>+</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>+</mo><msub><mi>𝐫</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">\mathbf{r}_1 + \mathbf{r}_2 + ... + \mathbf{r}_n</annotation></semantics></math></li>
+<li>For a valid path, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐞</mi><mn>0</mn></msub><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐫</mi><mn>1</mn></msub><mo>+</mo><msub><mi>𝐫</mi><mn>2</mn></msub><mo>+</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>+</mo><msub><mi>𝐫</mi><mi>n</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>≈</mo><msub><mi>𝐞</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">\mathbf{e}_0 + (\mathbf{r}_1 + \mathbf{r}_2 + ... + \mathbf{r}_n) \approx \mathbf{e}_n</annotation></semantics></math></li>
+<li>The model learns embeddings such that compositional translations capture valid reasoning patterns</li>
+</ol>
+</div>
+<p>This approach is particularly natural for translation-based models like TransE, where relations are explicitly modeled as translations.</p>
+<div id="exm-compositional-translation" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.3 (Example of Compositional Translation)</strong></span> In a TransE-like model, for the path in the previous example:</p>
+<pre><code>e_Obama + r_bornIn + r_cityIn + r_stateIn ≈ e_USA</code></pre>
+<p>The composition of the three relations approximates the direct relationship between Barack Obama and the USA.</p>
+</div>
+</section>
+<section id="ptranse-and-path-based-embeddings" class="level3" data-number="11.3.3">
+<h3 data-number="11.3.3" class="anchored" data-anchor-id="ptranse-and-path-based-embeddings"><span class="header-section-number">11.3.3</span> PTransE and Path-Based Embeddings</h3>
+<p>PTransE (Path-based TransE) and similar models explicitly incorporate relation paths into the embedding learning process.</p>
+<div id="def-ptranse" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.4 (Path-based TransE (PTransE))</strong></span> PTransE extends TransE by:</p>
+<ol type="1">
+<li>Identifying reliable relation paths between entity pairs</li>
+<li>Computing a reliability score for each path based on path constraints</li>
+<li>Incorporating path information during training through additional objectives</li>
+<li>Learning embeddings that explicitly capture compositional patterns</li>
+</ol>
+</div>
+<p>By explicitly modeling paths, these approaches can learn more expressive embeddings that better capture the complex reasoning patterns in knowledge graphs.</p>
+<div id="thm-path-composition-property" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 11.1 (Compositional Property of Well-Formed Embeddings)</strong></span> If knowledge graph embeddings properly capture compositional reasoning, then for a valid path <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mn>1</mn></msub><mo>,</mo><msub><mi>r</mi><mn>2</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msub><mi>r</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">r_1, r_2, ..., r_n</annotation></semantics></math> connecting entities <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>e</mi><mn>0</mn></msub><annotation encoding="application/x-tex">e_0</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>e</mi><mi>n</mi></msub><annotation encoding="application/x-tex">e_n</annotation></semantics></math>:</p>
+<p>The similarity between <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>e</mi><mn>0</mn></msub><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>r</mi><mn>1</mn></msub><mo>+</mo><msub><mi>r</mi><mn>2</mn></msub><mo>+</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>+</mo><msub><mi>r</mi><mi>n</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">e_0 + (r_1 + r_2 + ... + r_n)</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>e</mi><mi>n</mi></msub><annotation encoding="application/x-tex">e_n</annotation></semantics></math> should be significantly higher than the similarity between <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>e</mi><mn>0</mn></msub><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>r</mi><mn>1</mn></msub><mo>+</mo><msub><mi>r</mi><mn>2</mn></msub><mo>+</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>+</mo><msub><mi>r</mi><mi>n</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">e_0 + (r_1 + r_2 + ... + r_n)</annotation></semantics></math> and randomly selected entities.</p>
+<p>This property can be measured empirically to assess how well a model captures compositional reasoning.</p>
+</div>
+</section>
+<section id="matrix-factorization-for-composition" class="level3" data-number="11.3.4">
+<h3 data-number="11.3.4" class="anchored" data-anchor-id="matrix-factorization-for-composition"><span class="header-section-number">11.3.4</span> Matrix Factorization for Composition</h3>
+<p>In bilinear models like RESCAL, DistMult, and ComplEx, relation composition is naturally modeled through matrix multiplication.</p>
+<div id="def-matrix-composition" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.5 (Matrix Composition in Bilinear Models)</strong></span> In bilinear models where relations are represented as matrices:</p>
+<ol type="1">
+<li>A single relation <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math> is modeled as a matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐌</mi><mi>r</mi></msub><annotation encoding="application/x-tex">\mathbf{M}_r</annotation></semantics></math></li>
+<li>The composition of relations <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mn>1</mn></msub><mo>,</mo><msub><mi>r</mi><mn>2</mn></msub><mo>,</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msub><mi>r</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">r_1, r_2, ..., r_n</annotation></semantics></math> is modeled as the matrix product: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐌</mi><msub><mi>r</mi><mn>1</mn></msub></msub><mo>×</mo><msub><mi>𝐌</mi><msub><mi>r</mi><mn>2</mn></msub></msub><mo>×</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>×</mo><msub><mi>𝐌</mi><msub><mi>r</mi><mi>n</mi></msub></msub></mrow><annotation encoding="application/x-tex">\mathbf{M}_{r_1} \times \mathbf{M}_{r_2} \times ... \times \mathbf{M}_{r_n}</annotation></semantics></math></li>
+<li>For a valid path, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>𝐞</mi><mn>0</mn><mi>T</mi></msubsup><mo>×</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐌</mi><msub><mi>r</mi><mn>1</mn></msub></msub><mo>×</mo><msub><mi>𝐌</mi><msub><mi>r</mi><mn>2</mn></msub></msub><mo>×</mo><mi>.</mi><mi>.</mi><mi>.</mi><mo>×</mo><msub><mi>𝐌</mi><msub><mi>r</mi><mi>n</mi></msub></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>×</mo><msub><mi>𝐞</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">\mathbf{e}_0^T \times (\mathbf{M}_{r_1} \times \mathbf{M}_{r_2} \times ... \times \mathbf{M}_{r_n}) \times \mathbf{e}_n</annotation></semantics></math> should be high</li>
+<li>This matrix product approach naturally captures relation composition</li>
+</ol>
+</div>
+<p>This matrix-based representation of relations is particularly well-suited for modeling complex compositional patterns, including non-commutative compositions.</p>
+<div id="exm-matrix-composition" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.4 (Example of Matrix Composition)</strong></span> In a bilinear model like RESCAL, for the path in our previous example:</p>
+<pre><code>e_Obama^T × M_bornIn × M_cityIn × M_stateIn × e_USA</code></pre>
+<p>should yield a high score if the composition of relations is valid.</p>
+</div>
+</section>
+</section>
+<section id="rule-mining-from-knowledge-graph-embeddings" class="level2" data-number="11.4">
+<h2 data-number="11.4" class="anchored" data-anchor-id="rule-mining-from-knowledge-graph-embeddings"><span class="header-section-number">11.4</span> Rule Mining from Knowledge Graph Embeddings</h2>
+<p>Knowledge graph embeddings can be used to discover logical rules that capture regular patterns in the data, a process known as rule mining.</p>
+<section id="embedding-based-rule-mining" class="level3" data-number="11.4.1">
+<h3 data-number="11.4.1" class="anchored" data-anchor-id="embedding-based-rule-mining"><span class="header-section-number">11.4.1</span> Embedding-Based Rule Mining</h3>
+<p>Traditional rule mining approaches rely on statistical patterns in the graph structure, but embedding-based approaches leverage the geometric properties of the embedding space.</p>
+<div id="def-embedding-rule-mining" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.6 (Embedding-Based Rule Mining)</strong></span> Embedding-based rule mining typically:</p>
+<ol type="1">
+<li>Identifies potential rule templates (e.g., <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>Y</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>∧</mo><msub><mi>r</mi><mn>2</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo>,</mo><mi>Z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>→</mo><msub><mi>r</mi><mn>3</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>Z</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">r_1(X, Y) \wedge r_2(Y, Z) \rightarrow r_3(X, Z)</annotation></semantics></math>)</li>
+<li>Evaluates these templates using embeddings (e.g., by measuring how well <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐫</mi><mn>1</mn></msub><mo>+</mo><msub><mi>𝐫</mi><mn>2</mn></msub><mo>≈</mo><msub><mi>𝐫</mi><mn>3</mn></msub></mrow><annotation encoding="application/x-tex">\mathbf{r}_1 + \mathbf{r}_2 \approx \mathbf{r}_3</annotation></semantics></math>)</li>
+<li>Ranks potential rules based on their scores in the embedding space</li>
+<li>Selects the most promising rules based on confidence and support metrics</li>
+</ol>
+</div>
+<p>This approach can discover rules that might be missed by purely statistical approaches, especially when the supporting evidence is sparse.</p>
+<div id="exm-rule-mining" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.5 (Example of Embedding-Based Rule Mining)</strong></span> Consider the potential rule: “If X is the capital of Y, and Y is a country in Europe, then X is a European city.”</p>
+<p>In a TransE-like model, we would evaluate how well:</p>
+<pre><code>r_capitalOf + r_countryInEurope ≈ r_europeanCity</code></pre>
+<p>If the composition of relation vectors on the left approximates the relation vector on the right, this suggests the rule is valid.</p>
+</div>
+</section>
+<section id="amie-and-neural-rule-mining" class="level3" data-number="11.4.2">
+<h3 data-number="11.4.2" class="anchored" data-anchor-id="amie-and-neural-rule-mining"><span class="header-section-number">11.4.2</span> AMIE and Neural Rule Mining</h3>
+<p>AMIE is a classic rule mining system that has been extended with neural components leveraging knowledge graph embeddings.</p>
+<div id="def-neural-rule-mining" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.7 (Neural Rule Mining)</strong></span> Neural rule mining approaches typically:</p>
+<ol type="1">
+<li>Use embeddings to guide the search for potential rules</li>
+<li>Compute rule confidence based on both statistical evidence and embedding similarity</li>
+<li>Combine symbolic and embedding-based scores for rule evaluation</li>
+<li>Learn to generate rules that maximize both support in the data and coherence in the embedding space</li>
+</ol>
+</div>
+<p>These hybrid approaches can discover more accurate and generalizable rules than purely symbolic or purely embedding-based methods.</p>
+<div id="exm-neural-amie" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.6 (Example of Neural Rule Mining)</strong></span> A neural extension of AMIE might:</p>
+<ol type="1">
+<li>Start with the statistical rule mining process to identify candidate rules</li>
+<li>Use embeddings to refine the confidence scores of these rules</li>
+<li>Discover that the rule “bornIn(X, Y) ∧ cityIn(Y, Z) → livedIn(X, Z)” has high confidence based on both graph statistics and embedding similarity</li>
+<li>Rank this rule higher than rules that have statistical support but low embedding coherence</li>
+</ol>
+</div>
+</section>
+<section id="rule-confidence-and-embedding-similarity" class="level3" data-number="11.4.3">
+<h3 data-number="11.4.3" class="anchored" data-anchor-id="rule-confidence-and-embedding-similarity"><span class="header-section-number">11.4.3</span> Rule Confidence and Embedding Similarity</h3>
+<p>The confidence of rules mined from knowledge graph embeddings can be quantified using embedding similarity metrics.</p>
+<div id="def-rule-confidence" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.8 (Embedding-Based Rule Confidence)</strong></span> For a rule of the form <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>Y</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>∧</mo><msub><mi>r</mi><mn>2</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo>,</mo><mi>Z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>→</mo><msub><mi>r</mi><mn>3</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>X</mi><mo>,</mo><mi>Z</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">r_1(X, Y) \wedge r_2(Y, Z) \rightarrow r_3(X, Z)</annotation></semantics></math>, embedding-based confidence can be computed as:</p>
+<ol type="1">
+<li><strong>Translation models</strong>: sim(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐫</mi><mn>1</mn></msub><mo>+</mo><msub><mi>𝐫</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\mathbf{r}_1 + \mathbf{r}_2</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐫</mi><mn>3</mn></msub><annotation encoding="application/x-tex">\mathbf{r}_3</annotation></semantics></math>)</li>
+<li><strong>Bilinear models</strong>: sim(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐌</mi><msub><mi>r</mi><mn>1</mn></msub></msub><mo>×</mo><msub><mi>𝐌</mi><msub><mi>r</mi><mn>2</mn></msub></msub></mrow><annotation encoding="application/x-tex">\mathbf{M}_{r_1} \times \mathbf{M}_{r_2}</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐌</mi><msub><mi>r</mi><mn>3</mn></msub></msub><annotation encoding="application/x-tex">\mathbf{M}_{r_3}</annotation></semantics></math>)</li>
+<li><strong>Rotation models</strong>: sim(comp(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐫</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\mathbf{r}_1</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐫</mi><mn>2</mn></msub><annotation encoding="application/x-tex">\mathbf{r}_2</annotation></semantics></math>), <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐫</mi><mn>3</mn></msub><annotation encoding="application/x-tex">\mathbf{r}_3</annotation></semantics></math>)</li>
+</ol>
+<p>where sim() is a similarity function (e.g., cosine similarity) and comp() is the appropriate composition function for the model.</p>
+</div>
+<p>This approach provides a continuous confidence score that can be used to rank and filter potential rules.</p>
+<div id="thm-embedding-confidence" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 11.2 (Relationship Between Embedding Similarity and Rule Confidence)</strong></span> For well-trained knowledge graph embeddings, there is a positive correlation between:</p>
+<ol type="1">
+<li>The embedding similarity of the composed relations and the target relation</li>
+<li>The statistical confidence of the corresponding rule in the knowledge graph</li>
+</ol>
+<p>This correlation strengthens as the quality of the embeddings improves and as more supporting evidence is available in the knowledge graph.</p>
+</div>
+</section>
+</section>
+<section id="multi-hop-reasoning" class="level2" data-number="11.5">
+<h2 data-number="11.5" class="anchored" data-anchor-id="multi-hop-reasoning"><span class="header-section-number">11.5</span> Multi-Hop Reasoning</h2>
+<p>Multi-hop reasoning involves making inferences that require traversing multiple steps in the knowledge graph.</p>
+<section id="path-based-inference" class="level3" data-number="11.5.1">
+<h3 data-number="11.5.1" class="anchored" data-anchor-id="path-based-inference"><span class="header-section-number">11.5.1</span> Path-Based Inference</h3>
+<p>Path-based inference approaches use paths in the knowledge graph to answer complex queries.</p>
+<div id="def-path-inference" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.9 (Path-Based Inference)</strong></span> Path-based inference typically:</p>
+<ol type="1">
+<li>Identifies potential paths between a query entity and potential answer entities</li>
+<li>Evaluates these paths using embedding-based scoring functions</li>
+<li>Ranks potential answers based on path scores</li>
+<li>Selects the highest-scoring answers as the most likely</li>
+</ol>
+</div>
+<p>This approach can answer queries that require following multiple relations to reach the answer.</p>
+<div id="exm-path-inference" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.7 (Example of Path-Based Inference)</strong></span> For the query “What country is Barack Obama a citizen of?”:</p>
+<ol type="1">
+<li>Identify paths from “Barack Obama” to various countries, such as:
+<ul>
+<li>bornIn → cityIn → stateIn → countryIn</li>
+<li>presidentOf → isA</li>
+</ul></li>
+<li>Evaluate these paths using embeddings</li>
+<li>Rank countries based on the scores</li>
+<li>Return “USA” as the highest-scoring answer</li>
+</ol>
+</div>
+</section>
+<section id="neural-multi-hop-reasoning" class="level3" data-number="11.5.2">
+<h3 data-number="11.5.2" class="anchored" data-anchor-id="neural-multi-hop-reasoning"><span class="header-section-number">11.5.2</span> Neural Multi-Hop Reasoning</h3>
+<p>Neural approaches for multi-hop reasoning combine the representational power of neural networks with the structured nature of knowledge graphs.</p>
+<div id="def-neural-multihop" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.10 (Neural Multi-Hop Reasoning)</strong></span> Neural multi-hop reasoning approaches typically:</p>
+<ol type="1">
+<li>Encode the query and initial entity using neural networks</li>
+<li>Iteratively follow relations through the graph using attention mechanisms</li>
+<li>Aggregate information across multiple paths</li>
+<li>Produce a distribution over potential answer entities</li>
+</ol>
+</div>
+<p>These approaches can handle complex queries and uncertainty in a principled way.</p>
+<div id="exm-neural-multihop" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.8 (Example of Neural Multi-Hop Reasoning)</strong></span> A neural approach might handle the query “Which scientists born in the same country as Einstein won the Nobel Prize?”:</p>
+<ol type="1">
+<li>Encode the query using a neural network</li>
+<li>Start from the entity “Einstein”</li>
+<li>Follow the “bornIn” relation to “Germany”</li>
+<li>Follow the inverse “bornIn” relation to identify other people born in Germany</li>
+<li>Filter these people by following the “profession” relation to “Scientist”</li>
+<li>Check which of these entities connect to “Nobel Prize” via the “won” relation</li>
+<li>Return the matching entities as answers</li>
+</ol>
+</div>
+</section>
+<section id="deeppath-and-minerva" class="level3" data-number="11.5.3">
+<h3 data-number="11.5.3" class="anchored" data-anchor-id="deeppath-and-minerva"><span class="header-section-number">11.5.3</span> DeepPath and MINERVA</h3>
+<p>DeepPath and MINERVA are reinforcement learning approaches for multi-hop reasoning over knowledge graphs.</p>
+<div id="def-rl-reasoning" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.11 (Reinforcement Learning for Reasoning)</strong></span> Reinforcement learning reasoning approaches typically:</p>
+<ol type="1">
+<li>Formulate reasoning as a sequential decision-making problem</li>
+<li>Use an agent that learns to navigate the knowledge graph to find answers</li>
+<li>Define states as the current entity, actions as choosing a relation to follow, and rewards based on reaching correct answers</li>
+<li>Learn a policy that maximizes the expected reward</li>
+</ol>
+</div>
+<p>These approaches learn efficient reasoning strategies directly from data, without requiring explicit rule definition.</p>
+<div id="exm-minerva" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.9 (Example of MINERVA Reasoning)</strong></span> MINERVA might answer “Where did Einstein study?” by:</p>
+<ol type="1">
+<li>Starting at the entity “Einstein”</li>
+<li>Deciding to follow the “educated_at” relation (based on learned policy)</li>
+<li>Arriving at “University of Zurich”</li>
+<li>Deciding to terminate the search (based on learned policy)</li>
+<li>Returning “University of Zurich” as the answer</li>
+</ol>
+</div>
+</section>
+</section>
+<section id="complex-query-answering" class="level2" data-number="11.6">
+<h2 data-number="11.6" class="anchored" data-anchor-id="complex-query-answering"><span class="header-section-number">11.6</span> Complex Query Answering</h2>
+<p>Knowledge graph embeddings can be extended to answer complex logical queries involving conjunctions, disjunctions, and existential quantification.</p>
+<section id="logical-operators-in-embedding-space" class="level3" data-number="11.6.1">
+<h3 data-number="11.6.1" class="anchored" data-anchor-id="logical-operators-in-embedding-space"><span class="header-section-number">11.6.1</span> Logical Operators in Embedding Space</h3>
+<p>To answer complex queries, we need to define how logical operators map to operations in the embedding space.</p>
+<div id="def-logical-embeddings" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.12 (Embedding-Based Logical Operators)</strong></span> Common embeddings for logical operators include:</p>
+<ol type="1">
+<li><strong>Conjunction (AND)</strong>: Intersection of regions in the embedding space</li>
+<li><strong>Disjunction (OR)</strong>: Union of regions in the embedding space</li>
+<li><strong>Existential Quantification (∃)</strong>: Projection operations in the embedding space</li>
+<li><strong>Negation (NOT)</strong>: Complement of regions in the embedding space</li>
+</ol>
+</div>
+<p>These operations allow for composing complex queries in the embedding space.</p>
+<div id="exm-logical-operations" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.10 (Example of Logical Operations in Embedding Space)</strong></span> For the query “Find actors who starred in science fiction movies AND won an Oscar”:</p>
+<ol type="1">
+<li>Conjunction: Intersect the regions representing “actors who starred in science fiction movies” and “actors who won an Oscar”</li>
+<li>The resulting region contains embeddings of entities that satisfy both conditions</li>
+<li>Retrieve entities whose embeddings fall within this intersection region</li>
+</ol>
+</div>
+</section>
+<section id="query2box-and-query-embeddings" class="level3" data-number="11.6.2">
+<h3 data-number="11.6.2" class="anchored" data-anchor-id="query2box-and-query-embeddings"><span class="header-section-number">11.6.2</span> Query2Box and Query Embeddings</h3>
+<p>Query2Box represents logical queries as hyperrectangles (boxes) in the embedding space, with logical operations defined as operations on these boxes.</p>
+<div id="def-query2box" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.13 (Query2Box)</strong></span> In Query2Box:</p>
+<ol type="1">
+<li>Entities are represented as points in the embedding space</li>
+<li>Queries are represented as boxes (hyperrectangles) that contain the answer entities</li>
+<li>Conjunctions are implemented as box intersections</li>
+<li>Projections (existential quantification) are implemented as box enlargements</li>
+<li>Query execution involves computing the final box and retrieving entities inside it</li>
+</ol>
+</div>
+<p>This approach provides an intuitive geometric interpretation of logical operations and scales well to complex queries.</p>
+<div id="exm-query2box" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.11 (Example of Query2Box)</strong></span> For the query “Find European countries where a language is spoken that is also spoken in Asia”:</p>
+<ol type="1">
+<li>Start with the box for “European countries”</li>
+<li>Intersect with the box for “countries where a language is spoken that is also spoken in Asia”</li>
+<li>The resulting box contains countries like Russia, Turkey, etc.</li>
+</ol>
+</div>
+</section>
+<section id="gqe-and-complex-query-embeddings" class="level3" data-number="11.6.3">
+<h3 data-number="11.6.3" class="anchored" data-anchor-id="gqe-and-complex-query-embeddings"><span class="header-section-number">11.6.3</span> GQE and Complex Query Embeddings</h3>
+<p>Graph Query Embedding (GQE) generalizes embedding-based query answering to handle complex graph patterns.</p>
+<div id="def-gqe" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.14 (Graph Query Embedding (GQE))</strong></span> GQE represents:</p>
+<ol type="1">
+<li>Each query as a computation graph where nodes are embedding vectors</li>
+<li>Projection operations as translations in the embedding space</li>
+<li>Intersection operations as learned functions that combine multiple embeddings</li>
+<li>The final embedding represents the answer region</li>
+</ol>
+</div>
+<p>This approach can handle complex query patterns and learns the composition operations directly from data.</p>
+<div id="exm-gqe" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.12 (Example of GQE)</strong></span> For the query “Find scientists who collaborated with Einstein and were born in Germany”:</p>
+<ol type="1">
+<li>Compute the embedding for “people who collaborated with Einstein” through projection</li>
+<li>Compute the embedding for “people born in Germany” through projection</li>
+<li>Combine these embeddings using the learned intersection operation</li>
+<li>Use the resulting embedding to retrieve matching entities</li>
+</ol>
+</div>
+</section>
+<section id="neural-query-execution" class="level3" data-number="11.6.4">
+<h3 data-number="11.6.4" class="anchored" data-anchor-id="neural-query-execution"><span class="header-section-number">11.6.4</span> Neural Query Execution</h3>
+<p>Recent approaches like Neural Query Execution use neural networks to execute complex queries over knowledge graph embeddings.</p>
+<div id="def-neural-query" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.15 (Neural Query Execution)</strong></span> Neural query execution approaches typically:</p>
+<ol type="1">
+<li>Parse the logical query into a computation graph</li>
+<li>Embed each subquery using specialized neural modules</li>
+<li>Compose these embeddings using neural operators for conjunction, disjunction, etc.</li>
+<li>Score candidate answers using the final query embedding</li>
+</ol>
+</div>
+<p>These approaches combine the flexibility of neural networks with the structure of logical queries.</p>
+<div id="exm-neural-query" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.13 (Example of Neural Query Execution)</strong></span> A neural query executor might process “Find drugs that treat cancer but don’t cause headaches” by:</p>
+<ol type="1">
+<li>Computing an embedding for “drugs that treat cancer” using a projection module</li>
+<li>Computing an embedding for “drugs that cause headaches” using another projection module</li>
+<li>Applying a learned negation operator to the second embedding</li>
+<li>Applying a learned conjunction operator to combine the first embedding with the negated second embedding</li>
+<li>Using the final embedding to score and rank potential drug entities</li>
+</ol>
+</div>
+</section>
+</section>
+<section id="probabilistic-reasoning" class="level2" data-number="11.7">
+<h2 data-number="11.7" class="anchored" data-anchor-id="probabilistic-reasoning"><span class="header-section-number">11.7</span> Probabilistic Reasoning</h2>
+<p>Knowledge graph embeddings naturally support probabilistic reasoning by associating confidence scores with predictions.</p>
+<section id="uncertainty-representation" class="level3" data-number="11.7.1">
+<h3 data-number="11.7.1" class="anchored" data-anchor-id="uncertainty-representation"><span class="header-section-number">11.7.1</span> Uncertainty Representation</h3>
+<p>Embedding-based approaches can represent uncertainty in knowledge and reasoning in various ways.</p>
+<div id="def-uncertainty" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.16 (Uncertainty Representation in Embeddings)</strong></span> Common approaches to representing uncertainty include:</p>
+<ol type="1">
+<li><strong>Distance-based</strong>: Using the distance between embeddings as a measure of uncertainty</li>
+<li><strong>Probabilistic embeddings</strong>: Representing entities and relations as distributions rather than points</li>
+<li><strong>Calibrated scores</strong>: Transforming embedding scores into calibrated probabilities</li>
+<li><strong>Ensemble methods</strong>: Combining multiple embeddings to quantify prediction variance</li>
+</ol>
+</div>
+<p>These approaches allow for reasoning under uncertainty, which is essential for real-world applications.</p>
+<div id="exm-uncertainty" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.14 (Example of Uncertainty Representation)</strong></span> For the triple (Barack Obama, bornIn, Honolulu):</p>
+<ol type="1">
+<li>A distance-based approach might assign a confidence of 0.95 based on the proximity of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐞</mi><mrow><mi>O</mi><mi>b</mi><mi>a</mi><mi>m</mi><mi>a</mi></mrow></msub><mo>+</mo><msub><mi>𝐫</mi><mrow><mi>b</mi><mi>o</mi><mi>r</mi><mi>n</mi><mi>I</mi><mi>n</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\mathbf{e}_{Obama} + \mathbf{r}_{bornIn}</annotation></semantics></math> to <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐞</mi><mrow><mi>H</mi><mi>o</mi><mi>n</mi><mi>o</mi><mi>l</mi><mi>u</mi><mi>l</mi><mi>u</mi></mrow></msub><annotation encoding="application/x-tex">\mathbf{e}_{Honolulu}</annotation></semantics></math></li>
+<li>A probabilistic embedding approach might represent Obama as a Gaussian distribution and compute the probability that this distribution, when translated by the bornIn relation, overlaps with the distribution for Honolulu</li>
+</ol>
+</div>
+</section>
+<section id="bayesian-knowledge-graph-embeddings" class="level3" data-number="11.7.2">
+<h3 data-number="11.7.2" class="anchored" data-anchor-id="bayesian-knowledge-graph-embeddings"><span class="header-section-number">11.7.2</span> Bayesian Knowledge Graph Embeddings</h3>
+<p>Bayesian approaches to knowledge graph embeddings provide a principled framework for reasoning under uncertainty.</p>
+<div id="def-bayesian-kge" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.17 (Bayesian Knowledge Graph Embeddings)</strong></span> Bayesian KGE approaches typically:</p>
+<ol type="1">
+<li>Define prior distributions over entity and relation embeddings</li>
+<li>Update these distributions based on observed triples</li>
+<li>Use the posterior distributions to make probabilistic predictions</li>
+<li>Quantify uncertainty through variance or entropy measures</li>
+</ol>
+</div>
+<p>These approaches can capture nuanced uncertainty information and provide confidence intervals for predictions.</p>
+<div id="exm-bayesian-kge" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.15 (Example of Bayesian KGE)</strong></span> A Bayesian KGE might represent:</p>
+<ol type="1">
+<li>The embedding for “Einstein” as a distribution with mean <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mrow><mi>E</mi><mi>i</mi><mi>n</mi><mi>s</mi><mi>t</mi><mi>e</mi><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">\mu_{Einstein}</annotation></semantics></math> and variance <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Σ</mi><mrow><mi>E</mi><mi>i</mi><mi>n</mi><mi>s</mi><mi>t</mi><mi>e</mi><mi>i</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">\Sigma_{Einstein}</annotation></semantics></math></li>
+<li>The embedding for “bornIn” as a distribution with mean <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mrow><mi>b</mi><mi>o</mi><mi>r</mi><mi>n</mi><mi>I</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">\mu_{bornIn}</annotation></semantics></math> and variance <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Σ</mi><mrow><mi>b</mi><mi>o</mi><mi>r</mi><mi>n</mi><mi>I</mi><mi>n</mi></mrow></msub><annotation encoding="application/x-tex">\Sigma_{bornIn}</annotation></semantics></math></li>
+<li>Compute a distribution over potential birthplaces by convolving these distributions</li>
+<li>Report both the most likely birthplace and a measure of confidence</li>
+</ol>
+</div>
+</section>
+<section id="reasoning-with-probabilistic-logic" class="level3" data-number="11.7.3">
+<h3 data-number="11.7.3" class="anchored" data-anchor-id="reasoning-with-probabilistic-logic"><span class="header-section-number">11.7.3</span> Reasoning with Probabilistic Logic</h3>
+<p>Probabilistic logic combines logical reasoning with probability theory, and can be implemented using knowledge graph embeddings.</p>
+<div id="def-probabilistic-logic" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.18 (Probabilistic Logic with Embeddings)</strong></span> Probabilistic logic approaches with embeddings typically:</p>
+<ol type="1">
+<li>Define a probabilistic logic framework (e.g., Markov Logic Networks)</li>
+<li>Use embeddings to compute weights or probabilities for logical formulas</li>
+<li>Perform probabilistic inference using these weighted formulas</li>
+<li>Combine symbolic reasoning with embedding-based uncertainty estimation</li>
+</ol>
+</div>
+<p>These hybrid approaches leverage both the structure of logical reasoning and the flexibility of embeddings.</p>
+<div id="exm-probabilistic-logic" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.16 (Example of Probabilistic Logic with Embeddings)</strong></span> A probabilistic logic approach might handle the query “What is Einstein’s birthplace?” by:</p>
+<ol type="1">
+<li>Constructing a logical query bornIn(Einstein, X)</li>
+<li>Computing probabilities for different values of X using embeddings</li>
+<li>Reporting “Ulm, Germany” with probability 0.85</li>
+<li>Also reporting alternative possibilities with lower probabilities</li>
+</ol>
+</div>
+</section>
+</section>
+<section id="explainable-reasoning" class="level2" data-number="11.8">
+<h2 data-number="11.8" class="anchored" data-anchor-id="explainable-reasoning"><span class="header-section-number">11.8</span> Explainable Reasoning</h2>
+<p>While embedding-based reasoning is powerful, its black-box nature can limit interpretability. Explainable reasoning approaches aim to address this limitation.</p>
+<section id="path-based-explanations" class="level3" data-number="11.8.1">
+<h3 data-number="11.8.1" class="anchored" data-anchor-id="path-based-explanations"><span class="header-section-number">11.8.1</span> Path-Based Explanations</h3>
+<p>Path-based explanations justify predictions by identifying supporting paths in the knowledge graph.</p>
+<div id="def-path-explanations" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.19 (Path-Based Explanations)</strong></span> Path-based explanation approaches typically:</p>
+<ol type="1">
+<li>Identify paths in the knowledge graph that support a prediction</li>
+<li>Rank these paths based on relevance and reliability</li>
+<li>Present the most relevant paths as explanations</li>
+<li>Connect the paths to the embedding-based reasoning process</li>
+</ol>
+</div>
+<p>These approaches provide transparent justifications for predictions based on existing knowledge.</p>
+<div id="exm-path-explanation" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.17 (Example of Path-Based Explanation)</strong></span> For the prediction that “Marie Curie was a physicist”, a path-based explanation might be:</p>
+<ol type="1">
+<li>Marie Curie won the Nobel Prize in Physics</li>
+<li>People who win the Nobel Prize in Physics are typically physicists</li>
+<li>These paths are supported by the embeddings, as evidenced by the high similarity between…</li>
+</ol>
+</div>
+</section>
+<section id="rule-based-explanations" class="level3" data-number="11.8.2">
+<h3 data-number="11.8.2" class="anchored" data-anchor-id="rule-based-explanations"><span class="header-section-number">11.8.2</span> Rule-Based Explanations</h3>
+<p>Rule-based explanations leverage logical rules to explain predictions.</p>
+<div id="def-rule-explanations" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.20 (Rule-Based Explanations)</strong></span> Rule-based explanation approaches typically:</p>
+<ol type="1">
+<li>Mine logical rules from the knowledge graph and embeddings</li>
+<li>Identify rules that support a specific prediction</li>
+<li>Present these rules as explanations</li>
+<li>Quantify the contribution of each rule to the prediction</li>
+</ol>
+</div>
+<p>These approaches connect embedding-based predictions to interpretable logical rules.</p>
+<div id="exm-rule-explanation" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.18 (Example of Rule-Based Explanation)</strong></span> For the prediction that “Berlin is in Germany”, a rule-based explanation might be:</p>
+<ol type="1">
+<li>Berlin is the capital of Germany (fact in KG)</li>
+<li>The capital of a country is located in that country (rule with 98% confidence)</li>
+<li>This rule is supported by the embeddings, as the vectors for “capital of” and “located in” have a high compositional similarity</li>
+</ol>
+</div>
+</section>
+<section id="attention-based-explanations" class="level3" data-number="11.8.3">
+<h3 data-number="11.8.3" class="anchored" data-anchor-id="attention-based-explanations"><span class="header-section-number">11.8.3</span> Attention-Based Explanations</h3>
+<p>Attention mechanisms can provide insights into which parts of the knowledge graph are most relevant for a prediction.</p>
+<div id="def-attention-explanations" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.21 (Attention-Based Explanations)</strong></span> Attention-based explanation approaches typically:</p>
+<ol type="1">
+<li>Use attention mechanisms to weight different parts of the reasoning process</li>
+<li>Visualize the attention weights to show which entities and relations contributed most</li>
+<li>Provide a step-by-step breakdown of the reasoning process</li>
+<li>Connect attention patterns to interpretable reasoning steps</li>
+</ol>
+</div>
+<p>These approaches offer a window into the inner workings of neural reasoning models.</p>
+<div id="exm-attention-explanation" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.19 (Example of Attention-Based Explanation)</strong></span> For the query “Which scientists won the Nobel Prize?”, an attention-based explanation might show:</p>
+<ol type="1">
+<li>High attention on the “profession” relation for filtering scientists</li>
+<li>High attention on the “won” relation for connecting to the Nobel Prize</li>
+<li>A visualization showing the flow of attention through the reasoning process</li>
+<li>Highlighted entities and relations that received the most attention</li>
+</ol>
+</div>
+</section>
+</section>
+<section id="case-studies-and-applications" class="level2" data-number="11.9">
+<h2 data-number="11.9" class="anchored" data-anchor-id="case-studies-and-applications"><span class="header-section-number">11.9</span> Case Studies and Applications</h2>
+<p>Let’s examine several case studies that demonstrate the application of reasoning with knowledge graph embeddings in different domains.</p>
+<section id="biomedical-reasoning" class="level3" data-number="11.9.1">
+<h3 data-number="11.9.1" class="anchored" data-anchor-id="biomedical-reasoning"><span class="header-section-number">11.9.1</span> Biomedical Reasoning</h3>
+<p>Knowledge graph embeddings have been applied to various reasoning tasks in biomedicine.</p>
+<div id="exm-biomedical" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.20 (Case Study: Biomedical Reasoning)</strong></span> A study on drug repurposing showed that:</p>
+<ol type="1">
+<li>Knowledge graph embeddings could capture complex biomedical relationships</li>
+<li>Multi-hop reasoning identified potential new uses for existing drugs</li>
+<li>Path-based explanations provided scientific justification for predictions</li>
+<li>The approach discovered several promising candidates that were later validated experimentally</li>
+</ol>
+</div>
+</section>
+<section id="question-answering-systems" class="level3" data-number="11.9.2">
+<h3 data-number="11.9.2" class="anchored" data-anchor-id="question-answering-systems"><span class="header-section-number">11.9.2</span> Question Answering Systems</h3>
+<p>Knowledge graph embeddings can power question answering systems that handle complex natural language queries.</p>
+<div id="exm-qa-system" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.21 (Case Study: Question Answering System)</strong></span> A question answering system built on knowledge graph embeddings:</p>
+<ol type="1">
+<li>Translated natural language questions into logical queries</li>
+<li>Executed these queries using embedding-based reasoning</li>
+<li>Provided natural language explanations based on the reasoning paths</li>
+<li>Achieved 78% accuracy on a benchmark of complex factoid questions</li>
+</ol>
+</div>
+</section>
+<section id="recommendation-systems" class="level3" data-number="11.9.3">
+<h3 data-number="11.9.3" class="anchored" data-anchor-id="recommendation-systems"><span class="header-section-number">11.9.3</span> Recommendation Systems</h3>
+<p>Reasoning over knowledge graphs can enhance recommendation systems by leveraging rich entity relationships.</p>
+<div id="exm-recommendation" class="theorem example">
+<p><span class="theorem-title"><strong>Example 11.22 (Case Study: Knowledge Graph Recommendations)</strong></span> A movie recommendation system using knowledge graph reasoning:</p>
+<ol type="1">
+<li>Represented user preferences as regions in the embedding space</li>
+<li>Used multi-hop reasoning to identify movies with relevant attributes</li>
+<li>Generated explanations for recommendations based on reasoning paths</li>
+<li>Improved recommendation diversity by 35% compared to traditional collaborative filtering</li>
+</ol>
+</div>
+</section>
+</section>
+<section id="practical-considerations" class="level2" data-number="11.10">
+<h2 data-number="11.10" class="anchored" data-anchor-id="practical-considerations"><span class="header-section-number">11.10</span> Practical Considerations</h2>
+<p>Implementing reasoning with knowledge graph embeddings involves several practical considerations.</p>
+<section id="computational-efficiency" class="level3" data-number="11.10.1">
+<h3 data-number="11.10.1" class="anchored" data-anchor-id="computational-efficiency"><span class="header-section-number">11.10.1</span> Computational Efficiency</h3>
+<p>Reasoning over large knowledge graphs can be computationally expensive, requiring efficient implementation strategies.</p>
+<div id="def-efficiency-strategies" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.22 (Computational Efficiency Strategies)</strong></span> Common strategies include:</p>
+<ol type="1">
+<li><strong>Pruning</strong>: Eliminating irrelevant parts of the graph during reasoning</li>
+<li><strong>Caching</strong>: Storing intermediate results for common query patterns</li>
+<li><strong>Approximate reasoning</strong>: Using approximate methods for large-scale reasoning</li>
+<li><strong>Hierarchical reasoning</strong>: Breaking complex queries into simpler subqueries</li>
+<li><strong>Parallelization</strong>: Distributing reasoning across multiple processors</li>
+</ol>
+</div>
+<p>These strategies can dramatically improve reasoning efficiency, especially for large knowledge graphs.</p>
+</section>
+<section id="handling-inconsistency" class="level3" data-number="11.10.2">
+<h3 data-number="11.10.2" class="anchored" data-anchor-id="handling-inconsistency"><span class="header-section-number">11.10.2</span> Handling Inconsistency</h3>
+<p>Real-world knowledge graphs often contain inconsistencies that can complicate reasoning.</p>
+<div id="def-inconsistency" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.23 (Handling Inconsistency)</strong></span> Approaches to handling inconsistency include:</p>
+<ol type="1">
+<li><strong>Soft constraints</strong>: Treating logical constraints as preferences rather than hard rules</li>
+<li><strong>Weighted reasoning</strong>: Assigning weights to different pieces of evidence</li>
+<li><strong>Probabilistic reasoning</strong>: Incorporating uncertainty into the reasoning process</li>
+<li><strong>Revision-based reasoning</strong>: Identifying and revising inconsistent knowledge</li>
+</ol>
+</div>
+<p>These approaches allow for robust reasoning even in the presence of contradictory information.</p>
+</section>
+<section id="integrating-with-symbolic-reasoners" class="level3" data-number="11.10.3">
+<h3 data-number="11.10.3" class="anchored" data-anchor-id="integrating-with-symbolic-reasoners"><span class="header-section-number">11.10.3</span> Integrating with Symbolic Reasoners</h3>
+<p>Many applications benefit from combining embedding-based reasoning with traditional symbolic reasoners.</p>
+<div id="def-hybrid-reasoning" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.24 (Hybrid Reasoning Systems)</strong></span> Hybrid reasoning systems typically:</p>
+<ol type="1">
+<li>Use symbolic reasoners for exact, rule-based inference</li>
+<li>Use embedding-based reasoners for handling uncertainty and incomplete information</li>
+<li>Combine the results through various integration strategies</li>
+<li>Leverage the strengths of both approaches while mitigating their weaknesses</li>
+</ol>
+</div>
+<p>These hybrid systems can achieve both the precision of symbolic methods and the flexibility of embedding-based approaches.</p>
+</section>
+</section>
+<section id="evaluation-of-reasoning-capabilities" class="level2" data-number="11.11">
+<h2 data-number="11.11" class="anchored" data-anchor-id="evaluation-of-reasoning-capabilities"><span class="header-section-number">11.11</span> Evaluation of Reasoning Capabilities</h2>
+<p>Evaluating the reasoning capabilities of knowledge graph embeddings requires specialized metrics and benchmarks.</p>
+<section id="reasoning-benchmarks" class="level3" data-number="11.11.1">
+<h3 data-number="11.11.1" class="anchored" data-anchor-id="reasoning-benchmarks"><span class="header-section-number">11.11.1</span> Reasoning Benchmarks</h3>
+<p>Several benchmarks have been developed to assess different aspects of reasoning with knowledge graph embeddings.</p>
+<div id="def-reasoning-benchmarks" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.25 (Reasoning Benchmarks)</strong></span> Common reasoning benchmarks include:</p>
+<ol type="1">
+<li><strong>NELL-995</strong>: Focuses on multi-hop reasoning paths</li>
+<li><strong>FB15k-237</strong>: Used for evaluating relation composition</li>
+<li><strong>Complex Query Answering</strong>: Tests performance on logical queries with conjunctions and disjunctions</li>
+<li><strong>Rule Mining Evaluation</strong>: Assesses the quality of mined rules</li>
+<li><strong>Explanations Evaluation</strong>: Measures the quality and interpretability of explanations</li>
+</ol>
+</div>
+<p>These benchmarks provide standardized evaluation protocols for different reasoning capabilities.</p>
+</section>
+<section id="metrics-for-reasoning-quality" class="level3" data-number="11.11.2">
+<h3 data-number="11.11.2" class="anchored" data-anchor-id="metrics-for-reasoning-quality"><span class="header-section-number">11.11.2</span> Metrics for Reasoning Quality</h3>
+<p>Various metrics can be used to assess the quality of embedding-based reasoning.</p>
+<div id="def-reasoning-metrics" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.26 (Reasoning Quality Metrics)</strong></span> Common metrics include:</p>
+<ol type="1">
+<li><strong>Path accuracy</strong>: The accuracy of predictions based on relation paths</li>
+<li><strong>Query answering metrics</strong>: Precision, recall, and F1-score for complex queries</li>
+<li><strong>Rule quality metrics</strong>: Support, confidence, and lift for mined rules</li>
+<li><strong>Explanation metrics</strong>: Faithfulness, compactness, and human evaluation of explanations</li>
+<li><strong>Computational efficiency</strong>: Time and space requirements for reasoning</li>
+</ol>
+</div>
+<p>These metrics provide a multi-faceted assessment of reasoning capabilities.</p>
+</section>
+<section id="human-evaluation" class="level3" data-number="11.11.3">
+<h3 data-number="11.11.3" class="anchored" data-anchor-id="human-evaluation"><span class="header-section-number">11.11.3</span> Human Evaluation</h3>
+<p>For complex reasoning tasks, human evaluation remains an important component of assessment.</p>
+<div id="def-human-evaluation" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.27 (Human Evaluation of Reasoning)</strong></span> Human evaluation approaches typically:</p>
+<ol type="1">
+<li>Present reasoning outputs (predictions and explanations) to human judges</li>
+<li>Ask judges to rate the quality and plausibility of the reasoning</li>
+<li>Compare embedding-based reasoning with human reasoning patterns</li>
+<li>Identify strengths and weaknesses from a human perspective</li>
+</ol>
+</div>
+<p>Human evaluation provides insights that may not be captured by automatic metrics.</p>
+</section>
+</section>
+<section id="future-directions" class="level2" data-number="11.12">
+<h2 data-number="11.12" class="anchored" data-anchor-id="future-directions"><span class="header-section-number">11.12</span> Future Directions</h2>
+<p>Reasoning with knowledge graph embeddings is an active research area with several promising future directions.</p>
+<div id="def-reasoning-future" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 11.28 (Future Directions in Embedding-Based Reasoning)</strong></span> Emerging research directions include:</p>
+<ol type="1">
+<li><strong>Neuro-symbolic reasoning</strong>: Tighter integration of neural and symbolic approaches</li>
+<li><strong>Reasoning with large language models</strong>: Combining KGEs with powerful language models</li>
+<li><strong>Causal reasoning</strong>: Extending embedding approaches to causal inference</li>
+<li><strong>Multimodal reasoning</strong>: Reasoning across knowledge graphs, text, images, etc.</li>
+<li><strong>Dynamic reasoning</strong>: Adapting to evolving knowledge graphs</li>
+<li><strong>Interactive reasoning</strong>: Systems that can engage in reasoning dialogues with users</li>
+<li><strong>Ethical reasoning</strong>: Addressing ethical considerations in automated reasoning</li>
+</ol>
+</div>
+<p>These directions promise to extend the capabilities and applications of embedding-based reasoning.</p>
+</section>
+<section id="conclusion" class="level2" data-number="11.13">
+<h2 data-number="11.13" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">11.13</span> Conclusion</h2>
+<p>Reasoning with knowledge graph embeddings represents a powerful approach that combines the flexibility of distributed representations with the structure of knowledge graphs. By mapping entities and relations to a continuous embedding space, these methods can capture complex patterns and support various forms of inference, from simple relation composition to complex logical queries.</p>
+<p>The approaches discussed in this chapter demonstrate that embedding-based reasoning is not merely a black-box prediction mechanism but can support sophisticated reasoning capabilities comparable to traditional symbolic methods. Path-based reasoning, rule mining, multi-hop inference, and complex query answering all leverage the geometric properties of the embedding space to perform inferences that would be difficult or impossible with purely symbolic approaches.</p>
+<p>At the same time, embedding-based reasoning faces challenges in explainability, handling inconsistency, and scaling to very large knowledge graphs. Hybrid approaches that combine the strengths of embedding-based and symbolic reasoning offer a promising direction for addressing these challenges.</p>
+<p>As knowledge graphs continue to grow in importance across various domains, the ability to reason effectively over them becomes increasingly crucial. The methods presented in this chapter provide a foundation for building reasoning systems that can leverage the rich, structured information contained in knowledge graphs while handling the uncertainty and incompleteness inherent in real-world knowledge.</p>
+</section>
+<section id="further-reading" class="level2" data-number="11.14">
+<h2 data-number="11.14" class="anchored" data-anchor-id="further-reading"><span class="header-section-number">11.14</span> Further Reading</h2>
+<ol type="1">
+<li>Lin, Y., Liu, Z., Sun, M., Liu, Y., &amp; Zhu, X. (2015). Learning entity and relation embeddings for knowledge graph completion. In Proceedings of the Twenty-Ninth AAAI Conference on Artificial Intelligence.</li>
+<li>Wang, Q., Mao, Z., Wang, B., &amp; Guo, L. (2017). Knowledge graph embedding: A survey of approaches and applications. IEEE Transactions on Knowledge and Data Engineering, 29(12), 2724-2743.</li>
+<li>Das, R., Dhuliawala, S., Zaheer, M., Vilnis, L., Durugkar, I., Krishnamurthy, A., … &amp; McCallum, A. (2018). Go for a walk and arrive at the answer: Reasoning over paths in knowledge bases using reinforcement learning. In International Conference on Learning Representations (ICLR).</li>
+<li>Hamilton, W. L., Bajaj, P., Zitnik, M., Jurafsky, D., &amp; Leskovec, J. (2018). Embedding logical queries on knowledge graphs. In Advances in Neural Information Processing Systems (NeurIPS).</li>
+<li>Ren, H., &amp; Leskovec, J. (2020). Beta embeddings for multi-hop logical reasoning in knowledge graphs. In Advances in Neural Information Processing Systems (NeurIPS).</li>
+<li>Ren, H., Hu, W., &amp; Leskovec, J. (2020). Query2box: Reasoning over knowledge graphs in vector space using box embeddings. In International Conference on Learning Representations (ICLR).</li>
+<li>Xiong, W., Hoang, T., &amp; Wang, W. Y. (2017). DeepPath: A reinforcement learning method for knowledge graph reasoning. In Proceedings of the Conference on Empirical Methods in Natural Language Processing (EMNLP).</li>
+<li>Galárraga, L. A., Teflioudi, C., Hose, K., &amp; Suchanek, F. (2013). AMIE: Association rule mining under incomplete evidence in ontological knowledge bases. In Proceedings of the 22nd International Conference on World Wide Web.</li>
+<li>Zhang, W., Paudel, B., Wang, L., Chen, J., Zhu, H., Zhang, W., … &amp; Chen, H. (2019). Iteratively learning embeddings and rules for knowledge graph reasoning. In Proceedings of the World Wide Web Conference.</li>
+<li>Chen, X., Chen, M., Shi, W., Sun, Y., &amp; Zaniolo, C. (2021). Embedding uncertain knowledge graphs. In Proceedings of the AAAI Conference on Artificial Intelligence.</li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation column-body">
+  <div class="nav-page nav-page-previous">
+      <a href="../content/additional-knowledge.html" class="pagination-link" aria-label="Incorporating Additional Information">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Incorporating Additional Information</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../content/applications.html" class="pagination-link" aria-label="Practical Applications and Case Studies">
+        <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Practical Applications and Case Studies</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="https://tuedsci.github.io/">© Tue Nguyen</a></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

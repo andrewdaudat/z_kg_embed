@@ -1,0 +1,1687 @@
+# Advanced Topics and Research Frontiers
+
+As we reach the final chapter of our monograph on knowledge graph embeddings, we turn our attention to the cutting edge of the field. Knowledge graph embedding research continues to evolve rapidly, with new approaches emerging to address existing limitations and extend capabilities. This chapter explores advanced topics and research frontiers that are shaping the future of knowledge graph embeddings.
+
+We'll begin by examining the challenge of inductive learning, which aims to handle previously unseen entities and relations—a significant limitation of traditional embedding approaches. We'll then explore uncertainty quantification and explainability, crucial aspects for deploying knowledge graph embeddings in real-world applications. Next, we'll delve into specialized embedding approaches for temporal, hierarchical, and multi-modal knowledge graphs. Finally, we'll discuss how knowledge graph embeddings are being integrated with large language models and other advanced AI systems.
+
+By the end of this chapter, you'll have a comprehensive understanding of current research directions in knowledge graph embeddings and be well-positioned to contribute to this dynamic field.
+
+## Inductive knowledge graph embeddings
+
+Traditional knowledge graph embedding models are transductive, meaning they can only make predictions about entities and relations seen during training. Inductive models aim to overcome this limitation by generalizing to unseen entities and relations.
+
+::: {#def-inductive-learning}
+
+## Inductive learning
+
+**Inductive learning** for knowledge graph embeddings refers to the ability to:
+
+1. Generate embeddings for previously unseen entities or relations
+2. Make predictions involving these new elements
+3. Generalize patterns learned from existing data to new instances
+
+Unlike transductive learning, which requires all entities to be present during training, inductive learning enables the model to handle dynamic and evolving knowledge graphs.
+
+:::
+
+### Challenges of inductive learning
+
+Inductive learning for knowledge graph embeddings presents several challenges:
+
+::: {#def-inductive-challenges}
+
+## Challenges of inductive learning
+
+1. **Cold-start problem**: Generating meaningful representations for entities with no or few connections
+2. **Transferability**: Ensuring that patterns learned from existing entities transfer to new ones
+3. **Scalability**: Processing new entities efficiently without retraining the entire model
+4. **Generalizability**: Creating embeddings that maintain semantic consistency with existing ones
+5. **Cross-domain adaptation**: Handling entities from domains different from those in the training data
+
+:::
+
+::: {#exm-inductive-challenge}
+
+## Inductive learning challenge example
+
+Consider a knowledge graph about movies, actors, and directors. After training an embedding model, new movies are released and need to be added to the graph.
+
+A transductive model would require retraining from scratch to incorporate these new entities. In contrast, an inductive model would generate embeddings for the new movies based on their connections to existing entities (actors, directors, genres) or their textual descriptions, allowing immediate prediction of missing links without retraining.
+
+:::
+
+### Approaches to inductive learning
+
+Several approaches have been developed to enable inductive learning for knowledge graph embeddings:
+
+#### Attribute-based approaches
+
+::: {#def-attribute-based}
+
+## Attribute-based inductive learning
+
+**Attribute-based approaches** leverage entity attributes or features to generate embeddings:
+
+1. Represent entities based on their textual descriptions or other attributes
+2. Use text encoders (e.g., BERT, RoBERTa) to process these descriptions
+3. Project the resulting representations into the embedding space
+4. Use these attribute-derived embeddings for link prediction
+
+This approach allows embedding new entities based solely on their attributes, without requiring graph connectivity.
+
+:::
+
+::: {#exm-attribute-based}
+
+## Attribute-based inductive learning example
+
+A new entity "COVID-19 vaccine" appears in a biomedical knowledge graph. An attribute-based inductive model would:
+
+1. Process its textual description: "A vaccine designed to provide acquired immunity against SARS-CoV-2, the virus causing COVID-19"
+2. Use a pre-trained text encoder to convert this description into a vector
+3. Project this vector into the knowledge graph embedding space
+4. Use the resulting embedding to predict relations with existing entities (e.g., prevents COVID-19, requires refrigeration)
+
+This allows meaningful predictions about the new entity without retraining the entire model.
+
+:::
+
+#### Graph structure-based approaches
+
+::: {#def-structure-based}
+
+## Graph structure-based inductive learning
+
+**Graph structure-based approaches** use local graph patterns to generate embeddings:
+
+1. Learn a function that maps an entity's neighborhood to its embedding
+2. Apply this function to new entities based on their connections
+3. Update embeddings through message passing or aggregation functions
+4. Use the generated embeddings for link prediction
+
+Graph Neural Networks (GNNs) are particularly well-suited for this approach, as they naturally generate embeddings based on local graph structure.
+
+:::
+
+::: {#exm-structure-based}
+
+## Graph structure-based inductive learning example
+
+Consider a GNN-based model applied to a citation network. When a new paper is published and cites several existing papers, the model would:
+
+1. Aggregate information from the embeddings of the cited papers
+2. Apply learned transformation functions to this aggregated information
+3. Generate an embedding for the new paper
+4. Use this embedding to predict other papers it might cite or topics it covers
+
+This approach leverages the new entity's connections to existing entities without requiring retraining.
+
+:::
+
+#### Rule-based approaches
+
+::: {#def-rule-based}
+
+## Rule-based inductive learning
+
+**Rule-based approaches** combine symbolic rules with embedding methods:
+
+1. Extract logical rules from the knowledge graph (e.g., $\text{locatedIn}(x, y) \land \text{capitalOf}(y, z) \Rightarrow \text{locatedIn}(x, z)$)
+2. Apply these rules to derive facts about new entities
+3. Use the derived facts to position new entities in the embedding space
+4. Refine embeddings using both rules and existing graph structure
+
+This approach combines the generalization capabilities of logical rules with the flexibility of embeddings.
+
+:::
+
+::: {#exm-rule-based}
+
+## Rule-based inductive learning example
+
+A new city "New Metropolis" is added to a geographical knowledge graph with the fact (New_Metropolis, locatedIn, Canada).
+
+A rule-based inductive system would:
+
+1. Apply the rule $\text{locatedIn}(x, \text{Canada}) \Rightarrow \text{hasContinent}(x, \text{North America})$
+2. Infer the new fact (New_Metropolis, hasContinent, North_America)
+3. Use this derived fact along with the original one to position New_Metropolis in the embedding space
+4. Make further predictions based on this embedding
+
+:::
+
+### Inductive link prediction models
+
+Several specific models have been proposed for inductive knowledge graph completion:
+
+::: {#def-grail}
+
+## GraIL model
+
+**GraIL** (Graph Neural Network for Inductive Link Prediction), proposed by Teru et al. (2020):
+
+1. Extracts enclosing subgraphs around the target link
+2. Applies a relational Graph Neural Network to the subgraph
+3. Uses node labeling to capture structural information
+4. Makes predictions based only on graph structure, independent of specific entity identities
+
+GraIL can predict links involving previously unseen entities based solely on their local graph neighborhoods.
+
+:::
+
+::: {#def-drum}
+
+## DRUM model
+
+**DRUM** (Deep Rule Mining), proposed by Sadeghian et al. (2019):
+
+1. Learns logical rules through a differentiable rule mining framework
+2. Applies rules to derive new facts
+3. Combines rule-based inference with embedding-based scoring
+4. Makes predictions for new entities by applying learned rules
+
+DRUM leverages the generalization capabilities of logical rules for inductive reasoning.
+
+:::
+
+::: {#def-lace}
+
+## LACE model
+
+**LACE** (Low-rank Alignment of Continuous Embeddings), proposed by Wang et al. (2022):
+
+1. Uses entity descriptions and textual information
+2. Aligns text embeddings with graph embeddings through a low-rank transformation
+3. Generates embeddings for new entities from their textual descriptions
+4. Makes predictions using these aligned embeddings
+
+LACE bridges textual and graph-based representations for effective inductive learning.
+
+:::
+
+### Meta-learning approaches
+
+Meta-learning, or "learning to learn," has been applied to inductive knowledge graph embedding:
+
+::: {#def-meta-learning}
+
+## Meta-learning for knowledge graph embeddings
+
+**Meta-learning approaches** aim to learn how to quickly adapt to new entities and relations:
+
+1. Train the model on a variety of subgraphs or tasks
+2. Learn initialization parameters that can quickly adapt to new entities
+3. Use few-shot learning techniques to generalize from limited examples
+4. Apply the learned adaptation procedure to new entities or relations
+
+Meta-learning is particularly useful for cold-start scenarios with minimal information about new entities.
+
+:::
+
+::: {#exm-meta-learning}
+
+## Meta-learning example
+
+A meta-learning approach for knowledge graph completion might:
+
+1. Train on many "episodes," each involving predicting links for a subset of entities
+2. Learn how entity embeddings should change based on new connections
+3. When a new entity appears, apply the learned adaptation procedure to generate its initial embedding
+4. Refine this embedding as more connections are observed
+
+This approach allows the model to generalize patterns of adaptation across different entities and relations.
+
+:::
+
+## Uncertainty quantification and confidence
+
+In many real-world applications, it's crucial not just to make predictions but also to quantify uncertainty about those predictions.
+
+::: {#def-uncertainty-quantification}
+
+## Uncertainty quantification
+
+**Uncertainty quantification** in knowledge graph embeddings refers to:
+
+1. Estimating the confidence or reliability of predicted links
+2. Distinguishing between different types of uncertainty (aleatoric vs. epistemic)
+3. Providing calibrated probability estimates for predictions
+4. Identifying when the model is likely to make errors
+
+Effective uncertainty quantification enables more reliable decision-making and identifies areas where human intervention may be needed.
+
+:::
+
+### Types of uncertainty
+
+Two main types of uncertainty are relevant for knowledge graph embeddings:
+
+::: {#def-uncertainty-types}
+
+## Types of uncertainty
+
+1. **Aleatoric uncertainty**: Inherent randomness or noise in the data that cannot be reduced by collecting more data
+
+   - Example: Ambiguity in relation definitions or genuinely probabilistic relationships
+
+2. **Epistemic uncertainty**: Uncertainty due to limited knowledge or data that can be reduced with more information
+   - Example: Uncertainty about entities with few connections or from domains underrepresented in the training data
+
+:::
+
+### Probabilistic embedding models
+
+Several approaches incorporate probabilistic reasoning into knowledge graph embeddings:
+
+::: {#def-probabilistic-embeddings}
+
+## Probabilistic embedding models
+
+**Probabilistic embedding models** represent entities and relations as probability distributions rather than point vectors:
+
+1. **KG2E** (He et al., 2015): Models entities and relations as Gaussian distributions
+2. **TransG** (Xiao et al., 2016): Uses Gaussian mixtures to model multiple relation semantics
+3. **UKGE** (Chen et al., 2019): Incorporates uncertainty through Bayesian methods
+4. **BayesKGE** (Zhou et al., 2020): Applies Bayesian inference to knowledge graph embedding
+
+These models naturally quantify uncertainty through the variance or spread of the distributions.
+
+:::
+
+::: {#exm-probabilistic-embedding}
+
+## Probabilistic embedding example
+
+In KG2E, each entity and relation is represented as a Gaussian distribution in the embedding space:
+
+- Entity: $e \sim \mathcal{N}(\boldsymbol{\mu}_e, \boldsymbol{\Sigma}_e)$
+- Relation: $r \sim \mathcal{N}(\boldsymbol{\mu}_r, \boldsymbol{\Sigma}_r)$
+
+For a triple $(h, r, t)$, the model computes the probability of the translation $h + r \approx t$ by measuring the similarity between the distributions of $h + r$ and $t$.
+
+The variance of these distributions naturally captures uncertainty: higher variance indicates less confidence in the embedding.
+
+:::
+
+### Bayesian approaches
+
+Bayesian methods provide a principled framework for uncertainty quantification:
+
+::: {#def-bayesian-kge}
+
+## Bayesian knowledge graph embeddings
+
+**Bayesian knowledge graph embedding** models:
+
+1. Define prior distributions over entity and relation embeddings
+2. Update these distributions based on observed triples
+3. Use the posterior distributions to make predictions with uncertainty estimates
+4. Apply Bayesian inference techniques like MCMC or variational inference
+
+Bayesian approaches naturally balance fitting the observed data with generalization to unseen data.
+
+:::
+
+::: {#exm-bayesian-approach}
+
+## Bayesian approach example
+
+A Bayesian version of TransE might:
+
+1. Define prior distributions for entity and relation embeddings: $p(\mathbf{E})$ and $p(\mathbf{R})$
+2. Define a likelihood function based on the TransE scoring function: $p(T|\mathbf{E},\mathbf{R})$
+3. Compute the posterior distribution: $p(\mathbf{E},\mathbf{R}|T) \propto p(T|\mathbf{E},\mathbf{R})p(\mathbf{E})p(\mathbf{R})$
+4. Use the posterior to make predictions with uncertainty estimates
+
+For a query $(h, r, ?)$, the model would provide not just the most likely tail entity but also a probability distribution over possible answers.
+
+:::
+
+### Ensemble methods
+
+Ensemble methods combine multiple models to improve predictions and quantify uncertainty:
+
+::: {#def-ensemble-methods}
+
+## Ensemble methods for uncertainty quantification
+
+**Ensemble approaches** for knowledge graph embeddings:
+
+1. Train multiple embedding models with different initializations or architectures
+2. Combine their predictions through averaging or voting
+3. Measure disagreement between models as an uncertainty estimate
+4. Identify predictions where the ensemble has high consensus or divergent opinions
+
+Ensemble methods provide a practical approach to uncertainty quantification without requiring fundamental changes to the embedding models.
+
+:::
+
+::: {#exm-ensemble-method}
+
+## Ensemble method example
+
+An ensemble approach for link prediction might:
+
+1. Train 10 instances of RotatE with different random initializations
+2. For a query $(h, r, ?)$, get ranked lists of tail entities from each model
+3. Combine these rankings through Borda counting or another rank aggregation method
+4. Measure uncertainty based on the variance in rankings across models
+
+High variance would indicate uncertain predictions, while low variance would suggest more confident ones.
+
+:::
+
+### Calibration techniques
+
+Even when models provide confidence scores, these may not be well-calibrated probabilities:
+
+::: {#def-calibration}
+
+## Calibration techniques
+
+**Calibration techniques** for knowledge graph embeddings:
+
+1. **Temperature scaling**: Apply a learned temperature parameter to soften or sharpen model outputs
+2. **Isotonic regression**: Learn a monotonic function to map model scores to calibrated probabilities
+3. **Platt scaling**: Apply logistic regression to transform model scores into probabilities
+4. **Quantile regression**: Predict confidence intervals rather than point estimates
+
+Well-calibrated models ensure that when the model assigns 80% confidence to a prediction, it is correct approximately 80% of the time.
+
+:::
+
+### Applications of uncertainty quantification
+
+Uncertainty quantification enables several important applications:
+
+::: {#def-uncertainty-applications}
+
+## Applications of uncertainty quantification
+
+1. **Active learning**: Identify the most uncertain predictions to prioritize for human annotation
+2. **Decision support**: Provide confidence levels to guide human decision-making
+3. **Robust reasoning**: Incorporate uncertainty into multi-hop reasoning chains
+4. **Knowledge graph refinement**: Identify potentially erroneous triples in the knowledge graph
+5. **Domain adaptation**: Recognize when predictions involve domains with high uncertainty
+
+:::
+
+::: {#exm-uncertainty-application}
+
+## Uncertainty application example
+
+In a medical knowledge graph application:
+
+1. The model predicts potential drug interactions with associated confidence scores
+2. High-confidence predictions are automatically added to the knowledge base
+3. Medium-confidence predictions are flagged for expert review
+4. Low-confidence predictions trigger additional research or data collection
+
+This approach balances automation with expert oversight based on prediction confidence.
+
+:::
+
+## Explainability and interpretability
+
+As knowledge graph embeddings are increasingly used in critical applications, the need for explainable and interpretable models grows.
+
+::: {#def-explainability}
+
+## Explainability and interpretability
+
+**Explainability** refers to the ability to provide human-understandable justifications for model predictions.
+
+**Interpretability** refers to the inherent transparency of the model's reasoning process.
+
+For knowledge graph embeddings, these concepts involve:
+
+1. Explaining why a particular triple is predicted to be true or false
+2. Identifying supporting evidence in the knowledge graph
+3. Providing reasoning paths or rules that justify predictions
+4. Offering insights into how the embedding space is structured
+
+:::
+
+### Path-based explanations
+
+One approach to explainability is to identify paths in the knowledge graph that support a prediction:
+
+::: {#def-path-explanations}
+
+## Path-based explanations
+
+**Path-based explanation methods**:
+
+1. Identify paths between the head and tail entities that explain the predicted relation
+2. Score paths based on their relevance or importance to the prediction
+3. Present the most relevant paths as explanations
+4. May incorporate attention mechanisms to weight different paths
+
+These methods provide concrete evidence from the knowledge graph to support predictions.
+
+:::
+
+::: {#exm-path-explanation}
+
+## Path-based explanation example
+
+For the predicted triple (Albert_Einstein, citizenship, United_States), a path-based explanation might be:
+
+(Albert_Einstein) --born_in--> (Germany) --emigrated_to--> (United_States) --granted_citizenship_to--> (Albert_Einstein)
+
+This path demonstrates a logical sequence of relations that explains why Einstein had US citizenship, making the prediction more trustworthy and understandable.
+
+:::
+
+### Rule-based explanations
+
+Logical rules provide another form of explanation:
+
+::: {#def-rule-explanations}
+
+## Rule-based explanations
+
+**Rule-based explanation methods**:
+
+1. Extract or learn logical rules from the knowledge graph
+2. Identify rules that support a particular prediction
+3. Present these rules as explanations
+4. May combine multiple rules with different weights or confidence levels
+
+Rules provide compact, generalizable explanations that can apply to many different instances.
+
+:::
+
+::: {#exm-rule-explanation}
+
+## Rule-based explanation example
+
+For the predicted triple (Paris, located_in, Europe), a rule-based explanation might be:
+
+located_in(X, France) ∧ located_in(France, Europe) → located_in(X, Europe) [confidence: 0.95]
+
+Given the known facts (Paris, located_in, France) and (France, located_in, Europe), this rule logically implies the prediction.
+
+:::
+
+### Model-specific interpretability
+
+Some embedding models are inherently more interpretable than others:
+
+::: {#def-model-interpretability}
+
+## Model-specific interpretability approaches
+
+1. **TransE and variants**: Interpret relations as translations in the embedding space
+2. **DistMult**: Interpret relation dimensions as important features for specific relations
+3. **RotatE**: Interpret relations as rotations with specific angles
+4. **Rule-enhanced models**: Extract explicit rules that complement embedding predictions
+
+More complex neural models like R-GCN or ConvE typically require additional explanation mechanisms.
+
+:::
+
+::: {#exm-model-interpretability}
+
+## Model interpretability example
+
+In RotatE, a relation "is_parent_of" might be represented as a rotation by approximately 180 degrees in certain dimensions of the complex embedding space.
+
+This geometric interpretation makes it clear why the model considers "is_parent_of" and "is_child_of" to be inverse relations (they rotate in opposite directions) and why "is_sibling_of" might be symmetric (it rotates by either 0 or 360 degrees).
+
+:::
+
+### Attention mechanisms for explainability
+
+Attention mechanisms can highlight important elements for predictions:
+
+::: {#def-attention-explainability}
+
+## Attention mechanisms for explainability
+
+**Attention-based explanation methods**:
+
+1. Use attention weights to identify important entities or relations for a prediction
+2. Visualize attention patterns across the knowledge graph
+3. Generate explanations based on elements with high attention scores
+4. May incorporate hierarchical attention for multi-step reasoning
+
+Attention provides a natural way to identify which parts of the knowledge graph are most relevant for a prediction.
+
+:::
+
+::: {#exm-attention-explanation}
+
+## Attention explanation example
+
+In a multi-hop reasoning task to answer "What medications might interact with drugs that treat diabetes?", an attention-based model might:
+
+1. First attend strongly to entities like "Metformin" and "Insulin" (common diabetes medications)
+2. Then shift attention to entities connected via "interacts_with" relations
+3. Finally highlight "Warfarin" as having strong potential interactions
+
+The attention weights reveal the reasoning process: identify diabetes medications → find interaction relationships → highlight specific interacting drugs.
+
+:::
+
+### Counterfactual explanations
+
+Counterfactual explanations explore how predictions would change if certain facts were different:
+
+::: {#def-counterfactual}
+
+## Counterfactual explanations
+
+**Counterfactual explanation methods**:
+
+1. Identify minimal changes to the knowledge graph that would alter a prediction
+2. Generate "what-if" scenarios to explain prediction boundaries
+3. Highlight critical facts that support or contradict a prediction
+4. May involve adversarial perturbations to test prediction robustness
+
+Counterfactual explanations help users understand which facts are most crucial for a prediction.
+
+:::
+
+::: {#exm-counterfactual}
+
+## Counterfactual explanation example
+
+For the predicted triple (Company_X, headquartered_in, United_States), a counterfactual explanation might be:
+
+"This prediction would change to 'Japan' if:
+
+1. The founder's nationality were Japanese instead of American
+2. The company's largest office were in Tokyo instead of New York
+3. The company were incorporated in Japan instead of Delaware"
+
+This explains both why the current prediction is "United States" and what evidence would need to change to get a different prediction.
+
+:::
+
+### Evaluation of explanations
+
+Explanations should be evaluated on multiple dimensions:
+
+::: {#def-explanation-evaluation}
+
+## Explanation evaluation criteria
+
+1. **Faithfulness**: How accurately the explanation reflects the model's actual reasoning
+2. **Plausibility**: How convincing the explanation is to humans
+3. **Specificity**: How precisely the explanation identifies relevant factors
+4. **Coherence**: How logically connected and consistent the explanation is
+5. **Simplicity**: How easy the explanation is to understand
+6. **Actionability**: How useful the explanation is for decision-making or model improvement
+
+:::
+
+::: {#exm-explanation-evaluation}
+
+## Explanation evaluation example
+
+Consider two explanations for the prediction (Patient_A, has_disease, Diabetes):
+
+Explanation 1: "Patient_A has high blood glucose levels and a family history of diabetes." Explanation 2: "Based on 47 features including age, BMI, blood pressure, and family history, our model calculates a 78% probability of diabetes."
+
+Explanation 1 is more specific and actionable, highlighting the most relevant factors, while Explanation 2 mentions many features without clarifying their importance.
+
+:::
+
+## Temporal knowledge graphs
+
+Real-world knowledge evolves over time, making temporal knowledge graphs an important extension of standard knowledge graphs.
+
+::: {#def-temporal-kg}
+
+## Temporal knowledge graph
+
+A **temporal knowledge graph** extends traditional knowledge graphs by incorporating time information:
+
+1. Triples are expanded to quadruples $(h, r, t, \tau)$, where $\tau$ represents a time point or interval
+2. Relations can have different validity periods
+3. Entities and their properties can change over time
+4. Queries can include temporal constraints or questions about temporal patterns
+
+Temporal knowledge graphs enable reasoning about how facts and relationships evolve over time.
+
+:::
+
+::: {#exm-temporal-kg}
+
+## Temporal knowledge graph example
+
+In a temporal knowledge graph about politicians:
+
+- (Joe_Biden, president_of, United_States, [2021-01-20, present])
+- (Donald_Trump, president_of, United_States, [2017-01-20, 2021-01-20])
+- (Barack_Obama, president_of, United_States, [2009-01-20, 2017-01-20])
+
+These quadruples capture the time-dependent nature of the "president_of" relation, allowing queries about who was president during a specific time period or how long someone served as president.
+
+:::
+
+### Challenges in temporal knowledge graph embedding
+
+Embedding temporal knowledge graphs presents several unique challenges:
+
+::: {#def-temporal-challenges}
+
+## Challenges in temporal knowledge graph embedding
+
+1. **Representation complexity**: How to incorporate time into the embedding framework
+2. **Temporal reasoning**: Modeling order, duration, and temporal relations
+3. **Evolution patterns**: Capturing how entities and relations evolve over time
+4. **Sparsity**: Handling time periods with limited data
+5. **Efficiency**: Managing the increased computational complexity
+6. **Forecasting**: Predicting future facts based on historical patterns
+
+:::
+
+### Temporal embedding approaches
+
+Several approaches have been developed for embedding temporal knowledge graphs:
+
+#### Time as an additional dimension
+
+::: {#def-time-dimension}
+
+## Time as an additional dimension
+
+**Time-as-dimension approaches** extend existing embedding models by:
+
+1. Representing time as an additional embedding dimension
+2. Learning time-specific embeddings for entities and relations
+3. Adjusting scoring functions to incorporate temporal information
+4. Modeling temporal patterns as trajectories in the embedding space
+
+Examples include TTransE (Leblay & Chekol, 2018) and TimePlex (Jain et al., 2020).
+
+:::
+
+::: {#exm-time-dimension}
+
+## Time-as-dimension example
+
+TTransE extends the TransE model by:
+
+1. Learning a time embedding $\mathbf{\tau}$ for each timestamp
+2. Modifying the scoring function to: $f_r(h, t, \tau) = -\|\mathbf{h} + \mathbf{r} + \mathbf{\tau} - \mathbf{t}\|$
+3. This allows entities to "move" through the embedding space over time
+4. The relation translation is adjusted based on the timestamp
+
+For example, the embedding of "United_States" would move to different positions depending on which timestamp is added, reflecting changes in its properties and relationships over time.
+
+:::
+
+#### Temporal attention mechanisms
+
+::: {#def-temporal-attention}
+
+## Temporal attention mechanisms
+
+**Temporal attention approaches** use attention to focus on relevant time periods:
+
+1. Assign attention weights to different time steps
+2. Aggregate information across time with weighted averaging
+3. Adapt attention based on the query and context
+4. Model complex temporal dependencies and patterns
+
+Examples include TART (García-Durán et al., 2018) and TComplEx (Lacroix et al., 2020).
+
+:::
+
+::: {#exm-temporal-attention}
+
+## Temporal attention example
+
+In a temporal attention model:
+
+1. For a query (Barack_Obama, was_president_of, United_States, ?), the model would attend strongly to the time period 2009-2017
+2. For a query about Obama's early career, attention would shift to earlier time periods
+3. The attention mechanism learns which time periods are most relevant for different types of queries
+4. This allows the model to focus on the most informative temporal context for each prediction
+
+:::
+
+#### Diachronic embeddings
+
+::: {#def-diachronic}
+
+## Diachronic embeddings
+
+**Diachronic embedding approaches** make entity embeddings time-dependent functions:
+
+1. Represent entities as functions of time: $\mathbf{e}(t)$ rather than static embeddings $\mathbf{e}$
+2. Model how entity representations evolve continuously
+3. Use different functional forms (linear, periodic, neural) to capture temporal patterns
+4. Maintain relation embeddings as static or also make them time-dependent
+
+Examples include DE-SimplE (Goel et al., 2020) and TeLM (Xu et al., 2020).
+
+:::
+
+::: {#exm-diachronic}
+
+## Diachronic embedding example
+
+In DE-SimplE, entity embeddings are defined as: $\mathbf{e}(t) = [\mathbf{e}_s; \mathbf{e}_t(t)]$ where $\mathbf{e}_s$ is a static component and $\mathbf{e}_t(t)$ is a temporal component defined as: $\mathbf{e}_t(t)[i] = \begin{cases} 
+a_i \sin(\omega_i t + b_i) & \text{if } i \leq k \\
+0 & \text{otherwise}
+\end{cases}$
+
+This allows some dimensions of the embedding to oscillate with time while others remain static, capturing both stable and dynamic aspects of entities.
+
+:::
+
+### Temporal reasoning and forecasting
+
+An important application of temporal knowledge graph embeddings is reasoning about the future:
+
+::: {#def-temporal-reasoning}
+
+## Temporal reasoning and forecasting
+
+**Temporal reasoning and forecasting approaches**:
+
+1. Learn patterns of temporal evolution from historical data
+2. Project these patterns forward to predict future facts
+3. Model recurring patterns, trends, and seasonal variations
+4. Account for uncertainty that increases with prediction distance
+
+Examples include Know-Evolve (Trivedi et al., 2017) and RE-NET (Jin et al., 2020).
+
+:::
+
+::: {#exm-temporal-forecasting}
+
+## Temporal forecasting example
+
+A forecasting model might predict:
+
+- (Company_X, will_acquire, Company_Y, [2025-Q3])
+- (Country_A, will_sign_treaty_with, Country_B, [2026])
+
+These predictions would be based on patterns such as:
+
+1. Similar companies make acquisitions after reaching certain growth milestones
+2. Countries with increasing diplomatic interactions tend to formalize relationships with treaties
+3. Seasonal patterns in business activities or international relations
+
+:::
+
+## Hierarchical and ontological knowledge graphs
+
+Many knowledge graphs incorporate hierarchical structures and ontological information, which can be exploited to improve embeddings.
+
+::: {#def-hierarchical-kg}
+
+## Hierarchical knowledge graph
+
+A **hierarchical knowledge graph** explicitly represents:
+
+1. Type hierarchies (e.g., Dog isA Mammal isA Animal)
+2. Part-whole relationships (e.g., Engine partOf Car)
+3. Subsumption relationships between concepts
+4. Levels of abstraction and specificity
+
+Ontological knowledge graphs extend this with formal specifications of conceptualizations, including axioms, constraints, and logical rules.
+
+:::
+
+::: {#exm-hierarchical-kg}
+
+## Hierarchical knowledge graph example
+
+A hierarchical knowledge graph about animals might include:
+
+- (Tiger, isA, Feline)
+- (Feline, isA, Mammal)
+- (Mammal, isA, Animal)
+- (Tiger, has_part, Claw)
+- (Claw, has_property, Sharp)
+
+This hierarchical structure allows inferring that tigers are animals and have sharp claws, even if these facts aren't explicitly stated.
+
+:::
+
+### Challenges in hierarchical embedding
+
+Embedding hierarchical knowledge presents several challenges:
+
+::: {#def-hierarchical-challenges}
+
+## Challenges in hierarchical embedding
+
+1. **Transitive reasoning**: Capturing hierarchical relationships that extend through multiple levels
+2. **Asymmetry**: Properly representing the directional nature of hierarchical relationships
+3. **Level awareness**: Accounting for different levels of abstraction
+4. **Completeness**: Handling incomplete hierarchies with missing links
+5. **Consistency**: Ensuring embeddings respect hierarchical constraints
+
+:::
+
+### Hierarchical embedding approaches
+
+Several approaches have been developed to embed hierarchical knowledge:
+
+#### Geometric approaches
+
+::: {#def-geometric-hierarchical}
+
+## Geometric approaches for hierarchical embedding
+
+**Geometric approaches** leverage specific geometric structures for hierarchies:
+
+1. **Hyperbolic embeddings**: Use hyperbolic space, which naturally accommodates tree-like structures
+2. **Order embeddings**: Define partial ordering relationships in the embedding space
+3. **Box embeddings**: Represent concepts as n-dimensional boxes (hyperrectangles)
+4. **Cone embeddings**: Represent concepts as cones in a vector space
+
+These approaches incorporate the hierarchical structure directly into the geometry of the embedding space.
+
+:::
+
+::: {#exm-hyperbolic}
+
+## Hyperbolic embedding example
+
+In hyperbolic embeddings (e.g., Poincaré embeddings), concepts are arranged in a hyperbolic space where:
+
+1. More general concepts (e.g., "Animal") are placed near the origin
+2. More specific concepts (e.g., "Bengal Tiger") are placed toward the boundary
+3. The distance from the origin reflects the concept's specificity or depth in the hierarchy
+4. The direction from the origin reflects the branch of the hierarchy
+
+This naturally captures tree-like hierarchies because hyperbolic space has exponentially more "room" as you move away from the origin, accommodating the exponential growth in the number of nodes at each level of a tree.
+
+:::
+
+#### Type-enhanced embeddings
+
+::: {#def-type-enhanced}
+
+## Type-enhanced embeddings
+
+**Type-enhanced embedding approaches**:
+
+1. Incorporate entity type information into the embedding model
+2. Learn separate embeddings for types and entities
+3. Ensure that entity embeddings respect type constraints
+4. Use type information to restrict the range of predictions
+
+Examples include TKRL (Xie et al., 2016) and TransC (Lv et al., 2018).
+
+:::
+
+::: {#exm-type-enhanced}
+
+## Type-enhanced embedding example
+
+In TransC, both entities and concepts (types) are embedded as spheres:
+
+1. Entities are represented as small spheres in the embedding space
+2. Concepts are represented as larger spheres that contain their instances
+3. The hierarchy of concepts is modeled through sphere inclusion
+4. The scoring function accounts for both entity-entity and entity-concept relationships
+
+For instance, the "Mammal" sphere would contain the "Dog" sphere, which in turn would contain individual dog entities like "Lassie" and "Rover."
+
+:::
+
+#### Logic-based approaches
+
+::: {#def-logic-hierarchical}
+
+## Logic-based approaches for hierarchical embedding
+
+**Logic-based approaches** incorporate logical rules for hierarchies:
+
+1. Represent hierarchical relationships using logical formulas
+2. Use logical inference alongside embedding-based prediction
+3. Ensure consistency with hierarchical constraints
+4. Penalize predictions that violate logical constraints
+5. Learn embeddings that respect logical axioms and rules
+
+Examples include KALE (Guo et al., 2016) and RUGE (Guo et al., 2018).
+
+:::
+
+::: {#exm-logic-based}
+
+## Logic-based approach example
+
+In a logic-enhanced model for a medical knowledge graph:
+
+1. The rule "If disease X is a subtype of disease Y, and treatment Z is effective for Y, then Z may be effective for X" is encoded
+2. When the model knows (Melanoma, isA, Skin_Cancer) and (Immunotherapy, treats, Skin_Cancer)
+3. It can infer (Immunotherapy, treats, Melanoma) with some confidence
+4. The embeddings are trained to be consistent with such logical inferences
+
+This combines the flexibility of embeddings with the precision of logical reasoning.
+
+:::
+
+### Ontology embedding
+
+Ontology embedding extends hierarchical embedding to capture richer semantic relationships:
+
+::: {#def-ontology-embedding}
+
+## Ontology embedding
+
+**Ontology embedding** approaches:
+
+1. Represent concepts, properties, and axioms in a vector space
+2. Preserve semantic relationships defined in formal ontologies
+3. Support complex reasoning tasks beyond simple hierarchies
+4. Often incorporate description logic or OWL semantics
+
+Examples include OWL2Vec\* (Chen et al., 2021) and EL Embeddings (Kulmanov et al., 2019).
+
+:::
+
+::: {#exm-ontology-embedding}
+
+## Ontology embedding example
+
+In an ontology embedding for a biomedical knowledge graph:
+
+1. The concept "Pneumonia" is defined as "Inflammation located in the Lung"
+2. The embedding model captures this compositional definition
+3. When querying for "Inflammation located in the Lung," the model returns "Pneumonia" as a match
+4. When querying for diseases affecting respiratory organs, it identifies "Pneumonia" due to the ontological relationship between lungs and respiratory organs
+
+This captures the rich semantic information in biomedical ontologies, enabling more sophisticated reasoning.
+
+:::
+
+### Applications of hierarchical embeddings
+
+Hierarchical embeddings enable several important applications:
+
+::: {#def-hierarchical-applications}
+
+## Applications of hierarchical embeddings
+
+1. **Zero-shot learning**: Generalizing to new entities based on their position in a hierarchy
+2. **Taxonomy completion**: Predicting missing links in hierarchical structures
+3. **Instance classification**: Assigning entities to the correct categories
+4. **Concept similarity**: Measuring semantic similarity based on hierarchical relationships
+5. **Analogical reasoning**: Finding entities that occupy similar positions in different hierarchical branches
+
+:::
+
+::: {#exm-hierarchical-application}
+
+## Hierarchical application example
+
+In a product knowledge graph for e-commerce:
+
+1. A new product is added with minimal information
+2. Hierarchical embeddings place it in the correct product category based on its features
+3. The system predicts likely attributes and relationships based on similar products in the same category
+4. Recommendations are generated by finding products in similar positions in the hierarchy but different branches (e.g., suggesting a premium notebook when someone is viewing a premium tablet)
+
+This leverages the hierarchical structure to make effective predictions even with limited information.
+
+:::
+
+## Multi-modal knowledge graphs
+
+Multi-modal knowledge graphs incorporate multiple types of data beyond textual descriptions, such as images, numerical values, and time series.
+
+::: {#def-multimodal-kg}
+
+## Multi-modal knowledge graph
+
+A **multi-modal knowledge graph** integrates:
+
+1. Traditional relation triples between entities
+2. Visual information (images, videos)
+3. Numerical attributes and values
+4. Temporal data and time series
+5. Textual descriptions and documents
+6. Audio or other sensory data
+
+This richer representation enables more comprehensive modeling of entities and relationships.
+
+:::
+
+::: {#exm-multimodal-kg}
+
+## Multi-modal knowledge graph example
+
+A multi-modal knowledge graph about landmarks might include:
+
+- Traditional triples: (Eiffel_Tower, located_in, Paris)
+- Images: Photos of the Eiffel Tower from different angles
+- Numerical attributes: Height: 330m, Year_built: 1889
+- Temporal data: Visitor statistics over time
+- Textual descriptions: "The Eiffel Tower is a wrought-iron lattice tower on the Champ de Mars in Paris, France..."
+- Audio: Sound recordings from the vicinity
+
+This multi-faceted representation provides a much richer understanding of the entity than traditional knowledge graph triples alone.
+
+:::
+
+### Challenges in multi-modal embedding
+
+Embedding multi-modal knowledge graphs presents several challenges:
+
+::: {#def-multimodal-challenges}
+
+## Challenges in multi-modal embedding
+
+1. **Heterogeneity**: Handling fundamentally different types of data
+2. **Alignment**: Aligning embeddings across different modalities
+3. **Missing modalities**: Dealing with entities that lack certain types of data
+4. **Modality importance**: Determining the relative importance of different modalities
+5. **Efficiency**: Managing the increased computational requirements
+6. **Evaluation**: Assessing performance across different modalities and tasks
+
+:::
+
+### Multi-modal embedding approaches
+
+Several approaches have been developed for embedding multi-modal knowledge graphs:
+
+#### Joint embedding models
+
+::: {#def-joint-embedding}
+
+## Joint embedding models
+
+**Joint embedding approaches**:
+
+1. Encode each modality with a specialized encoder (e.g., CNN for images, BERT for text)
+2. Project these encodings into a shared embedding space
+3. Learn to align the different modalities
+4. Use the joint embeddings for various downstream tasks
+
+Examples include IKRL (Xie et al., 2017) and MMKG (Pezeshkpour et al., 2018).
+
+:::
+
+::: {#exm-joint-embedding}
+
+## Joint embedding example
+
+In IKRL (Image-embodied Knowledge Representation Learning):
+
+1. Each entity has both a structure-based embedding from the knowledge graph structure
+2. And an image-based embedding derived from its associated images
+3. The model learns to align these two embeddings
+4. During inference, it can use either or both types of embeddings depending on availability
+
+This allows the model to leverage visual information when available while still functioning for entities without images.
+
+:::
+
+#### Cross-modal attention
+
+::: {#def-crossmodal-attention}
+
+## Cross-modal attention
+
+**Cross-modal attention approaches**:
+
+1. Use attention mechanisms to dynamically weight different modalities
+2. Focus on the most relevant modalities for specific tasks or queries
+3. Enable information flow between modalities
+4. Learn cross-modal relationships and dependencies
+
+Examples include MKBE (Pezeshkpour et al., 2018) and MMEA (Shi et al., 2020).
+
+:::
+
+::: {#exm-crossmodal-attention}
+
+## Cross-modal attention example
+
+For a query about the architectural style of a building, a cross-modal attention model might:
+
+1. Attend strongly to image features showing the building's facade
+2. Also attend to text descriptions discussing architectural elements
+3. Pay less attention to numerical attributes like construction date or size
+4. Integrate the most relevant information from each modality to make the prediction
+
+The attention weights would be different for a query about the building's age, focusing more on numerical attributes and historical text.
+
+:::
+
+#### Numerical attribute embedding
+
+::: {#def-numerical-embedding}
+
+## Numerical attribute embedding
+
+**Numerical attribute embedding approaches**:
+
+1. Incorporate numerical values and attributes into entity representations
+2. May use specialized encodings for different types of numerical data
+3. Account for the scale and distribution of different attributes
+4. Enable numerical reasoning and comparison
+
+Examples include TransEA (Chen et al., 2018) and KBLN (García-Durán & Niepert, 2017).
+
+:::
+
+::: {#exm-numerical-embedding}
+
+## Numerical attribute example
+
+In a knowledge graph of companies with numerical attributes:
+
+1. Revenue, employee count, and founding year are encoded as numerical features
+2. The model learns to transform these values into the embedding space
+3. This allows queries like "companies with revenue greater than $1B" or "tech companies founded after 2010"
+4. The model can perform both numerical comparisons and semantic reasoning
+
+For example, when predicting potential acquisition targets, the model might consider both semantic relationships (industry sector, product compatibility) and numerical attributes (revenue growth rate, employee count, market valuation).
+
+:::
+
+### Multi-task learning for multi-modal knowledge graphs
+
+Multi-task learning is often applied to multi-modal knowledge graphs:
+
+::: {#def-multitask-kg}
+
+## Multi-task learning for multi-modal knowledge graphs
+
+**Multi-task learning approaches**:
+
+1. Train the embedding model on multiple related tasks simultaneously
+2. Share parameters across tasks to improve generalization
+3. Use task-specific components where needed
+4. Balance performance across different tasks and modalities
+
+Tasks might include link prediction, image classification, attribute prediction, and text generation.
+
+:::
+
+::: {#exm-multitask}
+
+## Multi-task learning example
+
+A multi-task learning approach for a product knowledge graph might simultaneously train on:
+
+1. Link prediction between products and categories
+2. Image classification for product photos
+3. Prediction of numerical attributes like price and dimensions
+4. Generation of product descriptions from features
+
+By learning these tasks jointly, the model develops representations that capture the relationships between different aspects of products, improving performance on all tasks.
+
+:::
+
+### Applications of multi-modal knowledge graphs
+
+Multi-modal knowledge graphs enable several advanced applications:
+
+::: {#def-multimodal-applications}
+
+## Applications of multi-modal knowledge graphs
+
+1. **Visual question answering**: Answering questions about visual content using knowledge graph context
+2. **Multi-modal recommendation**: Recommending items based on visual, numerical, and relational features
+3. **Cross-modal retrieval**: Finding relevant content across different modalities
+4. **Enhanced entity resolution**: Identifying entity mentions across different data sources and formats
+5. **Rich content generation**: Creating text, images, or other content based on knowledge graph entities
+
+:::
+
+::: {#exm-multimodal-application}
+
+## Multi-modal application example
+
+In a multi-modal e-commerce application:
+
+1. A user uploads a photo of a dress they like
+2. The system identifies the dress and its attributes from the image
+3. The knowledge graph provides information about designer, materials, and price
+4. The system recommends similar dresses in different colors or at lower price points
+5. It generates natural language explanations for the recommendations
+
+This combines visual processing with knowledge graph reasoning for a rich, informative user experience.
+
+:::
+
+## Knowledge graph embeddings and large language models
+
+Recent advances in large language models (LLMs) have opened new possibilities for knowledge graph embeddings, creating opportunities for synergy between these two approaches.
+
+::: {#def-kg-llm}
+
+## Knowledge graphs and large language models
+
+The integration of knowledge graphs and large language models involves:
+
+1. Using LLMs to improve knowledge graph construction and completion
+2. Enhancing LLMs with structured knowledge from knowledge graphs
+3. Combining the reasoning capabilities of both approaches
+4. Developing joint models that leverage both structured and unstructured data
+
+This integration aims to combine the structured, explicit knowledge in KGs with the broad, implicit knowledge in LLMs.
+
+:::
+
+### LLMs for knowledge graph construction
+
+Large language models can help build and enhance knowledge graphs:
+
+::: {#def-llm-construction}
+
+## LLMs for knowledge graph construction
+
+**Using LLMs for knowledge graph construction**:
+
+1. **Relation extraction**: Identifying relationships between entities in text
+2. **Entity linking**: Matching entity mentions to knowledge graph entries
+3. **Graph completion**: Suggesting missing relationships based on text understanding
+4. **Consistency checking**: Identifying potential errors or contradictions in the knowledge graph
+
+LLMs can process vast amounts of text to extract structured knowledge for knowledge graphs.
+
+:::
+
+::: {#exm-llm-construction}
+
+## LLM knowledge graph construction example
+
+Given a corpus of news articles about tech companies, an LLM-based system might:
+
+1. Extract entities like companies, executives, products, and locations
+2. Identify relationships like "X acquired Y" or "X launched product Z"
+3. Link these to existing entities in a knowledge graph
+4. Add temporal information based on publication dates
+5. Generate confidence scores for extracted facts
+
+This automated process can rapidly populate a knowledge graph with current information from unstructured text.
+
+:::
+
+### Knowledge-enhanced language models
+
+Knowledge graphs can enhance large language models:
+
+::: {#def-knowledge-enhanced}
+
+## Knowledge-enhanced language models
+
+**Knowledge-enhanced language models**:
+
+1. Incorporate knowledge graph information during pre-training or fine-tuning
+2. Use knowledge graphs to provide factual grounding for language generation
+3. Retrieve relevant knowledge from KGs based on textual context
+4. Augment attention mechanisms with knowledge graph structure
+
+Examples include ERNIE (Zhang et al., 2019), KG-BERT (Yao et al., 2019), and K-ADAPTER (Wang et al., 2021).
+
+:::
+
+::: {#exm-knowledge-enhanced}
+
+## Knowledge-enhanced language model example
+
+A knowledge-enhanced language model might:
+
+1. Retrieve facts from a knowledge graph when generating text about specific entities
+2. Use entity types and relations to guide the generation process
+3. Check generated statements against the knowledge graph for factual accuracy
+4. Ground references to entities in the knowledge graph to ensure consistency
+
+For example, when generating a biography of a scientist, the model would retrieve and incorporate accurate facts about their birth date, education, discoveries, and awards from the knowledge graph.
+
+:::
+
+### Joint embedding models
+
+Joint embedding models integrate language models and knowledge graphs:
+
+::: {#def-joint-llm-kg}
+
+## Joint language model and knowledge graph embeddings
+
+**Joint embedding approaches**:
+
+1. Learn representations that capture both linguistic and structural knowledge
+2. Align embeddings between language models and knowledge graphs
+3. Enable transfer learning between the two domains
+4. Support both language understanding and graph reasoning tasks
+
+Examples include KEPLER (Wang et al., 2021) and StAR (Wang et al., 2021).
+
+:::
+
+::: {#exm-joint-embedding-llm}
+
+## Joint embedding example
+
+The KEPLER model:
+
+1. Uses a language model (RoBERTa) as the text encoder
+2. Encodes entity descriptions to produce entity embeddings
+3. Trains jointly on both a masked language modeling objective and a knowledge embedding objective (TransE)
+4. Results in embeddings that work well for both NLP tasks and knowledge graph completion
+
+This allows the model to leverage both the broad knowledge in the language model and the structured information in the knowledge graph.
+
+:::
+
+### Neuro-symbolic integration
+
+Neuro-symbolic approaches combine neural language models with symbolic knowledge graph reasoning:
+
+::: {#def-neuro-symbolic}
+
+## Neuro-symbolic integration
+
+**Neuro-symbolic approaches**:
+
+1. Combine neural components (LLMs) with symbolic components (knowledge graphs and logical reasoning)
+2. Use neural models for perception and pattern recognition
+3. Use symbolic systems for explicit reasoning and consistency
+4. Integrate the strengths of both paradigms
+
+Examples include Neural LP (Yang et al., 2017) and NeuralLog (Weber et al., 2019).
+
+:::
+
+::: {#exm-neuro-symbolic}
+
+## Neuro-symbolic example
+
+In a medical diagnosis system:
+
+1. An LLM processes patient descriptions and medical records to extract symptoms and conditions
+2. These are mapped to entities in a medical knowledge graph
+3. Symbolic reasoning over the knowledge graph identifies potential diagnoses based on known relationships between symptoms and diseases
+4. The LLM generates natural language explanations of the reasoning process and diagnostic recommendations
+
+This combines the language understanding capabilities of the LLM with the precise, rule-based reasoning of the knowledge graph.
+
+:::
+
+### Fact verification and hallucination reduction
+
+Knowledge graphs can help address the hallucination problem in large language models:
+
+::: {#def-fact-verification}
+
+## Fact verification and hallucination reduction
+
+**Using knowledge graphs for fact verification**:
+
+1. Check LLM-generated statements against a trusted knowledge graph
+2. Identify and correct factual errors in generated content
+3. Ground LLM outputs in verified knowledge
+4. Provide citations or sources for generated facts
+
+This approach helps mitigate the tendency of LLMs to generate plausible but incorrect information.
+
+:::
+
+::: {#exm-fact-verification}
+
+## Fact verification example
+
+When an LLM generates the statement "Albert Einstein won the Nobel Prize in Physics in 1921 for his theory of relativity," a fact verification system would:
+
+1. Break this into atomic claims (Einstein won Nobel Prize, it was in Physics, it was in 1921, it was for theory of relativity)
+2. Check each claim against the knowledge graph
+3. Identify that Einstein did win the Nobel Prize in Physics in 1921, but it was for his explanation of the photoelectric effect, not for relativity
+4. Correct the statement with the accurate information
+
+This process ensures that generated content remains factually accurate, even for complex statements with multiple components.
+
+:::
+
+## Future research directions
+
+Knowledge graph embedding research continues to evolve rapidly. Here, we highlight some promising future directions:
+
+### Few-shot and zero-shot learning
+
+Developing models that can generalize from limited examples is a key research area:
+
+::: {#def-few-shot}
+
+## Few-shot and zero-shot learning
+
+**Few-shot and zero-shot approaches**:
+
+1. **Few-shot learning**: Learning from a small number of examples for new relations or entity types
+2. **Zero-shot learning**: Generalizing to entirely new relations or entity types without any direct examples
+3. **Meta-learning**: Learning how to learn from limited data
+4. **Transfer learning**: Applying knowledge from well-represented areas to sparse areas
+
+These approaches aim to address the cold-start problem and enable more flexible knowledge graph applications.
+
+:::
+
+::: {#exm-few-shot}
+
+## Few-shot learning example
+
+A few-shot learning approach might:
+
+1. Learn a new relation type "discovered_by" from just 5 examples of scientist-discovery pairs
+2. Apply this knowledge to correctly identify hundreds of other scientist-discovery relationships
+3. Leverage similarities to known relation types like "invented_by" or "created_by"
+4. Use textual descriptions of relations to understand their semantics
+
+This would allow rapid extension of knowledge graphs to new domains without requiring extensive manual annotation.
+
+:::
+
+### Graph foundation models
+
+Building on the success of foundation models in NLP and vision, graph foundation models are emerging:
+
+::: {#def-graph-foundation}
+
+## Graph foundation models
+
+**Graph foundation models**:
+
+1. Pre-train on large-scale graph data across multiple domains
+2. Learn general graph representations that transfer across tasks and domains
+3. Support fine-tuning for specific downstream applications
+4. Integrate multiple modalities and knowledge types
+
+These models aim to provide a general-purpose foundation for graph-based tasks, similar to how models like GPT and BERT serve as foundations for NLP tasks.
+
+:::
+
+::: {#exm-graph-foundation}
+
+## Graph foundation model example
+
+A graph foundation model might:
+
+1. Pre-train on a diverse collection of knowledge graphs from different domains
+2. Learn general patterns of entity relationships and graph structure
+3. Fine-tune for specific tasks like drug discovery, social network analysis, or recommendation systems
+4. Transfer knowledge between domains (e.g., applying patterns learned from social networks to protein interaction networks)
+
+This approach would reduce the need for domain-specific model development and leverage cross-domain knowledge.
+
+:::
+
+### Ethical considerations and bias mitigation
+
+Addressing ethical concerns in knowledge graph embeddings is increasingly important:
+
+::: {#def-ethical-kg}
+
+## Ethical considerations and bias mitigation
+
+**Ethical research directions**:
+
+1. **Bias detection**: Identifying and measuring biases in knowledge graph embeddings
+2. **Fairness-aware embeddings**: Developing embedding methods that reduce or eliminate harmful biases
+3. **Transparency**: Creating more interpretable models with explainable predictions
+4. **Privacy-preserving embeddings**: Protecting sensitive information while maintaining utility
+5. **Accountability**: Establishing mechanisms for monitoring and addressing issues in deployed systems
+
+:::
+
+::: {#exm-ethical-kg}
+
+## Ethical considerations example
+
+A fairness-aware knowledge graph embedding approach might:
+
+1. Detect that certain professions are stereotypically associated with specific genders in the embedding space
+2. Apply debiasing techniques to reduce these associations
+3. Evaluate the impact of debiasing on both fairness metrics and task performance
+4. Provide transparent explanations of how the debiasing process works
+
+This ensures that knowledge graph applications don't perpetuate or amplify existing societal biases.
+
+:::
+
+### Integration with scientific discovery
+
+Knowledge graph embeddings are increasingly used for scientific discovery:
+
+::: {#def-scientific-discovery}
+
+## Knowledge graph embeddings for scientific discovery
+
+**Scientific discovery applications**:
+
+1. **Drug discovery**: Predicting novel drug-target interactions
+2. **Materials science**: Identifying new materials with desired properties
+3. **Disease understanding**: Uncovering relationships between genes, proteins, and diseases
+4. **Literature-based discovery**: Finding implicit connections across scientific publications
+5. **Hypothesis generation**: Suggesting promising research directions based on existing knowledge
+
+:::
+
+::: {#exm-scientific-discovery}
+
+## Scientific discovery example
+
+In drug repurposing:
+
+1. A knowledge graph contains information about drugs, diseases, proteins, biological pathways, and side effects
+2. Knowledge graph embedding models learn the complex relationships between these entities
+3. The model predicts potential interactions between existing drugs and previously untreated diseases
+4. These predictions guide experimental validation, potentially leading to new therapeutic applications
+
+This approach has already led to several successful drug repurposing discoveries, accelerating the traditional drug development process.
+
+:::
+
+### Federated and decentralized knowledge graphs
+
+Decentralized approaches to knowledge graphs are gaining attention:
+
+::: {#def-federated-kg}
+
+## Federated and decentralized knowledge graphs
+
+**Federated and decentralized approaches**:
+
+1. **Federated learning**: Training embedding models across distributed knowledge graphs without centralizing data
+2. **Decentralized knowledge graphs**: Creating interoperable networks of knowledge graphs
+3. **Privacy-preserving collaboration**: Enabling organizations to collaborate without sharing sensitive data
+4. **Blockchain integration**: Using distributed ledger technology to track provenance and updates
+
+These approaches enable broader knowledge sharing while addressing privacy and ownership concerns.
+
+:::
+
+::: {#exm-federated-kg}
+
+## Federated knowledge graph example
+
+In healthcare:
+
+1. Multiple hospitals maintain their own patient knowledge graphs with privacy restrictions
+2. A federated learning approach trains a shared embedding model without transferring patient data
+3. Each hospital benefits from the collective knowledge while keeping its data local
+4. The resulting model can identify patterns (e.g., drug interactions, treatment outcomes) across a much larger and more diverse patient population than any single hospital could access
+
+This enables knowledge sharing for public benefit while protecting patient privacy.
+
+:::
+
+### Quantum computing for knowledge graph embeddings
+
+Quantum computing offers potential advantages for knowledge graph embeddings:
+
+::: {#def-quantum-kg}
+
+## Quantum computing for knowledge graph embeddings
+
+**Quantum approaches**:
+
+1. **Quantum embeddings**: Representing entities and relations as quantum states
+2. **Quantum algorithms**: Using quantum algorithms for more efficient training and inference
+3. **Quantum superposition**: Leveraging superposition to represent multiple relationship paths simultaneously
+4. **Quantum entanglement**: Modeling complex dependencies between entities
+
+While still largely theoretical, quantum approaches could eventually offer significant advantages for large-scale knowledge graphs.
+
+:::
+
+::: {#exm-quantum-kg}
+
+## Quantum knowledge graph example
+
+A quantum approach to knowledge graph embedding might:
+
+1. Represent entities as quantum states in a high-dimensional Hilbert space
+2. Model relations as quantum operations that transform these states
+3. Use quantum parallelism to evaluate multiple relationship paths simultaneously
+4. Leverage quantum algorithms like Grover's search for more efficient queries
+
+This could potentially enable handling of much larger and more complex knowledge graphs than classical approaches.
+
+:::
+
+## Summary
+
+In this chapter, we've explored advanced topics and research frontiers in knowledge graph embeddings, showcasing the dynamic and evolving nature of this field.
+
+We began by examining inductive learning approaches that enable generalization to previously unseen entities and relations, addressing a key limitation of traditional transductive models. We then discussed uncertainty quantification and explainability, which are crucial for deploying knowledge graph embeddings in real-world applications where transparency and reliability are essential.
+
+We explored specialized embedding approaches for temporal, hierarchical, and multi-modal knowledge graphs, showing how these models can capture more complex forms of knowledge. We also examined the growing integration between knowledge graph embeddings and large language models, highlighting the complementary strengths of these approaches and how they can be combined.
+
+Finally, we surveyed promising future research directions, including few-shot learning, graph foundation models, ethical considerations, scientific discovery applications, federated approaches, and potential quantum computing applications.
+
+These advanced topics represent the cutting edge of knowledge graph embedding research and point toward a future where knowledge graph embeddings will play an increasingly important role in AI systems, scientific discovery, and many other domains.
+
+## Further reading
+
+### Inductive learning and uncertainty
+
+- Teru, K., Denis, E., & Hamilton, W. (2020). Inductive Relation Prediction by Subgraph Reasoning. In International Conference on Machine Learning (pp. 9448-9457).
+- Chen, M., Zhang, W., Zhang, W., Chen, Q., & Chen, H. (2019). Meta Relational Learning for Few-Shot Link Prediction in Knowledge Graphs. In Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing (pp. 4216-4225).
+- He, S., Liu, K., Ji, G., & Zhao, J. (2015). Learning to Represent Knowledge Graphs with Gaussian Embedding. In Proceedings of the 24th ACM International Conference on Information and Knowledge Management (pp. 623-632).
+- Chen, X., Chen, M., Shi, W., Sun, Y., & Zaniolo, C. (2019). Embedding Uncertain Knowledge Graphs. In AAAI Conference on Artificial Intelligence (pp. 3363-3370).
+
+### Explainability and hierarchical embedding
+
+- Zhang, Z., Wang, X., Zhang, P., Chen, Z., & Li, Z. (2020). Autosf: Searching scoring functions for knowledge graph embedding. In International Conference on Data Engineering (pp. 433-444).
+- Lin, Y., Liu, Z., Luan, H., Sun, M., Rao, S., & Liu, S. (2015). Modeling Relation Paths for Representation Learning of Knowledge Bases. In Proceedings of the 2015 Conference on Empirical Methods in Natural Language Processing (pp. 705-714).
+- Nickel, M., & Kiela, D. (2017). Poincaré Embeddings for Learning Hierarchical Representations. In Advances in Neural Information Processing Systems (pp. 6338-6347).
+- Chen, J., Zhang, H., Chen, X., Deng, O., Chen, Z., & Ye, Z. (2021). OWL2Vec\*: Embedding of OWL Ontologies. Machine Learning, 110, 1813-1845.
+
+### Temporal and multi-modal knowledge graphs
+
+- Lacroix, T., Obozinski, G., & Usunier, N. (2020). Tensor Decompositions for Temporal Knowledge Base Completion. In International Conference on Learning Representations.
+- Goel, R., Kazemi, S. M., Brubaker, M., & Poupart, P. (2020). Diachronic Embedding for Temporal Knowledge Graph Completion. In AAAI Conference on Artificial Intelligence (pp. 3988-3995).
+- Xie, R., Liu, Z., Jia, H., Luan, H., & Sun, M. (2017). Representation Learning of Knowledge Graphs with Entity Descriptions. In AAAI Conference on Artificial Intelligence (pp. 2659-2665).
+- Pezeshkpour, P., Chen, L., & Singh, S. (2018). Embedding Multimodal Relational Data for Knowledge Base Completion. In Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing (pp. 3208-3218).
+
+### LLMs and future directions
+
+- Wang, X., Gao, T., Zhu, Z., Zhang, Z., Liu, Z., Li, J., & Tang, J. (2021). KEPLER: A Unified Model for Knowledge Embedding and Pre-trained Language Representation. Transactions of the Association for Computational Linguistics, 9, 176-194.
+- Zhang, Z., Han, X., Liu, Z., Jiang, X., Sun, M., & Liu, Q. (2019). ERNIE: Enhanced Language Representation with Informative Entities. In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics (pp. 1441-1451).
+- Wang, B., Xu, T., Dong, J., Xu, Z., Feng, J., Zhao, D., & Wang, Y. (2022). Graph Neural Networks for Link Prediction with Subgraph Sketching. In Proceedings of the AAAI Conference on Artificial Intelligence (pp. 4151-4159).
+- Ji, S., Pan, S., Cambria, E., Marttinen, P., & Yu, P. S. (2021). A Survey on Knowledge Graphs: Representation, Acquisition, and Applications. IEEE Transactions on Neural Networks and Learning Systems, 33(2), 494-514.

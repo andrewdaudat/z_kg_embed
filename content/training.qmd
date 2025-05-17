@@ -1,0 +1,605 @@
+# Training and Optimization Techniques
+
+## Introduction to Training Knowledge Graph Embeddings
+
+Knowledge graph embeddings (KGEs) have proven to be powerful tools for knowledge graph completion and link prediction. However, their performance heavily depends not only on the model architecture but also on how they are trained. In this chapter, we will explore the techniques, strategies, and best practices for effectively training knowledge graph embedding models.
+
+Training a KGE model involves several critical components: designing an appropriate loss function, implementing effective negative sampling strategies, selecting suitable optimization algorithms, and tuning hyperparameters. Each of these components can significantly impact model performance, sometimes even more than the choice of model architecture itself.
+
+Let's begin by understanding the general training procedure for knowledge graph embeddings before diving into the specific techniques that make training more effective and efficient.
+
+## Basic Training Process for Knowledge Graph Embeddings
+
+The training process for KGE models typically follows these general steps:
+
+1. **Initialization**: Initialize entity and relation embeddings randomly
+2. **Batch Creation**: Sample batches of positive triples from the training set
+3. **Negative Sampling**: Generate negative samples for each positive triple
+4. **Scoring**: Compute scores for both positive and negative triples
+5. **Loss Computation**: Calculate the loss based on the scores
+6. **Optimization**: Update embeddings using gradient descent
+7. **Iteration**: Repeat steps 2-6 until convergence or a maximum number of epochs
+
+This process aims to learn embeddings where valid triples receive high scores (or low distances/energies, depending on the model), while invalid triples receive low scores (or high distances/energies).
+
+::: {#def-kge-training-objective}
+
+## Knowledge Graph Embedding Training Objective
+
+The general objective of training a knowledge graph embedding model is to learn entity and relation representations such that:
+
+$$\text{score}(h, r, t) > \text{score}(h', r, t')$$
+
+for any valid triple $(h, r, t)$ and any invalid triple $(h', r, t')$, where $h', t'$ are corrupted entities.
+
+:::
+
+Now, let's examine the key components of this training process in detail.
+
+## Loss Functions for Knowledge Graph Embeddings
+
+The loss function is a critical component that guides the learning process. It quantifies how well the current embeddings are performing and provides the signal for updating them. Several loss functions have been proposed for training knowledge graph embeddings.
+
+### Margin-Based Ranking Loss
+
+The margin-based ranking loss is one of the most widely used loss functions for KGE models. It was first introduced with TransE and has since been adopted by many other models.
+
+::: {#def-margin-ranking-loss}
+
+## Margin-Based Ranking Loss
+
+Given a positive triple $(h, r, t)$ and a negative triple $(h', r, t')$, the margin-based ranking loss is defined as:
+
+$$L = \sum_{(h,r,t) \in S} \sum_{(h',r,t') \in S'_{(h,r,t)}} [\gamma + f_r(h, t) - f_r(h', t')]_+$$
+
+where:
+
+- $S$ is the set of valid triples
+- $S'_{(h,r,t)}$ is the set of corrupted triples generated from $(h,r,t)$
+- $f_r(h, t)$ is the score function for triple $(h, r, t)$
+- $\gamma$ is the margin hyperparameter
+- $[x]_+ = \max(0, x)$ denotes the positive part of $x$
+
+:::
+
+The intuition behind this loss function is to ensure that the score of a valid triple is at least $\gamma$ higher than the score of any corrupted triple. When this condition is met, the loss becomes zero.
+
+::: {#exm-margin-loss-transe}
+
+## Margin Loss with TransE
+
+In TransE, the score function is $f_r(h, t) = -\|h + r - t\|$ (negative distance, so higher is better). With margin $\gamma = 1$, if we have:
+
+- Positive triple: $(Alice, friendOf, Bob)$ with score $-0.2$
+- Negative triple: $(Alice, friendOf, Charlie)$ with score $-1.5$
+
+The loss would be: $[1 + (-0.2) - (-1.5)]_+ = [1 - 0.2 + 1.5]_+ = [2.3]_+ = 2.3$
+
+This positive loss indicates that the model needs to adjust embeddings to increase the difference between scores.
+
+:::
+
+### Logistic Loss
+
+Another common approach is to use the logistic loss (or binary cross-entropy), which interprets the problem as binary classification of triples.
+
+::: {#def-logistic-loss}
+
+## Logistic Loss
+
+The logistic loss for knowledge graph embeddings is defined as:
+
+$$L = \sum_{(h,r,t) \in S \cup S'} y_{(h,r,t)} \log \sigma(f_r(h, t)) + (1 - y_{(h,r,t)}) \log (1 - \sigma(f_r(h, t)))$$
+
+where:
+
+- $S$ is the set of valid triples with $y_{(h,r,t)} = 1$
+- $S'$ is the set of corrupted triples with $y_{(h,r,t)} = 0$
+- $\sigma$ is the sigmoid function $\sigma(x) = \frac{1}{1 + e^{-x}}$
+- $f_r(h, t)$ is the score function
+
+:::
+
+This loss is particularly suitable for models like DistMult and ComplEx, where the score can be interpreted as a measure of triple plausibility.
+
+::: {#exm-logistic-loss-complex}
+
+## Logistic Loss with ComplEx
+
+For ComplEx, with a positive triple $(Alice, friendOf, Bob)$ with score $2.1$ and a negative triple $(Alice, friendOf, Charlie)$ with score $-1.3$:
+
+For the positive triple: $-\log \sigma(2.1) = -\log(0.891) = 0.115$
+
+For the negative triple: $-\log(1 - \sigma(-1.3)) = -\log(0.785) = 0.242$
+
+The total loss would be the sum: $0.115 + 0.242 = 0.357$
+
+:::
+
+### Self-Adversarial Negative Sampling Loss
+
+A more advanced loss function was introduced with RotatE, called self-adversarial negative sampling loss. This loss weighs negative samples based on their current scores, giving more importance to difficult negative samples.
+
+::: {#def-self-adversarial-loss}
+
+## Self-Adversarial Negative Sampling Loss
+
+The self-adversarial negative sampling loss is defined as:
+
+$$L = -\log \sigma(\gamma - f_r(h, t)) - \sum_{i=1}^{n} p(h'_i, r, t'_i) \log \sigma(f_r(h'_i, t'_i) - \gamma)$$
+
+where:
+
+- $\gamma$ is a fixed margin
+- $f_r(h, t)$ is the score for the positive triple
+- $(h'_i, r, t'_i)$ is the $i$-th negative sample
+- $p(h'_i, r, t'_i) = \frac{\exp \alpha f_r(h'_i, t'_i)}{\sum_{j} \exp \alpha f_r(h'_j, t'_j)}$ is the adversarial weight
+- $\alpha$ is a temperature hyperparameter
+
+:::
+
+The self-adversarial loss automatically adjusts the weights of negative samples, focusing the learning on harder negatives that are most likely to improve the model.
+
+::: {#exm-self-adversarial-loss}
+
+## Self-Adversarial Loss with RotatE
+
+Consider a positive triple and three negative samples with the following scores:
+
+- Positive triple: $(Alice, friendOf, Bob)$ with score $-0.3$
+- Negative triple 1: $(Alice, friendOf, Charlie)$ with score $-0.8$
+- Negative triple 2: $(Alice, friendOf, David)$ with score $-1.5$
+- Negative triple 3: $(Alice, friendOf, Eve)$ with score $-0.5$
+
+With temperature $\alpha = 1$, the weights would be: $p_1 = \frac{e^{-0.8}}{e^{-0.8} + e^{-1.5} + e^{-0.5}} = \frac{0.449}{0.449 + 0.223 + 0.607} = 0.351$ $p_2 = \frac{e^{-1.5}}{0.449 + 0.223 + 0.607} = 0.174$ $p_3 = \frac{e^{-0.5}}{0.449 + 0.223 + 0.607} = 0.475$
+
+The negative with the highest score (Eve) gets the highest weight, indicating it's the most difficult negative and should contribute more to the loss.
+
+:::
+
+## Negative Sampling Strategies
+
+Negative sampling is essential for training KGE models because knowledge graphs typically only contain positive examples (valid triples). To learn discriminative embeddings, we need to generate negative examples (invalid triples).
+
+### Uniform Negative Sampling
+
+The simplest strategy is uniform negative sampling, where corrupted triples are generated by randomly replacing either the head or tail entity with another entity from the knowledge graph.
+
+::: {#def-uniform-negative-sampling}
+
+## Uniform Negative Sampling
+
+For each positive triple $(h, r, t)$, generate a negative triple by:
+
+1. Randomly deciding whether to corrupt the head or tail (with equal probability)
+2. Randomly selecting an entity $e \in E \setminus \{h\}$ (if corrupting head) or $e \in E \setminus \{t\}$ (if corrupting tail)
+3. Creating the negative triple as $(e, r, t)$ or $(h, r, e)$
+
+:::
+
+While simple to implement, uniform sampling doesn't account for the structural properties of relations, which can lead to inefficient training.
+
+### Bernoulli Negative Sampling
+
+Bernoulli negative sampling improves upon uniform sampling by considering the relationship types. It recognizes that some relations are predominantly one-to-many, many-to-one, or many-to-many.
+
+::: {#def-bernoulli-negative-sampling}
+
+## Bernoulli Negative Sampling
+
+For each positive triple $(h, r, t)$, generate a negative triple by:
+
+1. Computing probabilities $p_h$ and $p_t$ for corrupting head or tail based on relation properties
+2. Sampling head or tail for corruption based on probabilities $p_h$ and $p_t$
+3. Randomly selecting a replacement entity
+4. Creating the negative triple accordingly
+
+The probability of corrupting the head is calculated as: $$p_h = \frac{tph}{tph + hpt}$$
+
+where $tph$ is the average number of tails per head for relation $r$, and $hpt$ is the average number of heads per tail.
+
+:::
+
+This approach is particularly beneficial for models like TransE that struggle with certain relation types.
+
+::: {#exm-bernoulli-sampling}
+
+## Bernoulli Sampling Example
+
+Consider the relation $parentOf$:
+
+- Average tails per head ($tph$) = 2.5 (people have ~2.5 children on average)
+- Average heads per tail ($hpt$) = 2 (people have 2 parents)
+
+The probability of corrupting the head would be: $p_h = \frac{2.5}{2.5 + 2} = 0.556$
+
+So for a triple $(Bob, parentOf, Alice)$, we would corrupt the head with probability 0.556 and the tail with probability 0.444, reflecting the nature of the relation.
+
+:::
+
+### Self-Adversarial Negative Sampling
+
+Self-adversarial negative sampling not only generates negative samples but also assigns weights to them based on their current scores.
+
+::: {#def-self-adversarial-sampling}
+
+## Self-Adversarial Negative Sampling
+
+1. Generate multiple negative samples for each positive triple
+2. Calculate the score for each negative sample using the current model
+3. Compute weights for each negative sample based on their scores: $$p(h', r, t') = \frac{\exp(\alpha f_r(h', t'))}{\sum_{j}\exp(\alpha f_r(h'_j, t'_j))}$$
+4. Use these weights when computing the loss function
+
+:::
+
+This strategy focuses training on difficult negative samples that are most informative for learning, leading to faster convergence and better performance.
+
+## Optimization Algorithms
+
+After defining the loss function and negative sampling strategy, we need to optimize the embeddings using gradient-based methods. Several optimization algorithms have been employed for training KGE models.
+
+### Stochastic Gradient Descent (SGD)
+
+The most basic approach is stochastic gradient descent, which updates embeddings using the gradient of the loss function.
+
+::: {#def-sgd}
+
+## Stochastic Gradient Descent (SGD)
+
+The update rule for SGD is: $$\theta_{t+1} = \theta_t - \eta \nabla_\theta L(\theta_t)$$
+
+where:
+
+- $\theta$ represents the model parameters (entity and relation embeddings)
+- $\eta$ is the learning rate
+- $\nabla_\theta L(\theta_t)$ is the gradient of the loss with respect to parameters
+
+:::
+
+While simple, SGD often requires careful tuning of the learning rate and may converge slowly.
+
+### Adagrad
+
+Adagrad adapts the learning rate for each parameter based on the historical gradients, which is beneficial for sparse data like knowledge graphs.
+
+::: {#def-adagrad}
+
+## Adagrad
+
+The update rule for Adagrad is: $$\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{G_t + \epsilon}} \nabla_\theta L(\theta_t)$$
+
+where:
+
+- $G_t$ is the sum of squares of past gradients
+- $\epsilon$ is a small constant to prevent division by zero
+
+:::
+
+Adagrad automatically decreases the learning rate for frequently updated parameters, which helps when some entities or relations appear more frequently than others.
+
+### Adam
+
+Adam combines the benefits of adaptive learning rates with momentum, making it one of the most popular optimization algorithms for neural networks, including KGE models.
+
+::: {#def-adam}
+
+## Adam Optimizer
+
+The update rules for Adam are: $$m_t = \beta_1 m_{t-1} + (1 - \beta_1) \nabla_\theta L(\theta_t)$$ $$v_t = \beta_2 v_{t-1} + (1 - \beta_2) (\nabla_\theta L(\theta_t))^2$$ $$\hat{m}_t = \frac{m_t}{1 - \beta_1^t}$$ $$\hat{v}_t = \frac{v_t}{1 - \beta_2^t}$$ $$\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t$$
+
+where:
+
+- $m_t$ and $v_t$ are the first and second moment estimates
+- $\beta_1$ and $\beta_2$ are decay rates for the moments
+- $\hat{m}_t$ and $\hat{v}_t$ are bias-corrected moment estimates
+
+:::
+
+Adam often achieves faster convergence and better performance than SGD or Adagrad for KGE models, especially when training deep neural network-based approaches.
+
+## Regularization Techniques
+
+Regularization helps prevent overfitting and ensures that the learned embeddings generalize well to unseen data.
+
+### L2 Regularization
+
+L2 regularization (weight decay) is a common technique that penalizes large embedding values.
+
+::: {#def-l2-regularization}
+
+## L2 Regularization
+
+The L2 regularization term added to the loss function is: $$\lambda \sum_{\theta \in \Theta} \|\theta\|_2^2$$
+
+where:
+
+- $\lambda$ is the regularization strength
+- $\Theta$ is the set of all model parameters
+
+:::
+
+L2 regularization encourages smoother embedding spaces and helps prevent overfitting.
+
+### Norm Constraints
+
+Many KGE models constrain embeddings to lie on a unit sphere or within a bounded region.
+
+::: {#def-norm-constraints}
+
+## Norm Constraints
+
+After each update step, normalize the embeddings: $$e = \frac{e}{\|e\|}$$
+
+for entity embeddings $e$ to enforce unit norm.
+
+:::
+
+This constraint prevents the model from artificially decreasing the loss by increasing the magnitude of the embeddings, which is particularly important for distance-based models like TransE.
+
+::: {#exm-norm-constraint}
+
+## Norm Constraint Example
+
+Consider an entity embedding $e = [0.5, 1.2, -0.8]$ after an update step.
+
+Its norm is $\|e\| = \sqrt{0.5^2 + 1.2^2 + (-0.8)^2} = \sqrt{2.13} = 1.46$
+
+After normalization, the embedding becomes: $e' = \frac{e}{\|e\|} = \frac{[0.5, 1.2, -0.8]}{1.46} = [0.34, 0.82, -0.55]$
+
+The normalized embedding has unit norm: $\|e'\| = 1$
+
+:::
+
+### Dropout
+
+For neural network-based KGE models, dropout is an effective regularization technique.
+
+::: {#def-dropout}
+
+## Dropout
+
+During training, randomly set a fraction $p$ of the input units to 0 at each update. During testing, scale the outputs by $1-p$ to maintain the same expected sum.
+
+:::
+
+Dropout helps neural network-based KGE models like ConvE and CompGCN generalize better by preventing co-adaptation of features.
+
+## Batch Selection and Training Strategies
+
+The way batches are created and processed during training can significantly impact model performance and convergence speed.
+
+### Mini-Batch Training
+
+Mini-batch training processes subsets of the training data at each step, balancing computational efficiency and update quality.
+
+::: {#def-mini-batch-training}
+
+## Mini-Batch Training
+
+1. Divide the training set into batches of size $B$
+2. For each batch: a. Generate negative samples b. Compute loss and gradients c. Update model parameters
+3. One complete pass through all batches constitutes an epoch
+
+:::
+
+Mini-batch training is essential for large knowledge graphs where processing all triples at once would be computationally infeasible.
+
+### Curriculum Learning
+
+Curriculum learning arranges training examples from easy to hard, mimicking human learning processes.
+
+::: {#def-curriculum-learning}
+
+## Curriculum Learning for KGEs
+
+1. Assign difficulty scores to training triples based on factors like:
+   - Frequency of entities and relations
+   - Graph connectivity
+   - Embedding uncertainty
+2. Start training with easier triples
+3. Gradually incorporate more difficult triples as training progresses
+
+:::
+
+This approach can lead to faster convergence and better final performance, especially for complex models.
+
+### Self-Paced Learning
+
+Self-paced learning extends curriculum learning by dynamically determining the difficulty of examples based on the current model state.
+
+::: {#def-self-paced-learning}
+
+## Self-Paced Learning for KGEs
+
+1. Compute loss for all training triples using current model
+2. Select a subset of triples with lower loss (easier examples)
+3. Train on these selected triples
+4. Gradually increase the proportion of harder triples
+
+:::
+
+Self-paced learning adapts the curriculum to the model's learning progress, potentially leading to more effective training.
+
+## Hyperparameter Selection and Tuning
+
+Proper hyperparameter selection is crucial for achieving good performance with KGE models. Key hyperparameters include:
+
+1. **Embedding dimension**: Higher dimensions can capture more complex relationships but require more data and computational resources
+2. **Learning rate**: Controls the step size during optimization
+3. **Batch size**: Affects optimization stability and training speed
+4. **Negative samples per positive**: Impacts training efficiency and model performance
+5. **Margin**: For margin-based loss functions
+6. **Regularization strength**: Controls the impact of regularization terms
+7. **Model-specific parameters**: Such as relation-specific parameters in TransH, TransR, etc.
+
+::: {#def-hyperparameter-tuning}
+
+## Hyperparameter Tuning
+
+Common strategies for hyperparameter tuning include:
+
+1. **Grid Search**: Systematically evaluating combinations of hyperparameters
+2. **Random Search**: Randomly sampling hyperparameter combinations
+3. **Bayesian Optimization**: Using probabilistic models to guide hyperparameter search
+
+:::
+
+For knowledge graph embeddings, performance on a validation set (typically measured by Mean Reciprocal Rank or Hits@k) is used to select the best hyperparameters.
+
+::: {#exm-hyperparameter-tuning}
+
+## Hyperparameter Tuning Example
+
+For TransE on a medium-sized knowledge graph, a typical hyperparameter search might explore:
+
+- Embedding dimensions: $\{50, 100, 200\}$
+- Learning rates: $\{0.001, 0.01, 0.1\}$
+- Margin values: $\{1, 2, 5, 10\}$
+- L1 vs. L2 norm for distance
+- Batch sizes: $\{128, 256, 512\}$
+- Negative samples per positive: $\{1, 5, 10\}$
+
+Each combination would be trained and evaluated on a validation set, with the best-performing configuration selected for final training.
+
+:::
+
+## Early Stopping and Convergence Criteria
+
+Determining when to stop training is important to prevent overfitting while ensuring the model has learned effectively.
+
+::: {#def-early-stopping}
+
+## Early Stopping
+
+1. Evaluate the model on a validation set after each epoch or at regular intervals
+2. Keep track of the model's performance on the validation set
+3. If performance doesn't improve for $N$ consecutive evaluations, stop training
+4. Return the model parameters that achieved the best validation performance
+
+:::
+
+Common validation metrics for KGE models include Mean Reciprocal Rank (MRR) and Hits@k.
+
+## Implementation Examples
+
+Let's look at a pseudo-code implementation of the training loop for a knowledge graph embedding model using margin-based ranking loss.
+
+```python
+# Initialize entity and relation embeddings
+entities = initialize_embeddings(num_entities, embedding_dim)
+relations = initialize_embeddings(num_relations, embedding_dim)
+
+# Training loop
+for epoch in range(max_epochs):
+    # Shuffle training triples
+    shuffled_triples = shuffle(training_triples)
+
+    # Process mini-batches
+    for batch in create_batches(shuffled_triples, batch_size):
+        batch_loss = 0
+
+        for (h, r, t) in batch:
+            # Generate negative samples
+            negative_samples = generate_negatives(h, r, t, num_negatives)
+
+            # Compute positive score
+            pos_score = score_function(entities[h], relations[r], entities[t])
+
+            # Compute loss for each negative sample
+            for (h_neg, r_neg, t_neg) in negative_samples:
+                neg_score = score_function(entities[h_neg], relations[r_neg], entities[t_neg])
+                sample_loss = max(0, margin + pos_score - neg_score)
+                batch_loss += sample_loss
+
+        # Compute gradients and update embeddings
+        gradients = compute_gradients(batch_loss)
+        update_parameters(entities, relations, gradients, learning_rate)
+
+        # Apply constraints (e.g., normalization)
+        normalize_embeddings(entities)
+
+    # Evaluate on validation set
+    validation_metrics = evaluate(validation_triples, entities, relations)
+
+    # Early stopping check
+    if early_stopping_criterion_met(validation_metrics):
+        break
+```
+
+This pseudo-code illustrates the main components of the training process: batch creation, negative sampling, loss computation, parameter updates, and evaluation.
+
+## Scalability Considerations
+
+Training KGE models on large knowledge graphs presents scalability challenges that require special consideration.
+
+### Parallel and Distributed Training
+
+For very large knowledge graphs, training can be parallelized across multiple GPUs or machines.
+
+::: {#def-parallel-training}
+
+## Parallel Training for KGEs
+
+1. **Data Parallelism**: Distribute batches across multiple processors
+2. **Model Parallelism**: Partition the embedding matrices across multiple devices
+3. **Distributed Training**: Use parameter servers or all-reduce algorithms to synchronize updates
+
+:::
+
+Frameworks like DGL-KE and PyTorch-BigGraph implement distributed training strategies specifically for knowledge graph embeddings.
+
+### Memory-Efficient Implementations
+
+Memory consumption is often the bottleneck when training KGE models on large graphs. Several techniques can reduce memory requirements:
+
+::: {#def-memory-efficient-techniques}
+
+## Memory-Efficient Training Techniques
+
+1. **Sparse Embeddings**: Only materialize embeddings needed for the current batch
+2. **Mixed-Precision Training**: Use lower precision (e.g., 16-bit floats) for embeddings
+3. **Gradient Accumulation**: Update parameters after multiple forward-backward passes
+4. **Embedding Sharing**: Use shared embeddings for similar entities or relations
+
+:::
+
+These techniques can significantly increase the scale of knowledge graphs that can be processed on given hardware.
+
+## Best Practices and Common Pitfalls
+
+Based on experience from the research community, here are some best practices and common pitfalls to avoid when training KGE models:
+
+### Best Practices
+
+1. **Start Simple**: Begin with simpler models like TransE or DistMult before trying more complex architectures
+2. **Validation Protocol**: Use a consistent validation protocol for hyperparameter tuning
+3. **Multiple Runs**: Average results over multiple runs with different random seeds
+4. **Learning Rate Scheduling**: Gradually decrease the learning rate during training
+5. **Batch Composition**: Ensure batches contain diverse relation types
+6. **Proper Evaluation**: Use filtered metrics that exclude other valid triples
+
+### Common Pitfalls
+
+1. **Inappropriate Negative Sampling**: Using the same strategy for all relation types
+2. **Overlooking Regularization**: Neglecting regularization can lead to overfitting
+3. **Inconsistent Evaluation**: Using different protocols when comparing models
+4. **Premature Stopping**: Stopping training too early before convergence
+5. **Ignoring Relation Properties**: Not considering the characteristics of different relations
+6. **Overtuning on Test**: Inadvertently tuning hyperparameters based on test set performance
+
+## Conclusion
+
+Effective training of knowledge graph embedding models requires careful consideration of multiple factors: loss functions, negative sampling strategies, optimization algorithms, regularization techniques, and hyperparameter tuning. These aspects often have as much impact on the final performance as the model architecture itself.
+
+The field continues to evolve, with new training techniques being developed to improve efficiency, scalability, and performance. As knowledge graphs grow in size and importance, these training considerations become increasingly crucial for practical applications.
+
+In the next chapter, we will discuss how to properly evaluate knowledge graph embedding models, including metrics, protocols, datasets, and common pitfalls in evaluation.
+
+## Further Reading
+
+1. Bordes, A., Usunier, N., Garcia-Duran, A., Weston, J., & Yakhnenko, O. (2013). Translating embeddings for modeling multi-relational data. NIPS.
+2. Sun, Z., Deng, Z. H., Nie, J. Y., & Tang, J. (2019). RotatE: Knowledge graph embedding by relational rotation in complex space. ICLR.
+3. Ruffinelli, D., Broscheit, S., & Gemulla, R. (2020). You CAN teach an old dog new tricks! On training knowledge graph embeddings. ICLR.
+4. Trouillon, T., Dance, C. R., Gaussier, É., Welbl, J., Riedel, S., & Bouchard, G. (2017). Knowledge graph completion via complex tensor factorization. JMLR.
+5. Wang, Y., Gemulla, R., & Li, H. (2018). On multi-relational link prediction with bilinear models. AAAI.
+6. Zheng, D., Song, X., Ma, C., Tan, Z., Ye, Z., Dong, J., Xiong, H., Zhang, Z., & Karypis, G. (2020). DGL-KE: Training knowledge graph embeddings at scale. SIGIR.

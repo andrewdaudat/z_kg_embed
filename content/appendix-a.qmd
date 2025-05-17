@@ -1,0 +1,847 @@
+# Appendix A: Mathematical Foundations
+
+## Introduction to Mathematical Foundations
+
+This appendix provides a comprehensive overview of the mathematical concepts that underpin knowledge graph embeddings. While the main chapters introduce these concepts as needed, this appendix serves as a more formal and detailed reference. Understanding these mathematical foundations is essential for both implementing existing knowledge graph embedding models and developing new approaches.
+
+We begin with the basics of linear algebra and vector spaces, progress through more advanced topics like tensor algebra and complex vector spaces, and conclude with optimization theory concepts relevant to training knowledge graph embeddings. Each section aims to balance formal definitions with intuitive explanations and relevant examples.
+
+This appendix is designed to be accessible to students with varying levels of mathematical background, while providing the depth necessary for a thorough understanding of the theoretical foundations of knowledge graph embeddings.
+
+## Linear Algebra Essentials
+
+Linear algebra provides the fundamental mathematical framework for knowledge graph embeddings, as entities and relations are represented as vectors, matrices, or tensors.
+
+### Vectors and Vector Spaces
+
+A vector space forms the basic mathematical structure in which knowledge graph embeddings operate.
+
+::: {#def-vector-space-formal}
+
+## Vector Space (Formal Definition)
+
+A vector space $V$ over a field $\mathbb{F}$ consists of a set of vectors along with two operations:
+
+1. Vector addition: $+: V \times V \rightarrow V$
+2. Scalar multiplication: $\cdot: \mathbb{F} \times V \rightarrow V$
+
+These operations must satisfy the following axioms for all vectors $\mathbf{u}, \mathbf{v}, \mathbf{w} \in V$ and scalars $\alpha, \beta \in \mathbb{F}$:
+
+1. **Closure under addition**: $\mathbf{u} + \mathbf{v} \in V$
+2. **Commutativity of addition**: $\mathbf{u} + \mathbf{v} = \mathbf{v} + \mathbf{u}$
+3. **Associativity of addition**: $(\mathbf{u} + \mathbf{v}) + \mathbf{w} = \mathbf{u} + (\mathbf{v} + \mathbf{w})$
+4. **Additive identity**: There exists $\mathbf{0} \in V$ such that $\mathbf{v} + \mathbf{0} = \mathbf{v}$ for all $\mathbf{v} \in V$
+5. **Additive inverse**: For each $\mathbf{v} \in V$, there exists $-\mathbf{v} \in V$ such that $\mathbf{v} + (-\mathbf{v}) = \mathbf{0}$
+6. **Closure under scalar multiplication**: $\alpha \cdot \mathbf{v} \in V$
+7. **Distributivity of scalar multiplication with respect to vector addition**: $\alpha \cdot (\mathbf{u} + \mathbf{v}) = \alpha \cdot \mathbf{u} + \alpha \cdot \mathbf{v}$
+8. **Distributivity of scalar multiplication with respect to field addition**: $(\alpha + \beta) \cdot \mathbf{v} = \alpha \cdot \mathbf{v} + \beta \cdot \mathbf{v}$
+9. **Compatibility of scalar multiplication with field multiplication**: $\alpha \cdot (\beta \cdot \mathbf{v}) = (\alpha \beta) \cdot \mathbf{v}$
+10. **Scalar multiplication identity**: $1 \cdot \mathbf{v} = \mathbf{v}$, where $1$ is the multiplicative identity in $\mathbb{F}$
+
+:::
+
+In the context of knowledge graph embeddings, we typically work with the vector space $\mathbb{R}^d$ (or sometimes $\mathbb{C}^d$), where vectors are represented as $d$-tuples of real (or complex) numbers.
+
+::: {#exm-vector-space-r3}
+
+## Vector Space $\mathbb{R}^3$
+
+The vector space $\mathbb{R}^3$ consists of all ordered triplets $(x, y, z)$ where $x, y, z \in \mathbb{R}$.
+
+Vector addition: $(x_1, y_1, z_1) + (x_2, y_2, z_2) = (x_1 + x_2, y_1 + y_2, z_1 + z_2)$ Scalar multiplication: $\alpha \cdot (x, y, z) = (\alpha x, \alpha y, \alpha z)$
+
+For example:
+
+- $(1, 2, 3) + (4, 5, 6) = (5, 7, 9)$
+- $2 \cdot (1, 2, 3) = (2, 4, 6)$
+
+In knowledge graph embeddings, each entity and relation would be represented as a vector in a similar fashion, though typically in a much higher-dimensional space.
+
+:::
+
+### Basis and Dimension
+
+The concepts of basis and dimension are fundamental to understanding vector spaces.
+
+::: {#def-basis-dimension}
+
+## Basis and Dimension
+
+A set of vectors $\{\mathbf{v}_1, \mathbf{v}_2, \ldots, \mathbf{v}_n\}$ in a vector space $V$ is a **basis** if:
+
+1. The vectors are linearly independent: $\alpha_1\mathbf{v}_1 + \alpha_2\mathbf{v}_2 + \ldots + \alpha_n\mathbf{v}_n = \mathbf{0}$ implies $\alpha_1 = \alpha_2 = \ldots = \alpha_n = 0$.
+2. The vectors span the space: Every vector $\mathbf{v} \in V$ can be written as a linear combination of the basis vectors: $\mathbf{v} = \beta_1\mathbf{v}_1 + \beta_2\mathbf{v}_2 + \ldots + \beta_n\mathbf{v}_n$ for some scalars $\beta_1, \beta_2, \ldots, \beta_n$.
+
+The **dimension** of a vector space is the number of vectors in any basis for the space. If a vector space has a finite basis, it is called finite-dimensional.
+
+:::
+
+In $\mathbb{R}^d$, the standard basis consists of the $d$ unit vectors, each with a 1 in one position and 0s elsewhere.
+
+::: {#exm-standard-basis}
+
+## Standard Basis in $\mathbb{R}^3$
+
+The standard basis for $\mathbb{R}^3$ consists of: $\mathbf{e}_1 = (1, 0, 0)$ $\mathbf{e}_2 = (0, 1, 0)$ $\mathbf{e}_3 = (0, 0, 1)$
+
+Any vector $(x, y, z) \in \mathbb{R}^3$ can be written as: $(x, y, z) = x\mathbf{e}_1 + y\mathbf{e}_2 + z\mathbf{e}_3$
+
+The dimension of $\mathbb{R}^3$ is 3.
+
+:::
+
+### Inner Products and Norms
+
+Inner products and norms are essential for measuring similarities and distances in embedding spaces.
+
+::: {#def-inner-product}
+
+## Inner Product
+
+An inner product on a vector space $V$ over $\mathbb{R}$ is a function $\langle \cdot, \cdot \rangle: V \times V \rightarrow \mathbb{R}$ that satisfies the following for all $\mathbf{u}, \mathbf{v}, \mathbf{w} \in V$ and $\alpha \in \mathbb{R}$:
+
+1. **Linearity in the first argument**: $\langle \alpha\mathbf{u} + \mathbf{v}, \mathbf{w} \rangle = \alpha\langle \mathbf{u}, \mathbf{w} \rangle + \langle \mathbf{v}, \mathbf{w} \rangle$
+2. **Symmetry**: $\langle \mathbf{u}, \mathbf{v} \rangle = \langle \mathbf{v}, \mathbf{u} \rangle$
+3. **Positive definiteness**: $\langle \mathbf{v}, \mathbf{v} \rangle \geq 0$, with equality if and only if $\mathbf{v} = \mathbf{0}$
+
+The standard inner product (dot product) in $\mathbb{R}^d$ is: $\langle \mathbf{u}, \mathbf{v} \rangle = \mathbf{u} \cdot \mathbf{v} = \sum_{i=1}^d u_i v_i$
+
+:::
+
+The inner product induces a norm, which measures the length of a vector.
+
+::: {#def-norm}
+
+## Norm
+
+A norm on a vector space $V$ is a function $\|\cdot\|: V \rightarrow \mathbb{R}$ that satisfies the following for all $\mathbf{u}, \mathbf{v} \in V$ and $\alpha \in \mathbb{R}$:
+
+1. **Non-negativity**: $\|\mathbf{v}\| \geq 0$, with equality if and only if $\mathbf{v} = \mathbf{0}$
+2. **Homogeneity**: $\|\alpha\mathbf{v}\| = |\alpha|\|\mathbf{v}\|$
+3. **Triangle inequality**: $\|\mathbf{u} + \mathbf{v}\| \leq \|\mathbf{u}\| + \|\mathbf{v}\|$
+
+Given an inner product, the induced norm is: $\|\mathbf{v}\| = \sqrt{\langle \mathbf{v}, \mathbf{v} \rangle}$
+
+Common norms include:
+
+- $L_2$ norm (Euclidean norm): $\|\mathbf{v}\|_2 = \sqrt{\sum_{i=1}^d v_i^2}$
+- $L_1$ norm (Manhattan norm): $\|\mathbf{v}\|_1 = \sum_{i=1}^d |v_i|$
+- $L_p$ norm: $\|\mathbf{v}\|_p = \left(\sum_{i=1}^d |v_i|^p\right)^{1/p}$ for $p \geq 1$
+- $L_\infty$ norm (Maximum norm): $\|\mathbf{v}\|_\infty = \max_i |v_i|$
+
+:::
+
+Norms are used to define distances between vectors, which are crucial in many knowledge graph embedding models.
+
+::: {#def-distance}
+
+## Distance
+
+Given a norm $\|\cdot\|$, the induced distance function $d: V \times V \rightarrow \mathbb{R}$ is: $d(\mathbf{u}, \mathbf{v}) = \|\mathbf{u} - \mathbf{v}\|$
+
+This defines a metric space, satisfying:
+
+1. **Non-negativity**: $d(\mathbf{u}, \mathbf{v}) \geq 0$, with equality if and only if $\mathbf{u} = \mathbf{v}$
+2. **Symmetry**: $d(\mathbf{u}, \mathbf{v}) = d(\mathbf{v}, \mathbf{u})$
+3. **Triangle inequality**: $d(\mathbf{u}, \mathbf{w}) \leq d(\mathbf{u}, \mathbf{v}) + d(\mathbf{v}, \mathbf{w})$
+
+:::
+
+::: {#exm-inner-product-norm}
+
+## Inner Product, Norm, and Distance Example
+
+Consider vectors $\mathbf{u} = (1, 2, 3)$ and $\mathbf{v} = (4, 5, 6)$ in $\mathbb{R}^3$.
+
+Inner product: $\langle \mathbf{u}, \mathbf{v} \rangle = 1 \cdot 4 + 2 \cdot 5 + 3 \cdot 6 = 4 + 10 + 18 = 32$
+
+$L_2$ norm of $\mathbf{u}$: $\|\mathbf{u}\|_2 = \sqrt{1^2 + 2^2 + 3^2} = \sqrt{14} \approx 3.74$
+
+$L_1$ norm of $\mathbf{u}$: $\|\mathbf{u}\|_1 = |1| + |2| + |3| = 6$
+
+$L_2$ distance between $\mathbf{u}$ and $\mathbf{v}$: $d_2(\mathbf{u}, \mathbf{v}) = \|\mathbf{u} - \mathbf{v}\|_2 = \|(1-4, 2-5, 3-6)\|_2 = \|(-3, -3, -3)\|_2 = \sqrt{9 + 9 + 9} = \sqrt{27} \approx 5.2$
+
+:::
+
+### Matrices and Linear Transformations
+
+Matrices are fundamental for representing linear transformations, which are crucial in many knowledge graph embedding models.
+
+::: {#def-matrix}
+
+## Matrix
+
+A matrix is a rectangular array of numbers. An $m \times n$ matrix $A$ has $m$ rows and $n$ columns, with entries $A_{ij}$ for $1 \leq i \leq m$ and $1 \leq j \leq n$.
+
+Basic matrix operations include:
+
+1. **Addition**: $(A + B)_{ij} = A_{ij} + B_{ij}$ (requires matrices of the same dimensions)
+2. **Scalar multiplication**: $(\alpha A)_{ij} = \alpha A_{ij}$
+3. **Matrix multiplication**: $(AB)_{ij} = \sum_{k=1}^n A_{ik} B_{kj}$ (requires the number of columns in $A$ to equal the number of rows in $B$)
+4. **Transpose**: $A^T_{ij} = A_{ji}$
+
+:::
+
+::: {#def-linear-transformation}
+
+## Linear Transformation
+
+A linear transformation $T: V \rightarrow W$ between vector spaces is a function that preserves vector addition and scalar multiplication:
+
+1. $T(\mathbf{u} + \mathbf{v}) = T(\mathbf{u}) + T(\mathbf{v})$ for all $\mathbf{u}, \mathbf{v} \in V$
+2. $T(\alpha\mathbf{v}) = \alpha T(\mathbf{v})$ for all $\alpha \in \mathbb{F}$ and $\mathbf{v} \in V$
+
+Every linear transformation $T: \mathbb{R}^n \rightarrow \mathbb{R}^m$ can be represented by an $m \times n$ matrix $A$ such that: $T(\mathbf{v}) = A\mathbf{v}$ for all $\mathbf{v} \in \mathbb{R}^n$
+
+:::
+
+In knowledge graph embeddings, matrices often represent relations or relation-specific transformations.
+
+::: {#exm-matrix-transformation}
+
+## Matrix Transformation Example
+
+Consider a relation "capitalOf" represented by the matrix: $R = \begin{bmatrix} 0.8 & 0.1 \\ 0.2 & 0.9 \end{bmatrix}$
+
+If the entity "Paris" is represented by the vector $\mathbf{e}_{Paris} = (0.6, 0.4)$, then the transformation by $R$ gives: $R\mathbf{e}_{Paris} = \begin{bmatrix} 0.8 & 0.1 \\ 0.2 & 0.9 \end{bmatrix} \begin{bmatrix} 0.6 \\ 0.4 \end{bmatrix} = \begin{bmatrix} 0.8 \cdot 0.6 + 0.1 \cdot 0.4 \\ 0.2 \cdot 0.6 + 0.9 \cdot 0.4 \end{bmatrix} = \begin{bmatrix} 0.52 \\ 0.48 \end{bmatrix}$
+
+In a model like RESCAL, this transformed vector would be compared with the embedding of "France" to determine the plausibility of the triple ("Paris", "capitalOf", "France").
+
+:::
+
+### Matrix Properties and Decompositions
+
+Various matrix properties and decompositions play important roles in knowledge graph embedding models.
+
+::: {#def-matrix-properties}
+
+## Matrix Properties
+
+Key matrix properties include:
+
+1. **Symmetry**: A matrix $A$ is symmetric if $A = A^T$
+2. **Positive definiteness**: A symmetric matrix $A$ is positive definite if $\mathbf{x}^T A \mathbf{x} > 0$ for all non-zero vectors $\mathbf{x}$
+3. **Orthogonality**: A matrix $Q$ is orthogonal if $Q^T Q = Q Q^T = I$ (its columns and rows form orthonormal bases)
+4. **Rank**: The rank of a matrix is the dimension of its column space (or row space)
+5. **Determinant**: A scalar value that can be calculated from a square matrix, representing the scaling factor of the transformation
+6. **Eigenvalues and eigenvectors**: For a square matrix $A$, a non-zero vector $\mathbf{v}$ is an eigenvector with eigenvalue $\lambda$ if $A\mathbf{v} = \lambda\mathbf{v}$
+
+:::
+
+Matrix decompositions are ways of factoring a matrix into a product of simpler matrices, which can be useful for dimensionality reduction, noise reduction, and efficient computation.
+
+::: {#def-matrix-decompositions}
+
+## Matrix Decompositions
+
+Important matrix decompositions include:
+
+1. **Eigendecomposition**: For a diagonalizable matrix $A$, $A = P D P^{-1}$ where $D$ is diagonal and $P$ has eigenvectors as columns
+2. **Singular Value Decomposition (SVD)**: Any matrix $A$ can be written as $A = U \Sigma V^T$ where $U$ and $V$ are orthogonal and $\Sigma$ is diagonal with non-negative entries
+3. **QR Decomposition**: Any matrix $A$ can be written as $A = QR$ where $Q$ is orthogonal and $R$ is upper triangular
+4. **LU Decomposition**: Under certain conditions, a matrix $A$ can be written as $A = LU$ where $L$ is lower triangular and $U$ is upper triangular
+
+:::
+
+Matrix decompositions are used in some knowledge graph embedding models, particularly those based on tensor factorization.
+
+::: {#exm-svd}
+
+## Singular Value Decomposition Example
+
+Consider a matrix representing entity-relation interactions: $A = \begin{bmatrix} 3 & 2 & 2 \\ 2 & 3 & -2 \end{bmatrix}$
+
+The SVD of $A$ is $A = U \Sigma V^T$ where: $U = \begin{bmatrix} 0.71 & 0.71 \\ 0.71 & -0.71 \end{bmatrix}$ $\Sigma = \begin{bmatrix} 5 & 0 & 0 \\ 0 & 3 & 0 \end{bmatrix}$ $V = \begin{bmatrix} 0.58 & 0.58 & 0.58 \\ 0.58 & 0.58 & -0.58 \\ 0.58 & -0.82 & 0 \end{bmatrix}$
+
+This decomposition can be used to create low-dimensional embeddings by keeping only the largest singular values and their corresponding vectors.
+
+:::
+
+## Tensor Algebra
+
+Tensors extend the concepts of vectors and matrices to higher dimensions and provide a natural way to represent multi-relational data.
+
+### Tensor Definitions and Operations
+
+A tensor is a multi-dimensional array that generalizes vectors (1D tensors) and matrices (2D tensors).
+
+::: {#def-tensor}
+
+## Tensor
+
+A tensor $\mathcal{T}$ of order $n$ (or rank $n$) is an $n$-dimensional array with elements $\mathcal{T}_{i_1 i_2 \ldots i_n}$ where each index $i_j$ ranges from 1 to $d_j$.
+
+The shape of the tensor is $(d_1, d_2, \ldots, d_n)$, and the total number of elements is $d_1 \times d_2 \times \ldots \times d_n$.
+
+Basic tensor operations include:
+
+1. **Addition**: $(\mathcal{T} + \mathcal{U})_{i_1 i_2 \ldots i_n} = \mathcal{T}_{i_1 i_2 \ldots i_n} + \mathcal{U}_{i_1 i_2 \ldots i_n}$
+2. **Scalar multiplication**: $(\alpha\mathcal{T})_{i_1 i_2 \ldots i_n} = \alpha\mathcal{T}_{i_1 i_2 \ldots i_n}$
+3. **Tensor product**: $(\mathcal{T} \otimes \mathcal{U})_{i_1 \ldots i_n j_1 \ldots j_m} = \mathcal{T}_{i_1 \ldots i_n} \mathcal{U}_{j_1 \ldots j_m}$
+4. **Contraction**: Summing over pairs of indices, e.g., $\mathcal{C}_{i_1 \ldots i_{n-2}} = \sum_{j=1}^d \mathcal{T}_{i_1 \ldots i_{n-2} j j}$
+
+:::
+
+Knowledge graphs can be naturally represented as 3rd-order tensors, with two modes for entities (head and tail) and one mode for relations.
+
+::: {#exm-knowledge-graph-tensor}
+
+## Knowledge Graph as a Tensor
+
+A knowledge graph with $n_e$ entities and $n_r$ relations can be represented as a 3rd-order tensor $\mathcal{X} \in \{0, 1\}^{n_e \times n_r \times n_e}$ where: $\mathcal{X}_{hrt} = 1$ if the triple (entity $h$, relation $r$, entity $t$) exists in the knowledge graph $\mathcal{X}_{hrt} = 0$ otherwise
+
+For example, if we have 3 entities (Alice, Bob, Charlie) and 2 relations (likes, knows), the tensor might be: $\mathcal{X}_{1,1,2} = 1$ (Alice likes Bob) $\mathcal{X}_{1,2,3} = 1$ (Alice knows Charlie) $\mathcal{X}_{2,2,1} = 1$ (Bob knows Alice) All other entries are 0.
+
+:::
+
+### Tensor Decompositions
+
+Tensor decompositions extend matrix factorization techniques to higher-order tensors and are fundamental to several knowledge graph embedding approaches.
+
+::: {#def-tensor-decompositions}
+
+## Tensor Decompositions
+
+Major tensor decomposition methods include:
+
+1. **CP Decomposition (CANDECOMP/PARAFAC)**: Approximates a tensor as a sum of rank-one tensors: $\mathcal{T} \approx \sum_{r=1}^R \mathbf{a}_r \otimes \mathbf{b}_r \otimes \mathbf{c}_r \otimes \ldots$ where $\otimes$ denotes the outer product.
+
+2. **Tucker Decomposition**: Decomposes a tensor into a core tensor multiplied by a matrix along each mode: $\mathcal{T} \approx \mathcal{G} \times_1 A \times_2 B \times_3 C \times \ldots$ where $\times_n$ denotes the n-mode product and $\mathcal{G}$ is the core tensor.
+
+3. **Tensor Train Decomposition**: Represents a tensor as a train of lower-order tensors: $\mathcal{T}_{i_1 i_2 \ldots i_d} \approx G_1[i_1] G_2[i_2] \ldots G_d[i_d]$ where each $G_k[i_k]$ is a matrix.
+
+:::
+
+These decompositions form the basis of several knowledge graph embedding models, particularly RESCAL, which is based on a form of Tucker decomposition.
+
+::: {#exm-rescal-decomposition}
+
+## RESCAL as Tensor Decomposition
+
+In RESCAL, the knowledge graph tensor $\mathcal{X} \in \mathbb{R}^{n_e \times n_r \times n_e}$ is decomposed as: $\mathcal{X} \approx \sum_{i=1}^d \sum_{j=1}^d \mathcal{R}_{:,i,j} \otimes \mathbf{A}_{:,i} \otimes \mathbf{A}_{:,j}$
+
+where $\mathbf{A} \in \mathbb{R}^{n_e \times d}$ contains the entity embeddings and $\mathcal{R} \in \mathbb{R}^{n_r \times d \times d}$ contains the relation matrices.
+
+This can also be written in terms of matrix products: $\mathcal{X}_r \approx \mathbf{A} \mathbf{R}_r \mathbf{A}^T$
+
+where $\mathcal{X}_r$ is the $r$-th slice of the tensor (a matrix) and $\mathbf{R}_r$ is the $r$-th slice of $\mathcal{R}$ (also a matrix).
+
+:::
+
+## Complex Vector Spaces
+
+Complex vector spaces extend real vector spaces by using complex numbers as the scalar field, providing additional modeling capabilities for knowledge graph embeddings.
+
+### Complex Numbers and Operations
+
+Complex numbers form the basis of complex vector spaces and have unique properties that can be leveraged in embedding models.
+
+::: {#def-complex-numbers}
+
+## Complex Numbers
+
+A complex number $z \in \mathbb{C}$ is expressed as $z = a + bi$, where $a, b \in \mathbb{R}$ and $i$ is the imaginary unit satisfying $i^2 = -1$.
+
+The real part of $z$ is $\text{Re}(z) = a$ and the imaginary part is $\text{Im}(z) = b$.
+
+Basic operations on complex numbers include:
+
+1. **Addition**: $(a + bi) + (c + di) = (a + c) + (b + d)i$
+2. **Multiplication**: $(a + bi)(c + di) = (ac - bd) + (ad + bc)i$
+3. **Complex conjugate**: $\overline{z} = \overline{a + bi} = a - bi$
+4. **Modulus**: $|z| = |a + bi| = \sqrt{a^2 + b^2}$
+5. **Argument**: $\arg(z) = \tan^{-1}(b/a)$ (adjusted for the quadrant)
+
+:::
+
+::: {#def-complex-vector-space}
+
+## Complex Vector Space
+
+A complex vector space $\mathbb{C}^d$ consists of $d$-tuples of complex numbers. Basic operations include:
+
+1. **Vector addition**: $\mathbf{z} + \mathbf{w} = (z_1 + w_1, z_2 + w_2, \ldots, z_d + w_d)$
+2. **Scalar multiplication**: $\alpha\mathbf{z} = (\alpha z_1, \alpha z_2, \ldots, \alpha z_d)$ for $\alpha \in \mathbb{C}$
+
+The Hermitian inner product is defined as: $\langle \mathbf{z}, \mathbf{w} \rangle = \sum_{j=1}^d z_j \overline{w_j}$
+
+The induced norm is: $\|\mathbf{z}\| = \sqrt{\langle \mathbf{z}, \mathbf{z} \rangle} = \sqrt{\sum_{j=1}^d |z_j|^2}$
+
+:::
+
+Complex vector spaces enable operations like rotations in the complex plane, which are useful for modeling antisymmetric relations.
+
+::: {#exm-complex-embedding}
+
+## Complex Embedding Example
+
+In the ComplEx model, entities and relations are embedded in complex space.
+
+If the entity "Paris" is represented by $\mathbf{e}_{Paris} = (0.6 + 0.2i, 0.1 - 0.5i)$ and the relation "capitalOf" is represented by $\mathbf{r}_{capitalOf} = (0.8 + 0.1i, 0.3 + 0.2i)$, then the Hermitian product between them is: $\langle \mathbf{e}_{Paris}, \mathbf{r}_{capitalOf} \rangle = (0.6 + 0.2i)(0.8 - 0.1i) + (0.1 - 0.5i)(0.3 - 0.2i)$ $= (0.6 \cdot 0.8 + 0.2 \cdot 0.1) + i(0.2 \cdot 0.8 - 0.6 \cdot 0.1) + (0.1 \cdot 0.3 + 0.5 \cdot 0.2) + i(- 0.5 \cdot 0.3 - 0.1 \cdot 0.2)$ $= 0.5 + 0.14i$
+
+This complex-valued result captures both symmetric and antisymmetric aspects of the relation.
+
+:::
+
+### Complex Matrix Operations
+
+Complex matrices extend the concept of matrices to complex numbers and provide additional modeling capabilities.
+
+::: {#def-complex-matrices}
+
+## Complex Matrices
+
+A complex matrix $A \in \mathbb{C}^{m \times n}$ has complex entries $A_{ij} = a_{ij} + b_{ij}i$ where $a_{ij}, b_{ij} \in \mathbb{R}$.
+
+Key operations and properties include:
+
+1. **Conjugate transpose**: $A^H = \overline{A^T}$, with entries $(A^H)_{ij} = \overline{A_{ji}}$
+2. **Hermitian matrix**: $A$ is Hermitian if $A = A^H$
+3. **Unitary matrix**: $A$ is unitary if $A^H A = A A^H = I$
+4. **Spectral decomposition**: A Hermitian matrix $A$ can be decomposed as $A = Q \Lambda Q^H$ where $Q$ is unitary and $\Lambda$ is diagonal with real entries
+
+:::
+
+Complex matrices are used in models like ComplEx to represent relations with both symmetric and antisymmetric components.
+
+::: {#exm-complex-matrix}
+
+## Complex Matrix Example
+
+In an extension of ComplEx, relations can be represented as complex matrices. For example, the relation "capitalOf" might be represented as: $R_{capitalOf} = \begin{bmatrix} 0.8 + 0.1i & 0.2 - 0.3i \\ 0.1 + 0.4i & 0.9 + 0.2i \end{bmatrix}$
+
+This matrix can transform entity embeddings through complex matrix multiplication, capturing both symmetric and antisymmetric aspects of the relation.
+
+:::
+
+## Probability and Statistics
+
+Probabilistic knowledge graph embedding models rely on concepts from probability and statistics.
+
+### Probability Distributions
+
+Probability distributions are fundamental to probabilistic knowledge graph embedding models.
+
+::: {#def-probability-distribution}
+
+## Probability Distribution
+
+A probability distribution is a function that assigns probabilities to events in a sample space.
+
+For a discrete random variable $X$, the probability mass function (PMF) $P(X = x)$ gives the probability of each possible value.
+
+For a continuous random variable $X$, the probability density function (PDF) $f_X(x)$ satisfies: $P(a \leq X \leq b) = \int_a^b f_X(x) dx$
+
+Key properties of probability distributions include:
+
+1. **Non-negativity**: $P(X = x) \geq 0$ or $f_X(x) \geq 0$
+2. **Normalization**: $\sum_x P(X = x) = 1$ or $\int_{-\infty}^{\infty} f_X(x) dx = 1$
+
+:::
+
+Common probability distributions used in knowledge graph embeddings include Gaussian (normal), Bernoulli, and uniform distributions.
+
+::: {#exm-gaussian-distribution}
+
+## Gaussian Distribution
+
+The Gaussian (normal) distribution has PDF: $f_X(x) = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}$
+
+where $\mu$ is the mean and $\sigma$ is the standard deviation.
+
+In probabilistic knowledge graph embeddings, entity and relation vectors might be modeled as samples from multivariate Gaussian distributions: $\mathbf{e} \sim \mathcal{N}(\boldsymbol{\mu}_e, \boldsymbol{\Sigma}_e)$ $\mathbf{r} \sim \mathcal{N}(\boldsymbol{\mu}_r, \boldsymbol{\Sigma}_r)$
+
+This allows for representing uncertainty in the embeddings.
+
+:::
+
+### Bayesian Statistics
+
+Bayesian statistics provides a framework for updating probability distributions based on new evidence, which is useful for learning knowledge graph embeddings.
+
+::: {#def-bayes-theorem}
+
+## Bayes' Theorem
+
+Bayes' theorem states: $P(A|B) = \frac{P(B|A) P(A)}{P(B)}$
+
+where:
+
+- $P(A|B)$ is the posterior probability of $A$ given $B$
+- $P(B|A)$ is the likelihood of $B$ given $A$
+- $P(A)$ is the prior probability of $A$
+- $P(B)$ is the marginal probability of $B$
+
+In the context of knowledge graph embeddings:
+
+- $A$ could represent the embeddings
+- $B$ could represent the observed triples
+- $P(A|B)$ would be the posterior distribution of embeddings given the observed triples
+
+:::
+
+Bayesian knowledge graph embedding models learn distributions over embeddings rather than point estimates.
+
+::: {#exm-bayesian-kge}
+
+## Bayesian Knowledge Graph Embedding
+
+In a Bayesian KGE model:
+
+1. **Prior**: We might place prior distributions on entity and relation embeddings: $P(\mathbf{e}_i) = \mathcal{N}(\mathbf{0}, \sigma_e^2\mathbf{I})$ $P(\mathbf{r}_j) = \mathcal{N}(\mathbf{0}, \sigma_r^2\mathbf{I})$
+
+2. **Likelihood**: We define a likelihood function for observed triples: $P((h, r, t)|\mathbf{E}, \mathbf{R}) = \sigma(f_r(\mathbf{e}_h, \mathbf{e}_t))$ where $\sigma$ is the sigmoid function and $f_r$ is a scoring function.
+
+3. **Posterior**: We compute the posterior distribution of embeddings given observed triples: $P(\mathbf{E}, \mathbf{R}|\mathcal{D}) \propto P(\mathcal{D}|\mathbf{E}, \mathbf{R}) P(\mathbf{E}) P(\mathbf{R})$ where $\mathcal{D}$ is the set of observed triples.
+
+4. **Inference**: We use techniques like variational inference or MCMC to approximate the posterior.
+
+:::
+
+### Information Theory
+
+Information theory provides tools for measuring uncertainty and information content, which are relevant to knowledge graph embedding learning and evaluation.
+
+::: {#def-entropy}
+
+## Entropy and KL Divergence
+
+Entropy measures the uncertainty or information content of a random variable: $H(X) = -\sum_x P(X = x) \log P(X = x)$ (discrete case) $H(X) = -\int f_X(x) \log f_X(x) dx$ (continuous case)
+
+Kullback-Leibler (KL) divergence measures the difference between two probability distributions $P$ and $Q$: $D_{KL}(P||Q) = \sum_x P(x) \log \frac{P(x)}{Q(x)}$ (discrete case) $D_{KL}(P||Q) = \int f_P(x) \log \frac{f_P(x)}{f_Q(x)} dx$ (continuous case)
+
+:::
+
+Information theory concepts can be used in learning algorithms for knowledge graph embeddings, particularly in variational approaches.
+
+::: {#exm-variational-kge}
+
+## Variational Knowledge Graph Embedding
+
+In a variational approach to knowledge graph embedding:
+
+1. We approximate the true posterior $P(\mathbf{E}, \mathbf{R}|\mathcal{D})$ with a simpler distribution $Q(\mathbf{E}, \mathbf{R})$.
+
+2. We minimize the KL divergence between $Q$ and the true posterior: $D_{KL}(Q(\mathbf{E}, \mathbf{R})||P(\mathbf{E}, \mathbf{R}|\mathcal{D}))$
+
+3. This is equivalent to maximizing the Evidence Lower Bound (ELBO): $\mathcal{L}(Q) = \mathbb{E}_Q[\log P(\mathcal{D}|\mathbf{E}, \mathbf{R})] - D_{KL}(Q(\mathbf{E}, \mathbf{R})||P(\mathbf{E}, \mathbf{R}))$
+
+4. We can use this approach to learn probabilistic embeddings that capture uncertainty.
+
+:::
+
+## Metric Spaces and Distance Functions
+
+Metric spaces provide a general framework for measuring distances, which is essential for many knowledge graph embedding models.
+
+::: {#def-metric-space}
+
+## Metric Space
+
+A metric space is a set $X$ equipped with a distance function (metric) $d: X \times X \rightarrow \mathbb{R}$ that satisfies the following for all $x, y, z \in X$:
+
+1. **Non-negativity**: $d(x, y) \geq 0$
+2. **Identity of indiscernibles**: $d(x, y) = 0$ if and only if $x = y$
+3. **Symmetry**: $d(x, y) = d(y, x)$
+4. **Triangle inequality**: $d(x, z) \leq d(x, y) + d(y, z)$
+
+:::
+
+Different metric spaces and distance functions capture different aspects of similarity between entities and relations.
+
+::: {#def-distance-functions}
+
+## Distance Functions
+
+Common distance functions in knowledge graph embeddings include:
+
+1. **Euclidean distance**: $d_2(\mathbf{x}, \mathbf{y}) = \|\mathbf{x} - \mathbf{y}\|_2 = \sqrt{\sum_i (x_i - y_i)^2}$
+2. **Manhattan distance**: $d_1(\mathbf{x}, \mathbf{y}) = \|\mathbf{x} - \mathbf{y}\|_1 = \sum_i |x_i - y_i|$
+3. **Minkowski distance**: $d_p(\mathbf{x}, \mathbf{y}) = \|\mathbf{x} - \mathbf{y}\|_p = \left(\sum_i |x_i - y_i|^p\right)^{1/p}$
+4. **Mahalanobis distance**: $d_M(\mathbf{x}, \mathbf{y}) = \sqrt{(\mathbf{x} - \mathbf{y})^T M (\mathbf{x} - \mathbf{y})}$ where $M$ is a positive definite matrix
+5. **Cosine distance**: $d_{\cos}(\mathbf{x}, \mathbf{y}) = 1 - \frac{\mathbf{x} \cdot \mathbf{y}}{\|\mathbf{x}\| \|\mathbf{y}\|}$
+
+:::
+
+::: {#exm-distance-functions}
+
+## Distance Functions Example
+
+Consider entity embeddings $\mathbf{e}_1 = (1, 2, 3)$ and $\mathbf{e}_2 = (4, 2, 1)$.
+
+Euclidean distance: $d_2(\mathbf{e}_1, \mathbf{e}_2) = \sqrt{(1-4)^2 + (2-2)^2 + (3-1)^2} = \sqrt{9 + 0 + 4} = \sqrt{13} \approx 3.61$
+
+Manhattan distance: $d_1(\mathbf{e}_1, \mathbf{e}_2) = |1-4| + |2-2| + |3-1| = 3 + 0 + 2 = 5$
+
+Cosine distance: $d_{\cos}(\mathbf{e}_1, \mathbf{e}_2) = 1 - \frac{1 \cdot 4 + 2 \cdot 2 + 3 \cdot 1}{\sqrt{1^2 + 2^2 + 3^2} \cdot \sqrt{4^2 + 2^2 + 1^2}} = 1 - \frac{11}{\sqrt{14} \cdot \sqrt{21}} \approx 0.28$
+
+:::
+
+### Non-Euclidean Geometries
+
+Non-Euclidean geometries, including hyperbolic and spherical spaces, provide alternative embedding spaces with unique properties.
+
+::: {#def-hyperbolic-space}
+
+## Hyperbolic Space
+
+Hyperbolic space is a non-Euclidean space with constant negative curvature. The Poincaré ball model represents hyperbolic space as the interior of a unit ball.
+
+In the Poincaré ball model, the distance between points $\mathbf{x}$ and $\mathbf{y}$ is: $d_H(\mathbf{x}, \mathbf{y}) = \cosh^{-1} \left( 1 + 2 \frac{\|\mathbf{x} - \mathbf{y}\|^2}{(1 - \|\mathbf{x}\|^2)(1 - \|\mathbf{y}\|^2)} \right)$
+
+Hyperbolic space has the property that the volume of a ball grows exponentially with its radius, making it well-suited for embedding hierarchical structures.
+
+:::
+
+::: {#def-spherical-space}
+
+## Spherical Space
+
+Spherical space is a non-Euclidean space with constant positive curvature. It can be represented as the surface of a unit sphere.
+
+The distance between points $\mathbf{x}$ and $\mathbf{y}$ on the unit sphere is the great-circle distance: $d_S(\mathbf{x}, \mathbf{y}) = \cos^{-1}(\mathbf{x} \cdot \mathbf{y})$ (assuming $\|\mathbf{x}\| = \|\mathbf{y}\| = 1$)
+
+Spherical space is useful for embedding data with bounded, symmetric relationships.
+
+:::
+
+::: {#exm-non-euclidean}
+
+## Non-Euclidean Embedding Example
+
+In a hyperbolic knowledge graph embedding model:
+
+1. Entities are embedded as points in the Poincaré ball: $\mathbf{e} \in \mathbb{B}^d = \{\mathbf{x} \in \mathbb{R}^d : \|\mathbf{x}\| < 1\}$
+
+2. Hierarchical relationships can be modeled efficiently, with abstract entities (e.g., "Animal") closer to the origin and specific entities (e.g., "Bengal Tiger") closer to the boundary.
+
+3. The distance function captures the hierarchical similarity, with points at similar depths having smaller distances than points at different depths.
+
+:::
+
+## Graph Theory Basics
+
+Knowledge graphs are fundamentally graph structures, so understanding basic graph theory is essential.
+
+::: {#def-graph}
+
+## Graph
+
+A graph $G = (V, E)$ consists of a set of vertices (or nodes) $V$ and a set of edges $E \subseteq V \times V$ connecting pairs of vertices.
+
+In a directed graph, edges have a direction, so $(u, v) \in E$ does not imply $(v, u) \in E$.
+
+In a labeled graph, edges are associated with labels from a set $L$, forming triples $(u, l, v)$ where $u, v \in V$ and $l \in L$.
+
+A knowledge graph is a directed, labeled graph where vertices represent entities and edge labels represent relation types.
+
+:::
+
+::: {#def-graph-properties}
+
+## Graph Properties
+
+Important graph properties include:
+
+1. **Degree**: The number of edges incident to a vertex. In a directed graph, we distinguish between in-degree and out-degree.
+
+2. **Path**: A sequence of vertices where each consecutive pair is connected by an edge. The length of a path is the number of edges.
+
+3. **Connected component**: A maximal subgraph in which any two vertices are connected by a path.
+
+4. **Cycle**: A path that starts and ends at the same vertex and contains at least one edge.
+
+5. **Tree**: A connected graph with no cycles.
+
+:::
+
+These graph properties can inform the design and analysis of knowledge graph embedding models.
+
+::: {#exm-graph-properties}
+
+## Graph Properties Example
+
+Consider a small knowledge graph with entities E = {Alice, Bob, Charlie, Dave} and relations R = {friendOf, likes}:
+
+- (Alice, friendOf, Bob)
+- (Bob, friendOf, Alice)
+- (Alice, likes, Charlie)
+- (Bob, likes, Charlie)
+- (Charlie, friendOf, Dave)
+
+Graph properties:
+
+- Alice has out-degree 2 and in-degree 1
+- The path (Alice, Bob, Charlie, Dave) connects Alice to Dave
+- The graph forms a single connected component
+- (Alice, Bob, Alice) forms a cycle
+- The subgraph with edges {(Alice, likes, Charlie), (Bob, likes, Charlie), (Charlie, friendOf, Dave)} forms a tree
+
+:::
+
+## Optimization Theory
+
+Optimization theory provides the mathematical foundation for learning knowledge graph embeddings from data.
+
+### Objective Functions
+
+Objective functions quantify how well the embeddings model the knowledge graph.
+
+::: {#def-objective-function}
+
+## Objective Function
+
+An objective function $f(\mathbf{\theta})$ maps a set of parameters $\mathbf{\theta}$ to a scalar value that we aim to minimize or maximize.
+
+In knowledge graph embeddings, the parameters $\mathbf{\theta}$ include the entity and relation embeddings, and the objective function typically measures how well these embeddings model the observed triples.
+
+Common objective functions include:
+
+1. **Margin-based ranking loss**: $\mathcal{L} = \sum_{(h,r,t) \in S} \sum_{(h',r,t') \in S'} \max(0, \gamma + s(h', r, t') - s(h, r, t))$ where $S$ is the set of observed triples, $S'$ is the set of corrupted triples, $s$ is a scoring function, and $\gamma$ is a margin.
+
+2. **Logistic loss**: $\mathcal{L} = \sum_{(h,r,t) \in S \cup S'} y_{hrt} \log \sigma(s(h, r, t)) + (1 - y_{hrt}) \log(1 - \sigma(s(h, r, t)))$ where $y_{hrt} = 1$ for observed triples and $y_{hrt} = 0$ for corrupted triples, and $\sigma$ is the sigmoid function.
+
+3. **Negative sampling loss**: $\mathcal{L} = \sum_{(h,r,t) \in S} \log \sigma(s(h, r, t)) + \sum_{i=1}^k \mathbb{E}_{(h',r,t') \sim P_n} [\log \sigma(-s(h', r, t'))]$ where $P_n$ is a distribution for sampling negative examples.
+
+:::
+
+::: {#exm-objective-function}
+
+## Objective Function Example
+
+For TransE with margin-based ranking loss, the objective function is: $\mathcal{L} = \sum_{(h,r,t) \in S} \sum_{(h',r,t') \in S'} \max(0, \gamma - \|\mathbf{e}_h + \mathbf{r}_r - \mathbf{e}_t\| + \|\mathbf{e}_{h'} + \mathbf{r}_r - \mathbf{e}_{t'}\|)$
+
+For positive triple (Alice, friendOf, Bob) and negative triple (Alice, friendOf, Charlie): $\max(0, \gamma - \|\mathbf{e}_{Alice} + \mathbf{r}_{friendOf} - \mathbf{e}_{Bob}\| + \|\mathbf{e}_{Alice} + \mathbf{r}_{friendOf} - \mathbf{e}_{Charlie}\|)$
+
+The loss is positive if the negative triple's score is within $\gamma$ of the positive triple's score, encouraging the model to score positive triples higher than negative ones.
+
+:::
+
+### Gradient Descent and Variants
+
+Gradient descent and its variants are the primary optimization algorithms for learning knowledge graph embeddings.
+
+::: {#def-gradient-descent}
+
+## Gradient Descent
+
+Gradient descent is an iterative optimization algorithm that updates parameters in the direction of steepest descent of the objective function: $\mathbf{\theta}_{t+1} = \mathbf{\theta}_t - \eta \nabla f(\mathbf{\theta}_t)$ where $\eta > 0$ is the learning rate and $\nabla f(\mathbf{\theta}_t)$ is the gradient of the objective function with respect to the parameters.
+
+Variants include:
+
+1. **Stochastic Gradient Descent (SGD)**: Updates parameters using gradients computed on small batches of data.
+2. **Momentum**: Adds a fraction of the previous update to the current update, helping to accelerate learning.
+3. **Adagrad**: Adapts the learning rate for each parameter based on historical gradients.
+4. **RMSprop**: Normalizes the gradient by a running average of its recent magnitude.
+5. **Adam**: Combines ideas from momentum and RMSprop.
+
+:::
+
+::: {#exm-gradient-descent}
+
+## Gradient Descent Example
+
+For TransE with objective function $\mathcal{L}$, the gradient with respect to the entity embedding $\mathbf{e}_h$ for a positive triple $(h, r, t)$ and negative triple $(h', r, t')$ is: $\nabla_{\mathbf{e}_h} \mathcal{L} = \begin{cases}
+\frac{(\mathbf{e}_h + \mathbf{r}_r - \mathbf{e}_t)}{\|\mathbf{e}_h + \mathbf{r}_r - \mathbf{e}_t\|} & \text{if } \gamma - \|\mathbf{e}_h + \mathbf{r}_r - \mathbf{e}_t\| + \|\mathbf{e}_{h'} + \mathbf{r}_r - \mathbf{e}_{t'}\| > 0 \\
+\mathbf{0} & \text{otherwise}
+\end{cases}$
+
+The update rule using SGD would be: $\mathbf{e}_h \leftarrow \mathbf{e}_h - \eta \nabla_{\mathbf{e}_h} \mathcal{L}$
+
+:::
+
+### Regularization Techniques
+
+Regularization techniques help prevent overfitting and improve generalization in knowledge graph embedding models.
+
+::: {#def-regularization}
+
+## Regularization
+
+Regularization adds constraints or penalties to the objective function to prevent overfitting. Common regularization techniques include:
+
+1. **L2 regularization**: Adds a penalty term proportional to the squared L2 norm of the parameters: $\mathcal{R}(\mathbf{\theta}) = \lambda \|\mathbf{\theta}\|_2^2$
+
+2. **L1 regularization**: Adds a penalty term proportional to the L1 norm of the parameters: $\mathcal{R}(\mathbf{\theta}) = \lambda \|\mathbf{\theta}\|_1$
+
+3. **Elastic Net**: Combines L1 and L2 regularization: $\mathcal{R}(\mathbf{\theta}) = \lambda_1 \|\mathbf{\theta}\|_1 + \lambda_2 \|\mathbf{\theta}\|_2^2$
+
+4. **Dropout**: Randomly sets a fraction of parameters to zero during training.
+
+5. **Noise addition**: Adds random noise to parameters during training.
+
+6. **Norm constraints**: Constrains parameters to have specific norms, e.g., unit norm.
+
+:::
+
+::: {#exm-regularization}
+
+## Regularization Example
+
+For TransE with L2 regularization, the regularized objective function is: $\mathcal{L}_{reg} = \mathcal{L} + \lambda \sum_{e \in E} \|\mathbf{e}\|_2^2 + \lambda \sum_{r \in R} \|\mathbf{r}\|_2^2$
+
+where $\lambda > 0$ is the regularization strength.
+
+This encourages the model to learn smaller embedding vectors, reducing the risk of overfitting.
+
+Alternatively, TransE can use norm constraints by projecting entity embeddings onto the unit sphere after each update: $\mathbf{e} \leftarrow \frac{\mathbf{e}}{\|\mathbf{e}\|}$
+
+:::
+
+## Differential Calculus for Optimization
+
+Differential calculus provides the tools to compute gradients of objective functions, which are essential for optimization.
+
+::: {#def-gradient}
+
+## Gradient
+
+The gradient of a scalar function $f: \mathbb{R}^n \rightarrow \mathbb{R}$ with respect to vector $\mathbf{x} = (x_1, x_2, \ldots, x_n)$ is: $\nabla f(\mathbf{x}) = \left(\frac{\partial f}{\partial x_1}, \frac{\partial f}{\partial x_2}, \ldots, \frac{\partial f}{\partial x_n}\right)$
+
+The gradient points in the direction of steepest increase of the function.
+
+:::
+
+::: {#def-jacobian-hessian}
+
+## Jacobian and Hessian
+
+For a vector-valued function $\mathbf{f}: \mathbb{R}^n \rightarrow \mathbb{R}^m$, the Jacobian matrix $J$ contains all first-order partial derivatives: $J_{ij} = \frac{\partial f_i}{\partial x_j}$
+
+For a scalar function $f: \mathbb{R}^n \rightarrow \mathbb{R}$, the Hessian matrix $H$ contains all second-order partial derivatives: $H_{ij} = \frac{\partial^2 f}{\partial x_i \partial x_j}$
+
+The Hessian characterizes the local curvature of the function.
+
+:::
+
+::: {#def-chain-rule}
+
+## Chain Rule
+
+The chain rule allows us to compute the derivative of composite functions: $\frac{d}{dx} f(g(x)) = \frac{df}{dg} \cdot \frac{dg}{dx}$
+
+In higher dimensions, for $\mathbf{y} = \mathbf{g}(\mathbf{x})$ and $z = f(\mathbf{y})$: $\frac{\partial z}{\partial x_i} = \sum_j \frac{\partial z}{\partial y_j} \frac{\partial y_j}{\partial x_i}$
+
+The chain rule is fundamental to computing gradients in neural networks and complex knowledge graph embedding models.
+
+:::
+
+::: {#exm-gradient-computation}
+
+## Gradient Computation Example
+
+For the distance-based scoring function in TransE: $s(h, r, t) = -\|\mathbf{e}_h + \mathbf{r}_r - \mathbf{e}_t\|_2$
+
+The gradient with respect to $\mathbf{e}_h$ is: $\nabla_{\mathbf{e}_h} s(h, r, t) = -\frac{1}{\|\mathbf{e}_h + \mathbf{r}_r - \mathbf{e}_t\|_2} \cdot (\mathbf{e}_h + \mathbf{r}_r - \mathbf{e}_t)$
+
+This gradient is used in the optimization process to update the entity embedding $\mathbf{e}_h$.
+
+:::
+
+## Conclusion
+
+This appendix has provided a comprehensive overview of the mathematical foundations underlying knowledge graph embeddings. From the basics of linear algebra and vector spaces to more advanced topics like tensor algebra, complex vector spaces, probability theory, and optimization, these mathematical concepts form the building blocks for understanding, implementing, and developing knowledge graph embedding models.
+
+By mastering these mathematical foundations, researchers and practitioners can better understand existing knowledge graph embedding techniques, develop new approaches, and effectively apply these methods to real-world problems. The formal definitions, theorems, and examples provided in this appendix serve as a reference that readers can consult as they work through the main chapters of the book.
+
+The field of knowledge graph embeddings continues to evolve, with new mathematical tools and techniques being incorporated to address the challenges of modeling complex relationships in large-scale knowledge graphs. A solid understanding of these mathematical foundations will provide a strong basis for keeping up with and contributing to these developments.

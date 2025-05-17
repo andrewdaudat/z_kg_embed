@@ -120,18 +120,20 @@ Knowledge graphs are specifically designed to represent factual information abou
 
 Consider a small knowledge graph about movies:
 
-- Entities: $E = \{\text{Inception}, \text{Christopher Nolan}, \text{Leonardo DiCaprio}, \text{The Revenant}, \text{Alejandro Iñárritu}, \text{Science Fiction}, \text{Drama}, \text{2010}, \text{2015}\}$
-- Relations: $R = \{\text{directed}, \text{acted_in}, \text{has_genre}, \text{released_in}, \text{won_oscar_for}\}$
-- Triples: $T = \{$
-  - $(\text{Christopher Nolan}, \text{directed}, \text{Inception})$,
-  - $(\text{Leonardo DiCaprio}, \text{acted_in}, \text{Inception})$,
-  - $(\text{Leonardo DiCaprio}, \text{acted_in}, \text{The Revenant})$,
-  - $(\text{Alejandro Iñárritu}, \text{directed}, \text{The Revenant})$,
-  - $(\text{Inception}, \text{has_genre}, \text{Science Fiction})$,
-  - $(\text{The Revenant}, \text{has_genre}, \text{Drama})$,
-  - $(\text{Inception}, \text{released_in}, \text{2010})$,
-  - $(\text{The Revenant}, \text{released_in}, \text{2015})$,
-  - $(\text{Leonardo DiCaprio}, \text{won_oscar_for}, \text{The Revenant})$ $\}$
+Here's the content with the LaTeX formatting removed:
+
+- Entities: Inception, Christopher Nolan, Leonardo DiCaprio, The Revenant, Alejandro Iñárritu, Science Fiction, Drama, 2010, 2015
+- Relations: directed, acted_in, has_genre, released_in, won_oscar_for
+- Triples:
+  - (Christopher Nolan, directed, Inception)
+  - (Leonardo DiCaprio, acted_in, Inception)
+  - (Leonardo DiCaprio, acted_in, The Revenant)
+  - (Alejandro Iñárritu, directed, The Revenant)
+  - (Inception, has_genre, Science Fiction)
+  - (The Revenant, has_genre, Drama)
+  - (Inception, released_in, 2010)
+  - (The Revenant, released_in, 2015)
+  - (Leonardo DiCaprio, won_oscar_for, The Revenant)
 
 :::
 

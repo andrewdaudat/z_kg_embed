@@ -1,0 +1,955 @@
+# Reasoning with Knowledge Graph Embeddings
+
+## Introduction to Reasoning with Knowledge Graph Embeddings
+
+Knowledge graph embeddings (KGEs) have proven effective for link prediction and knowledge graph completion, but their potential extends far beyond these basic tasks. One of the most promising applications of KGEs is enabling various forms of reasoning over knowledge graphs. While traditional symbolic reasoning approaches rely on explicit rules and logic, embedding-based reasoning leverages the geometric properties of the embedding space to perform inferences that may be difficult or impossible with purely symbolic methods.
+
+In this chapter, we explore how knowledge graph embeddings can support different forms of reasoning, from simple relation path modeling to complex logical queries. We examine the theoretical foundations of embedding-based reasoning, discuss practical implementations, and highlight the strengths and limitations compared to traditional approaches. The goal is to provide a comprehensive understanding of how KGEs can serve as a foundation for sophisticated reasoning capabilities over knowledge graphs.
+
+Let's begin by examining the relationship between traditional symbolic reasoning and embedding-based reasoning in the context of knowledge graphs.
+
+## Symbolic vs. Embedding-Based Reasoning
+
+Reasoning over knowledge graphs has traditionally been approached through symbolic methods, but embedding-based approaches offer alternative capabilities with distinct advantages and limitations.
+
+::: {#def-reasoning-approaches}
+
+## Symbolic vs. Embedding-Based Reasoning
+
+**Symbolic Reasoning**:
+
+1. Relies on explicit logical rules and axioms
+2. Performs reasoning through formal logical operations
+3. Provides explicit reasoning paths and explanations
+4. Struggles with uncertainty and incomplete information
+
+**Embedding-Based Reasoning**:
+
+1. Represents entities and relations as vectors in a continuous space
+2. Performs reasoning through geometric operations in the embedding space
+3. Handles uncertainty and incomplete information naturally
+4. May sacrifice explicitness and interpretability
+
+:::
+
+Rather than viewing these approaches as competing alternatives, they can be seen as complementary, with potential for hybrid methods that leverage the strengths of both.
+
+::: {#exm-reasoning-approaches}
+
+## Example of Reasoning Approaches
+
+Consider the reasoning pattern: "If A is the capital of B, and B is in continent C, then A is in continent C."
+
+**Symbolic approach**: Define a logical rule:
+
+```
+∀ A, B, C: capitalOf(A, B) ∧ inContinent(B, C) → inContinent(A, C)
+```
+
+**Embedding approach**: Learn embeddings where:
+
+```
+e_A + r_inContinent ≈ e_C when A is the capital of B and B is in continent C
+```
+
+The symbolic approach provides an explicit, interpretable rule, while the embedding approach captures the pattern implicitly in the geometric structure of the embedding space.
+
+:::
+
+## Relation Path Modeling and Composition
+
+One of the fundamental reasoning capabilities enabled by knowledge graph embeddings is modeling paths of relations and their compositions.
+
+### Path Patterns in Knowledge Graphs
+
+Relation paths represent sequences of relations that connect entities across multiple hops in the knowledge graph.
+
+::: {#def-relation-paths}
+
+## Relation Paths
+
+A relation path is a sequence of relations $r_1, r_2, ..., r_n$ such that:
+
+1. There exist entities $e_0, e_1, ..., e_n$ where $(e_{i-1}, r_i, e_i)$ is a valid triple for all $i \in [1, n]$
+2. The path connects entity $e_0$ to entity $e_n$ via intermediate entities
+3. The composition of these relations may imply a direct relationship between $e_0$ and $e_n$
+
+:::
+
+Relation paths are a key element in multi-hop reasoning and can reveal implicit relationships not explicitly stated in the knowledge graph.
+
+::: {#exm-relation-path}
+
+## Example of Relation Path
+
+Consider the following triples in a knowledge graph:
+
+- (Barack Obama, bornIn, Honolulu)
+- (Honolulu, cityIn, Hawaii)
+- (Hawaii, stateIn, USA)
+
+These form a relation path: bornIn → cityIn → stateIn
+
+This path connects "Barack Obama" to "USA" and implies the relationship (Barack Obama, citizenOf, USA), even if this triple is not explicitly present in the knowledge graph.
+
+:::
+
+### Compositional Translation Models
+
+Several knowledge graph embedding models have been designed to capture relation composition through translations in the embedding space.
+
+::: {#def-compositional-translation}
+
+## Compositional Translation for Relation Paths
+
+In compositional translation models:
+
+1. Each relation $r$ is represented as a translation vector $\mathbf{r}$ in the embedding space
+2. The composition of relations $r_1, r_2, ..., r_n$ is modeled as the sum of their translation vectors: $\mathbf{r}_1 + \mathbf{r}_2 + ... + \mathbf{r}_n$
+3. For a valid path, $\mathbf{e}_0 + (\mathbf{r}_1 + \mathbf{r}_2 + ... + \mathbf{r}_n) \approx \mathbf{e}_n$
+4. The model learns embeddings such that compositional translations capture valid reasoning patterns
+
+:::
+
+This approach is particularly natural for translation-based models like TransE, where relations are explicitly modeled as translations.
+
+::: {#exm-compositional-translation}
+
+## Example of Compositional Translation
+
+In a TransE-like model, for the path in the previous example:
+
+```
+e_Obama + r_bornIn + r_cityIn + r_stateIn ≈ e_USA
+```
+
+The composition of the three relations approximates the direct relationship between Barack Obama and the USA.
+
+:::
+
+### PTransE and Path-Based Embeddings
+
+PTransE (Path-based TransE) and similar models explicitly incorporate relation paths into the embedding learning process.
+
+::: {#def-ptranse}
+
+## Path-based TransE (PTransE)
+
+PTransE extends TransE by:
+
+1. Identifying reliable relation paths between entity pairs
+2. Computing a reliability score for each path based on path constraints
+3. Incorporating path information during training through additional objectives
+4. Learning embeddings that explicitly capture compositional patterns
+
+:::
+
+By explicitly modeling paths, these approaches can learn more expressive embeddings that better capture the complex reasoning patterns in knowledge graphs.
+
+::: {#thm-path-composition-property}
+
+## Compositional Property of Well-Formed Embeddings
+
+If knowledge graph embeddings properly capture compositional reasoning, then for a valid path $r_1, r_2, ..., r_n$ connecting entities $e_0$ and $e_n$:
+
+The similarity between $e_0 + (r_1 + r_2 + ... + r_n)$ and $e_n$ should be significantly higher than the similarity between $e_0 + (r_1 + r_2 + ... + r_n)$ and randomly selected entities.
+
+This property can be measured empirically to assess how well a model captures compositional reasoning.
+
+:::
+
+### Matrix Factorization for Composition
+
+In bilinear models like RESCAL, DistMult, and ComplEx, relation composition is naturally modeled through matrix multiplication.
+
+::: {#def-matrix-composition}
+
+## Matrix Composition in Bilinear Models
+
+In bilinear models where relations are represented as matrices:
+
+1. A single relation $r$ is modeled as a matrix $\mathbf{M}_r$
+2. The composition of relations $r_1, r_2, ..., r_n$ is modeled as the matrix product: $\mathbf{M}_{r_1} \times \mathbf{M}_{r_2} \times ... \times \mathbf{M}_{r_n}$
+3. For a valid path, $\mathbf{e}_0^T \times (\mathbf{M}_{r_1} \times \mathbf{M}_{r_2} \times ... \times \mathbf{M}_{r_n}) \times \mathbf{e}_n$ should be high
+4. This matrix product approach naturally captures relation composition
+
+:::
+
+This matrix-based representation of relations is particularly well-suited for modeling complex compositional patterns, including non-commutative compositions.
+
+::: {#exm-matrix-composition}
+
+## Example of Matrix Composition
+
+In a bilinear model like RESCAL, for the path in our previous example:
+
+```
+e_Obama^T × M_bornIn × M_cityIn × M_stateIn × e_USA
+```
+
+should yield a high score if the composition of relations is valid.
+
+:::
+
+## Rule Mining from Knowledge Graph Embeddings
+
+Knowledge graph embeddings can be used to discover logical rules that capture regular patterns in the data, a process known as rule mining.
+
+### Embedding-Based Rule Mining
+
+Traditional rule mining approaches rely on statistical patterns in the graph structure, but embedding-based approaches leverage the geometric properties of the embedding space.
+
+::: {#def-embedding-rule-mining}
+
+## Embedding-Based Rule Mining
+
+Embedding-based rule mining typically:
+
+1. Identifies potential rule templates (e.g., $r_1(X, Y) \wedge r_2(Y, Z) \rightarrow r_3(X, Z)$)
+2. Evaluates these templates using embeddings (e.g., by measuring how well $\mathbf{r}_1 + \mathbf{r}_2 \approx \mathbf{r}_3$)
+3. Ranks potential rules based on their scores in the embedding space
+4. Selects the most promising rules based on confidence and support metrics
+
+:::
+
+This approach can discover rules that might be missed by purely statistical approaches, especially when the supporting evidence is sparse.
+
+::: {#exm-rule-mining}
+
+## Example of Embedding-Based Rule Mining
+
+Consider the potential rule: "If X is the capital of Y, and Y is a country in Europe, then X is a European city."
+
+In a TransE-like model, we would evaluate how well:
+
+```
+r_capitalOf + r_countryInEurope ≈ r_europeanCity
+```
+
+If the composition of relation vectors on the left approximates the relation vector on the right, this suggests the rule is valid.
+
+:::
+
+### AMIE and Neural Rule Mining
+
+AMIE is a classic rule mining system that has been extended with neural components leveraging knowledge graph embeddings.
+
+::: {#def-neural-rule-mining}
+
+## Neural Rule Mining
+
+Neural rule mining approaches typically:
+
+1. Use embeddings to guide the search for potential rules
+2. Compute rule confidence based on both statistical evidence and embedding similarity
+3. Combine symbolic and embedding-based scores for rule evaluation
+4. Learn to generate rules that maximize both support in the data and coherence in the embedding space
+
+:::
+
+These hybrid approaches can discover more accurate and generalizable rules than purely symbolic or purely embedding-based methods.
+
+::: {#exm-neural-amie}
+
+## Example of Neural Rule Mining
+
+A neural extension of AMIE might:
+
+1. Start with the statistical rule mining process to identify candidate rules
+2. Use embeddings to refine the confidence scores of these rules
+3. Discover that the rule "bornIn(X, Y) ∧ cityIn(Y, Z) → livedIn(X, Z)" has high confidence based on both graph statistics and embedding similarity
+4. Rank this rule higher than rules that have statistical support but low embedding coherence
+
+:::
+
+### Rule Confidence and Embedding Similarity
+
+The confidence of rules mined from knowledge graph embeddings can be quantified using embedding similarity metrics.
+
+::: {#def-rule-confidence}
+
+## Embedding-Based Rule Confidence
+
+For a rule of the form $r_1(X, Y) \wedge r_2(Y, Z) \rightarrow r_3(X, Z)$, embedding-based confidence can be computed as:
+
+1. **Translation models**: sim($\mathbf{r}_1 + \mathbf{r}_2$, $\mathbf{r}_3$)
+2. **Bilinear models**: sim($\mathbf{M}_{r_1} \times \mathbf{M}_{r_2}$, $\mathbf{M}_{r_3}$)
+3. **Rotation models**: sim(comp($\mathbf{r}_1$, $\mathbf{r}_2$), $\mathbf{r}_3$)
+
+where sim() is a similarity function (e.g., cosine similarity) and comp() is the appropriate composition function for the model.
+
+:::
+
+This approach provides a continuous confidence score that can be used to rank and filter potential rules.
+
+::: {#thm-embedding-confidence}
+
+## Relationship Between Embedding Similarity and Rule Confidence
+
+For well-trained knowledge graph embeddings, there is a positive correlation between:
+
+1. The embedding similarity of the composed relations and the target relation
+2. The statistical confidence of the corresponding rule in the knowledge graph
+
+This correlation strengthens as the quality of the embeddings improves and as more supporting evidence is available in the knowledge graph.
+
+:::
+
+## Multi-Hop Reasoning
+
+Multi-hop reasoning involves making inferences that require traversing multiple steps in the knowledge graph.
+
+### Path-Based Inference
+
+Path-based inference approaches use paths in the knowledge graph to answer complex queries.
+
+::: {#def-path-inference}
+
+## Path-Based Inference
+
+Path-based inference typically:
+
+1. Identifies potential paths between a query entity and potential answer entities
+2. Evaluates these paths using embedding-based scoring functions
+3. Ranks potential answers based on path scores
+4. Selects the highest-scoring answers as the most likely
+
+:::
+
+This approach can answer queries that require following multiple relations to reach the answer.
+
+::: {#exm-path-inference}
+
+## Example of Path-Based Inference
+
+For the query "What country is Barack Obama a citizen of?":
+
+1. Identify paths from "Barack Obama" to various countries, such as:
+   - bornIn → cityIn → stateIn → countryIn
+   - presidentOf → isA
+2. Evaluate these paths using embeddings
+3. Rank countries based on the scores
+4. Return "USA" as the highest-scoring answer
+
+:::
+
+### Neural Multi-Hop Reasoning
+
+Neural approaches for multi-hop reasoning combine the representational power of neural networks with the structured nature of knowledge graphs.
+
+::: {#def-neural-multihop}
+
+## Neural Multi-Hop Reasoning
+
+Neural multi-hop reasoning approaches typically:
+
+1. Encode the query and initial entity using neural networks
+2. Iteratively follow relations through the graph using attention mechanisms
+3. Aggregate information across multiple paths
+4. Produce a distribution over potential answer entities
+
+:::
+
+These approaches can handle complex queries and uncertainty in a principled way.
+
+::: {#exm-neural-multihop}
+
+## Example of Neural Multi-Hop Reasoning
+
+A neural approach might handle the query "Which scientists born in the same country as Einstein won the Nobel Prize?":
+
+1. Encode the query using a neural network
+2. Start from the entity "Einstein"
+3. Follow the "bornIn" relation to "Germany"
+4. Follow the inverse "bornIn" relation to identify other people born in Germany
+5. Filter these people by following the "profession" relation to "Scientist"
+6. Check which of these entities connect to "Nobel Prize" via the "won" relation
+7. Return the matching entities as answers
+
+:::
+
+### DeepPath and MINERVA
+
+DeepPath and MINERVA are reinforcement learning approaches for multi-hop reasoning over knowledge graphs.
+
+::: {#def-rl-reasoning}
+
+## Reinforcement Learning for Reasoning
+
+Reinforcement learning reasoning approaches typically:
+
+1. Formulate reasoning as a sequential decision-making problem
+2. Use an agent that learns to navigate the knowledge graph to find answers
+3. Define states as the current entity, actions as choosing a relation to follow, and rewards based on reaching correct answers
+4. Learn a policy that maximizes the expected reward
+
+:::
+
+These approaches learn efficient reasoning strategies directly from data, without requiring explicit rule definition.
+
+::: {#exm-minerva}
+
+## Example of MINERVA Reasoning
+
+MINERVA might answer "Where did Einstein study?" by:
+
+1. Starting at the entity "Einstein"
+2. Deciding to follow the "educated_at" relation (based on learned policy)
+3. Arriving at "University of Zurich"
+4. Deciding to terminate the search (based on learned policy)
+5. Returning "University of Zurich" as the answer
+
+:::
+
+## Complex Query Answering
+
+Knowledge graph embeddings can be extended to answer complex logical queries involving conjunctions, disjunctions, and existential quantification.
+
+### Logical Operators in Embedding Space
+
+To answer complex queries, we need to define how logical operators map to operations in the embedding space.
+
+::: {#def-logical-embeddings}
+
+## Embedding-Based Logical Operators
+
+Common embeddings for logical operators include:
+
+1. **Conjunction (AND)**: Intersection of regions in the embedding space
+2. **Disjunction (OR)**: Union of regions in the embedding space
+3. **Existential Quantification (∃)**: Projection operations in the embedding space
+4. **Negation (NOT)**: Complement of regions in the embedding space
+
+:::
+
+These operations allow for composing complex queries in the embedding space.
+
+::: {#exm-logical-operations}
+
+## Example of Logical Operations in Embedding Space
+
+For the query "Find actors who starred in science fiction movies AND won an Oscar":
+
+1. Conjunction: Intersect the regions representing "actors who starred in science fiction movies" and "actors who won an Oscar"
+2. The resulting region contains embeddings of entities that satisfy both conditions
+3. Retrieve entities whose embeddings fall within this intersection region
+
+:::
+
+### Query2Box and Query Embeddings
+
+Query2Box represents logical queries as hyperrectangles (boxes) in the embedding space, with logical operations defined as operations on these boxes.
+
+::: {#def-query2box}
+
+## Query2Box
+
+In Query2Box:
+
+1. Entities are represented as points in the embedding space
+2. Queries are represented as boxes (hyperrectangles) that contain the answer entities
+3. Conjunctions are implemented as box intersections
+4. Projections (existential quantification) are implemented as box enlargements
+5. Query execution involves computing the final box and retrieving entities inside it
+
+:::
+
+This approach provides an intuitive geometric interpretation of logical operations and scales well to complex queries.
+
+::: {#exm-query2box}
+
+## Example of Query2Box
+
+For the query "Find European countries where a language is spoken that is also spoken in Asia":
+
+1. Start with the box for "European countries"
+2. Intersect with the box for "countries where a language is spoken that is also spoken in Asia"
+3. The resulting box contains countries like Russia, Turkey, etc.
+
+:::
+
+### GQE and Complex Query Embeddings
+
+Graph Query Embedding (GQE) generalizes embedding-based query answering to handle complex graph patterns.
+
+::: {#def-gqe}
+
+## Graph Query Embedding (GQE)
+
+GQE represents:
+
+1. Each query as a computation graph where nodes are embedding vectors
+2. Projection operations as translations in the embedding space
+3. Intersection operations as learned functions that combine multiple embeddings
+4. The final embedding represents the answer region
+
+:::
+
+This approach can handle complex query patterns and learns the composition operations directly from data.
+
+::: {#exm-gqe}
+
+## Example of GQE
+
+For the query "Find scientists who collaborated with Einstein and were born in Germany":
+
+1. Compute the embedding for "people who collaborated with Einstein" through projection
+2. Compute the embedding for "people born in Germany" through projection
+3. Combine these embeddings using the learned intersection operation
+4. Use the resulting embedding to retrieve matching entities
+
+:::
+
+### Neural Query Execution
+
+Recent approaches like Neural Query Execution use neural networks to execute complex queries over knowledge graph embeddings.
+
+::: {#def-neural-query}
+
+## Neural Query Execution
+
+Neural query execution approaches typically:
+
+1. Parse the logical query into a computation graph
+2. Embed each subquery using specialized neural modules
+3. Compose these embeddings using neural operators for conjunction, disjunction, etc.
+4. Score candidate answers using the final query embedding
+
+:::
+
+These approaches combine the flexibility of neural networks with the structure of logical queries.
+
+::: {#exm-neural-query}
+
+## Example of Neural Query Execution
+
+A neural query executor might process "Find drugs that treat cancer but don't cause headaches" by:
+
+1. Computing an embedding for "drugs that treat cancer" using a projection module
+2. Computing an embedding for "drugs that cause headaches" using another projection module
+3. Applying a learned negation operator to the second embedding
+4. Applying a learned conjunction operator to combine the first embedding with the negated second embedding
+5. Using the final embedding to score and rank potential drug entities
+
+:::
+
+## Probabilistic Reasoning
+
+Knowledge graph embeddings naturally support probabilistic reasoning by associating confidence scores with predictions.
+
+### Uncertainty Representation
+
+Embedding-based approaches can represent uncertainty in knowledge and reasoning in various ways.
+
+::: {#def-uncertainty}
+
+## Uncertainty Representation in Embeddings
+
+Common approaches to representing uncertainty include:
+
+1. **Distance-based**: Using the distance between embeddings as a measure of uncertainty
+2. **Probabilistic embeddings**: Representing entities and relations as distributions rather than points
+3. **Calibrated scores**: Transforming embedding scores into calibrated probabilities
+4. **Ensemble methods**: Combining multiple embeddings to quantify prediction variance
+
+:::
+
+These approaches allow for reasoning under uncertainty, which is essential for real-world applications.
+
+::: {#exm-uncertainty}
+
+## Example of Uncertainty Representation
+
+For the triple (Barack Obama, bornIn, Honolulu):
+
+1. A distance-based approach might assign a confidence of 0.95 based on the proximity of $\mathbf{e}_{Obama} + \mathbf{r}_{bornIn}$ to $\mathbf{e}_{Honolulu}$
+2. A probabilistic embedding approach might represent Obama as a Gaussian distribution and compute the probability that this distribution, when translated by the bornIn relation, overlaps with the distribution for Honolulu
+
+:::
+
+### Bayesian Knowledge Graph Embeddings
+
+Bayesian approaches to knowledge graph embeddings provide a principled framework for reasoning under uncertainty.
+
+::: {#def-bayesian-kge}
+
+## Bayesian Knowledge Graph Embeddings
+
+Bayesian KGE approaches typically:
+
+1. Define prior distributions over entity and relation embeddings
+2. Update these distributions based on observed triples
+3. Use the posterior distributions to make probabilistic predictions
+4. Quantify uncertainty through variance or entropy measures
+
+:::
+
+These approaches can capture nuanced uncertainty information and provide confidence intervals for predictions.
+
+::: {#exm-bayesian-kge}
+
+## Example of Bayesian KGE
+
+A Bayesian KGE might represent:
+
+1. The embedding for "Einstein" as a distribution with mean $\mu_{Einstein}$ and variance $\Sigma_{Einstein}$
+2. The embedding for "bornIn" as a distribution with mean $\mu_{bornIn}$ and variance $\Sigma_{bornIn}$
+3. Compute a distribution over potential birthplaces by convolving these distributions
+4. Report both the most likely birthplace and a measure of confidence
+
+:::
+
+### Reasoning with Probabilistic Logic
+
+Probabilistic logic combines logical reasoning with probability theory, and can be implemented using knowledge graph embeddings.
+
+::: {#def-probabilistic-logic}
+
+## Probabilistic Logic with Embeddings
+
+Probabilistic logic approaches with embeddings typically:
+
+1. Define a probabilistic logic framework (e.g., Markov Logic Networks)
+2. Use embeddings to compute weights or probabilities for logical formulas
+3. Perform probabilistic inference using these weighted formulas
+4. Combine symbolic reasoning with embedding-based uncertainty estimation
+
+:::
+
+These hybrid approaches leverage both the structure of logical reasoning and the flexibility of embeddings.
+
+::: {#exm-probabilistic-logic}
+
+## Example of Probabilistic Logic with Embeddings
+
+A probabilistic logic approach might handle the query "What is Einstein's birthplace?" by:
+
+1. Constructing a logical query bornIn(Einstein, X)
+2. Computing probabilities for different values of X using embeddings
+3. Reporting "Ulm, Germany" with probability 0.85
+4. Also reporting alternative possibilities with lower probabilities
+
+:::
+
+## Explainable Reasoning
+
+While embedding-based reasoning is powerful, its black-box nature can limit interpretability. Explainable reasoning approaches aim to address this limitation.
+
+### Path-Based Explanations
+
+Path-based explanations justify predictions by identifying supporting paths in the knowledge graph.
+
+::: {#def-path-explanations}
+
+## Path-Based Explanations
+
+Path-based explanation approaches typically:
+
+1. Identify paths in the knowledge graph that support a prediction
+2. Rank these paths based on relevance and reliability
+3. Present the most relevant paths as explanations
+4. Connect the paths to the embedding-based reasoning process
+
+:::
+
+These approaches provide transparent justifications for predictions based on existing knowledge.
+
+::: {#exm-path-explanation}
+
+## Example of Path-Based Explanation
+
+For the prediction that "Marie Curie was a physicist", a path-based explanation might be:
+
+1. Marie Curie won the Nobel Prize in Physics
+2. People who win the Nobel Prize in Physics are typically physicists
+3. These paths are supported by the embeddings, as evidenced by the high similarity between...
+
+:::
+
+### Rule-Based Explanations
+
+Rule-based explanations leverage logical rules to explain predictions.
+
+::: {#def-rule-explanations}
+
+## Rule-Based Explanations
+
+Rule-based explanation approaches typically:
+
+1. Mine logical rules from the knowledge graph and embeddings
+2. Identify rules that support a specific prediction
+3. Present these rules as explanations
+4. Quantify the contribution of each rule to the prediction
+
+:::
+
+These approaches connect embedding-based predictions to interpretable logical rules.
+
+::: {#exm-rule-explanation}
+
+## Example of Rule-Based Explanation
+
+For the prediction that "Berlin is in Germany", a rule-based explanation might be:
+
+1. Berlin is the capital of Germany (fact in KG)
+2. The capital of a country is located in that country (rule with 98% confidence)
+3. This rule is supported by the embeddings, as the vectors for "capital of" and "located in" have a high compositional similarity
+
+:::
+
+### Attention-Based Explanations
+
+Attention mechanisms can provide insights into which parts of the knowledge graph are most relevant for a prediction.
+
+::: {#def-attention-explanations}
+
+## Attention-Based Explanations
+
+Attention-based explanation approaches typically:
+
+1. Use attention mechanisms to weight different parts of the reasoning process
+2. Visualize the attention weights to show which entities and relations contributed most
+3. Provide a step-by-step breakdown of the reasoning process
+4. Connect attention patterns to interpretable reasoning steps
+
+:::
+
+These approaches offer a window into the inner workings of neural reasoning models.
+
+::: {#exm-attention-explanation}
+
+## Example of Attention-Based Explanation
+
+For the query "Which scientists won the Nobel Prize?", an attention-based explanation might show:
+
+1. High attention on the "profession" relation for filtering scientists
+2. High attention on the "won" relation for connecting to the Nobel Prize
+3. A visualization showing the flow of attention through the reasoning process
+4. Highlighted entities and relations that received the most attention
+
+:::
+
+## Case Studies and Applications
+
+Let's examine several case studies that demonstrate the application of reasoning with knowledge graph embeddings in different domains.
+
+### Biomedical Reasoning
+
+Knowledge graph embeddings have been applied to various reasoning tasks in biomedicine.
+
+::: {#exm-biomedical}
+
+## Case Study: Biomedical Reasoning
+
+A study on drug repurposing showed that:
+
+1. Knowledge graph embeddings could capture complex biomedical relationships
+2. Multi-hop reasoning identified potential new uses for existing drugs
+3. Path-based explanations provided scientific justification for predictions
+4. The approach discovered several promising candidates that were later validated experimentally
+
+:::
+
+### Question Answering Systems
+
+Knowledge graph embeddings can power question answering systems that handle complex natural language queries.
+
+::: {#exm-qa-system}
+
+## Case Study: Question Answering System
+
+A question answering system built on knowledge graph embeddings:
+
+1. Translated natural language questions into logical queries
+2. Executed these queries using embedding-based reasoning
+3. Provided natural language explanations based on the reasoning paths
+4. Achieved 78% accuracy on a benchmark of complex factoid questions
+
+:::
+
+### Recommendation Systems
+
+Reasoning over knowledge graphs can enhance recommendation systems by leveraging rich entity relationships.
+
+::: {#exm-recommendation}
+
+## Case Study: Knowledge Graph Recommendations
+
+A movie recommendation system using knowledge graph reasoning:
+
+1. Represented user preferences as regions in the embedding space
+2. Used multi-hop reasoning to identify movies with relevant attributes
+3. Generated explanations for recommendations based on reasoning paths
+4. Improved recommendation diversity by 35% compared to traditional collaborative filtering
+
+:::
+
+## Practical Considerations
+
+Implementing reasoning with knowledge graph embeddings involves several practical considerations.
+
+### Computational Efficiency
+
+Reasoning over large knowledge graphs can be computationally expensive, requiring efficient implementation strategies.
+
+::: {#def-efficiency-strategies}
+
+## Computational Efficiency Strategies
+
+Common strategies include:
+
+1. **Pruning**: Eliminating irrelevant parts of the graph during reasoning
+2. **Caching**: Storing intermediate results for common query patterns
+3. **Approximate reasoning**: Using approximate methods for large-scale reasoning
+4. **Hierarchical reasoning**: Breaking complex queries into simpler subqueries
+5. **Parallelization**: Distributing reasoning across multiple processors
+
+:::
+
+These strategies can dramatically improve reasoning efficiency, especially for large knowledge graphs.
+
+### Handling Inconsistency
+
+Real-world knowledge graphs often contain inconsistencies that can complicate reasoning.
+
+::: {#def-inconsistency}
+
+## Handling Inconsistency
+
+Approaches to handling inconsistency include:
+
+1. **Soft constraints**: Treating logical constraints as preferences rather than hard rules
+2. **Weighted reasoning**: Assigning weights to different pieces of evidence
+3. **Probabilistic reasoning**: Incorporating uncertainty into the reasoning process
+4. **Revision-based reasoning**: Identifying and revising inconsistent knowledge
+
+:::
+
+These approaches allow for robust reasoning even in the presence of contradictory information.
+
+### Integrating with Symbolic Reasoners
+
+Many applications benefit from combining embedding-based reasoning with traditional symbolic reasoners.
+
+::: {#def-hybrid-reasoning}
+
+## Hybrid Reasoning Systems
+
+Hybrid reasoning systems typically:
+
+1. Use symbolic reasoners for exact, rule-based inference
+2. Use embedding-based reasoners for handling uncertainty and incomplete information
+3. Combine the results through various integration strategies
+4. Leverage the strengths of both approaches while mitigating their weaknesses
+
+:::
+
+These hybrid systems can achieve both the precision of symbolic methods and the flexibility of embedding-based approaches.
+
+## Evaluation of Reasoning Capabilities
+
+Evaluating the reasoning capabilities of knowledge graph embeddings requires specialized metrics and benchmarks.
+
+### Reasoning Benchmarks
+
+Several benchmarks have been developed to assess different aspects of reasoning with knowledge graph embeddings.
+
+::: {#def-reasoning-benchmarks}
+
+## Reasoning Benchmarks
+
+Common reasoning benchmarks include:
+
+1. **NELL-995**: Focuses on multi-hop reasoning paths
+2. **FB15k-237**: Used for evaluating relation composition
+3. **Complex Query Answering**: Tests performance on logical queries with conjunctions and disjunctions
+4. **Rule Mining Evaluation**: Assesses the quality of mined rules
+5. **Explanations Evaluation**: Measures the quality and interpretability of explanations
+
+:::
+
+These benchmarks provide standardized evaluation protocols for different reasoning capabilities.
+
+### Metrics for Reasoning Quality
+
+Various metrics can be used to assess the quality of embedding-based reasoning.
+
+::: {#def-reasoning-metrics}
+
+## Reasoning Quality Metrics
+
+Common metrics include:
+
+1. **Path accuracy**: The accuracy of predictions based on relation paths
+2. **Query answering metrics**: Precision, recall, and F1-score for complex queries
+3. **Rule quality metrics**: Support, confidence, and lift for mined rules
+4. **Explanation metrics**: Faithfulness, compactness, and human evaluation of explanations
+5. **Computational efficiency**: Time and space requirements for reasoning
+
+:::
+
+These metrics provide a multi-faceted assessment of reasoning capabilities.
+
+### Human Evaluation
+
+For complex reasoning tasks, human evaluation remains an important component of assessment.
+
+::: {#def-human-evaluation}
+
+## Human Evaluation of Reasoning
+
+Human evaluation approaches typically:
+
+1. Present reasoning outputs (predictions and explanations) to human judges
+2. Ask judges to rate the quality and plausibility of the reasoning
+3. Compare embedding-based reasoning with human reasoning patterns
+4. Identify strengths and weaknesses from a human perspective
+
+:::
+
+Human evaluation provides insights that may not be captured by automatic metrics.
+
+## Future Directions
+
+Reasoning with knowledge graph embeddings is an active research area with several promising future directions.
+
+::: {#def-reasoning-future}
+
+## Future Directions in Embedding-Based Reasoning
+
+Emerging research directions include:
+
+1. **Neuro-symbolic reasoning**: Tighter integration of neural and symbolic approaches
+2. **Reasoning with large language models**: Combining KGEs with powerful language models
+3. **Causal reasoning**: Extending embedding approaches to causal inference
+4. **Multimodal reasoning**: Reasoning across knowledge graphs, text, images, etc.
+5. **Dynamic reasoning**: Adapting to evolving knowledge graphs
+6. **Interactive reasoning**: Systems that can engage in reasoning dialogues with users
+7. **Ethical reasoning**: Addressing ethical considerations in automated reasoning
+
+:::
+
+These directions promise to extend the capabilities and applications of embedding-based reasoning.
+
+## Conclusion
+
+Reasoning with knowledge graph embeddings represents a powerful approach that combines the flexibility of distributed representations with the structure of knowledge graphs. By mapping entities and relations to a continuous embedding space, these methods can capture complex patterns and support various forms of inference, from simple relation composition to complex logical queries.
+
+The approaches discussed in this chapter demonstrate that embedding-based reasoning is not merely a black-box prediction mechanism but can support sophisticated reasoning capabilities comparable to traditional symbolic methods. Path-based reasoning, rule mining, multi-hop inference, and complex query answering all leverage the geometric properties of the embedding space to perform inferences that would be difficult or impossible with purely symbolic approaches.
+
+At the same time, embedding-based reasoning faces challenges in explainability, handling inconsistency, and scaling to very large knowledge graphs. Hybrid approaches that combine the strengths of embedding-based and symbolic reasoning offer a promising direction for addressing these challenges.
+
+As knowledge graphs continue to grow in importance across various domains, the ability to reason effectively over them becomes increasingly crucial. The methods presented in this chapter provide a foundation for building reasoning systems that can leverage the rich, structured information contained in knowledge graphs while handling the uncertainty and incompleteness inherent in real-world knowledge.
+
+## Further Reading
+
+1. Lin, Y., Liu, Z., Sun, M., Liu, Y., & Zhu, X. (2015). Learning entity and relation embeddings for knowledge graph completion. In Proceedings of the Twenty-Ninth AAAI Conference on Artificial Intelligence.
+2. Wang, Q., Mao, Z., Wang, B., & Guo, L. (2017). Knowledge graph embedding: A survey of approaches and applications. IEEE Transactions on Knowledge and Data Engineering, 29(12), 2724-2743.
+3. Das, R., Dhuliawala, S., Zaheer, M., Vilnis, L., Durugkar, I., Krishnamurthy, A., ... & McCallum, A. (2018). Go for a walk and arrive at the answer: Reasoning over paths in knowledge bases using reinforcement learning. In International Conference on Learning Representations (ICLR).
+4. Hamilton, W. L., Bajaj, P., Zitnik, M., Jurafsky, D., & Leskovec, J. (2018). Embedding logical queries on knowledge graphs. In Advances in Neural Information Processing Systems (NeurIPS).
+5. Ren, H., & Leskovec, J. (2020). Beta embeddings for multi-hop logical reasoning in knowledge graphs. In Advances in Neural Information Processing Systems (NeurIPS).
+6. Ren, H., Hu, W., & Leskovec, J. (2020). Query2box: Reasoning over knowledge graphs in vector space using box embeddings. In International Conference on Learning Representations (ICLR).
+7. Xiong, W., Hoang, T., & Wang, W. Y. (2017). DeepPath: A reinforcement learning method for knowledge graph reasoning. In Proceedings of the Conference on Empirical Methods in Natural Language Processing (EMNLP).
+8. Galárraga, L. A., Teflioudi, C., Hose, K., & Suchanek, F. (2013). AMIE: Association rule mining under incomplete evidence in ontological knowledge bases. In Proceedings of the 22nd International Conference on World Wide Web.
+9. Zhang, W., Paudel, B., Wang, L., Chen, J., Zhu, H., Zhang, W., ... & Chen, H. (2019). Iteratively learning embeddings and rules for knowledge graph reasoning. In Proceedings of the World Wide Web Conference.
+10. Chen, X., Chen, M., Shi, W., Sun, Y., & Zaniolo, C. (2021). Embedding uncertain knowledge graphs. In Proceedings of the AAAI Conference on Artificial Intelligence.

@@ -1,0 +1,1019 @@
+# Appendix B: Resources and Tools
+
+## Introduction to Knowledge Graph Embedding Resources
+
+This appendix provides a comprehensive collection of resources, tools, datasets, and libraries for knowledge graph embeddings. The field has seen rapid growth in recent years, resulting in a wealth of resources for both researchers and practitioners. This appendix aims to organize these resources in a structured manner, making it easier for readers to find and utilize the tools they need for their specific knowledge graph embedding tasks.
+
+We begin by listing popular open-source libraries for implementing knowledge graph embedding models, followed by benchmark datasets commonly used for evaluation. We then provide resources for visualizing embeddings, evaluation frameworks, educational resources, and community forums. Finally, we highlight industrial applications and practical case studies that demonstrate the real-world impact of knowledge graph embeddings.
+
+This appendix serves as a practical guide that complements the theoretical knowledge presented in the main chapters, helping readers to apply knowledge graph embedding techniques in their own work.
+
+## Open-Source Libraries for Knowledge Graph Embeddings
+
+Several high-quality open-source libraries have been developed for implementing and experimenting with knowledge graph embedding models.
+
+### PyKEEN
+
+PyKEEN (Python KnowledgE EmbeddiNgs) is one of the most comprehensive libraries for knowledge graph embeddings.
+
+::: {#def-pykeen}
+
+## PyKEEN
+
+**PyKEEN (Python KnowledgE EmbeddiNgs)**
+
+- **GitHub**: [https://github.com/pykeen/pykeen](https://github.com/pykeen/pykeen)
+- **Documentation**: [https://pykeen.readthedocs.io](https://pykeen.readthedocs.io)
+- **Paper**: Ali, M., et al. (2021). PyKEEN 1.0: A Python Library for Training and Evaluating Knowledge Graph Embeddings. Journal of Machine Learning Research, 22(82), 1-6.
+
+**Key Features**:
+
+1. Implements over 25 knowledge graph embedding models
+2. Provides automated hyper-parameter optimization
+3. Supports multiple training approaches (LCWA, sLCWA)
+4. Includes comprehensive evaluation metrics and protocols
+5. Offers visualization capabilities for embeddings
+6. Provides reproducible benchmarking results
+7. Integrates with popular deep learning frameworks like PyTorch
+
+**Supported Models**: TransE, TransR, TransD, TransH, DistMult, ComplEx, RESCAL, ConvE, RotatE, QuatE, TuckER, and many more.
+
+:::
+
+PyKEEN is particularly suitable for researchers due to its comprehensive model selection and strong focus on reproducibility.
+
+### DGL-KE
+
+DGL-KE is a high-performance library built on the Deep Graph Library for scalable knowledge graph embedding.
+
+::: {#def-dgl-ke}
+
+## DGL-KE
+
+**DGL-KE (Deep Graph Library - Knowledge Embedding)**
+
+- **GitHub**: [https://github.com/awslabs/dgl-ke](https://github.com/awslabs/dgl-ke)
+- **Documentation**: [https://dglke.dgl.ai](https://dglke.dgl.ai)
+- **Paper**: Zheng, D., et al. (2020). DGL-KE: Training Knowledge Graph Embeddings at Scale. SIGIR 2020.
+
+**Key Features**:
+
+1. Optimized for large-scale knowledge graphs
+2. Supports distributed training on multiple GPUs and machines
+3. Implements efficient negative sampling techniques
+4. Provides high-performance evaluation for link prediction
+5. Includes both command-line interface and Python API
+6. Achieves significant speedups compared to other frameworks
+
+**Supported Models**: TransE, TransR, RESCAL, DistMult, ComplEx, RotatE.
+
+:::
+
+DGL-KE is particularly suitable for applications involving large-scale knowledge graphs that require distributed training.
+
+### LibKGE
+
+LibKGE is a library focused on reproducible research and hyperparameter optimization for knowledge graph embeddings.
+
+::: {#def-libkge}
+
+## LibKGE
+
+**LibKGE**
+
+- **GitHub**: [https://github.com/uma-pi1/kge](https://github.com/uma-pi1/kge)
+- **Documentation**: Available in GitHub repository
+- **Paper**: Ruffinelli, D., Broscheit, S., & Gemulla, R. (2020). You CAN Teach an Old Dog New Tricks! On Training Knowledge Graph Embeddings. ICLR 2020.
+
+**Key Features**:
+
+1. Focuses on reproducible research
+2. Provides comprehensive hyperparameter optimization
+3. Supports various training strategies
+4. Implements different loss functions and negative sampling techniques
+5. Offers detailed experimental logging and tracking
+6. Enables fair comparison between different models
+
+**Supported Models**: TransE, DistMult, ComplEx, RESCAL, ConvE, and more.
+
+:::
+
+LibKGE is particularly valuable for researchers interested in fair and reproducible comparisons between different knowledge graph embedding models.
+
+### AmpliGraph
+
+AmpliGraph is a library designed for knowledge graph embedding with a focus on accessibility and ease of use.
+
+::: {#def-ampligraph}
+
+## AmpliGraph
+
+**AmpliGraph**
+
+- **GitHub**: [https://github.com/Accenture/AmpliGraph](https://github.com/Accenture/AmpliGraph)
+- **Documentation**: [https://docs.ampligraph.org](https://docs.ampligraph.org)
+- **Paper**: Costabello, L., et al. (2019). AmpliGraph: a Library for Representation Learning on Knowledge Graphs. GitHub repository.
+
+**Key Features**:
+
+1. User-friendly API inspired by scikit-learn
+2. Supports TensorFlow and PyTorch backends
+3. Provides comprehensive documentation and examples
+4. Implements model selection and hyperparameter optimization
+5. Includes various evaluation metrics
+6. Offers visualization capabilities
+
+**Supported Models**: TransE, DistMult, ComplEx, HolE, ConvKB, and more.
+
+:::
+
+AmpliGraph is particularly suitable for practitioners who prioritize ease of use and integration with existing machine learning workflows.
+
+### TorchKGE
+
+TorchKGE is a PyTorch-based library for knowledge graph embedding with a focus on simplicity and flexibility.
+
+::: {#def-torchkge}
+
+## TorchKGE
+
+**TorchKGE**
+
+- **GitHub**: [https://github.com/torchkge-team/torchkge](https://github.com/torchkge-team/torchkge)
+- **Documentation**: [https://torchkge.readthedocs.io](https://torchkge.readthedocs.io)
+- **Paper**: Arm, A., et al. (2019). TorchKGE: A Knowledge Graph Embedding Library for PyTorch. GitHub repository.
+
+**Key Features**:
+
+1. Built on PyTorch for seamless integration with PyTorch workflows
+2. Provides a simple and consistent API
+3. Supports various training and evaluation protocols
+4. Includes visualization tools
+5. Implements efficient negative sampling techniques
+6. Offers examples and tutorials
+
+**Supported Models**: TransE, TransR, TransD, TransH, DistMult, ComplEx, RESCAL, ConvKB, and more.
+
+:::
+
+TorchKGE is particularly useful for researchers and practitioners already familiar with PyTorch who want a lightweight and flexible KGE library.
+
+### GraphVite
+
+GraphVite is a high-performance system for training graph embeddings with GPU acceleration.
+
+::: {#def-graphvite}
+
+## GraphVite
+
+**GraphVite**
+
+- **GitHub**: [https://github.com/DeepGraphLearning/graphvite](https://github.com/DeepGraphLearning/graphvite)
+- **Documentation**: Available in GitHub repository
+- **Paper**: Zhu, Z., et al. (2019). GraphVite: A High-Performance CPU-GPU Hybrid System for Node Embedding. WWW 2019.
+
+**Key Features**:
+
+1. Highly optimized CPU-GPU hybrid implementation
+2. Supports large-scale knowledge graphs
+3. Provides efficient parallel training
+4. Implements various embedding algorithms
+5. Includes comprehensive evaluation tools
+6. Offers significant speedups compared to other implementations
+
+**Supported Models**: TransE, DistMult, ComplEx, SimplE, RotatE, and more.
+
+:::
+
+GraphVite is particularly suitable for applications requiring high-performance training on large-scale knowledge graphs.
+
+### OpenKE
+
+OpenKE is one of the earliest comprehensive knowledge graph embedding frameworks.
+
+::: {#def-openke}
+
+## OpenKE
+
+**OpenKE**
+
+- **GitHub**: [https://github.com/thunlp/OpenKE](https://github.com/thunlp/OpenKE)
+- **Documentation**: Available in GitHub repository
+- **Paper**: Han, X., et al. (2018). OpenKE: An Open Toolkit for Knowledge Embedding. EMNLP 2018.
+
+**Key Features**:
+
+1. Implemented in C++ with Python interfaces
+2. Provides efficient training with multi-threading
+3. Supports various knowledge graph embedding models
+4. Includes both training and evaluation tools
+5. Offers TensorFlow and PyTorch interfaces
+6. Provides pre-trained embeddings for common datasets
+
+**Supported Models**: TransE, TransD, TransR, TransH, DistMult, ComplEx, RESCAL, HolE, and more.
+
+:::
+
+OpenKE is a mature library that has been used in many research papers and practical applications.
+
+## Benchmark Datasets and Access Instructions
+
+Standard benchmark datasets are essential for evaluating and comparing knowledge graph embedding models.
+
+### FB15k and FB15k-237
+
+FB15k is derived from Freebase and has been a standard benchmark, while FB15k-237 is a subset that addresses certain biases.
+
+::: {#def-fb15k}
+
+## FB15k and FB15k-237
+
+**FB15k**
+
+- **Source**: Subset of Freebase
+- **Original Paper**: Bordes, A., et al. (2013). Translating Embeddings for Modeling Multi-relational Data. NIPS 2013.
+- **Access**: Available through most KGE libraries and [https://github.com/thunlp/KB2E](https://github.com/thunlp/KB2E)
+- **Statistics**: 14,951 entities, 1,345 relations, 483,142 training triples, 50,000 validation triples, 59,071 test triples
+
+**FB15k-237**
+
+- **Source**: Modified version of FB15k with inverse relations removed
+- **Original Paper**: Toutanova, K., & Chen, D. (2015). Observed versus latent features for knowledge base and text inference. ACL Workshop on Continuous Vector Space Models and their Compositionality.
+- **Access**: Available through most KGE libraries and [https://github.com/TimDettmers/ConvE](https://github.com/TimDettmers/ConvE)
+- **Statistics**: 14,541 entities, 237 relations, 272,115 training triples, 17,535 validation triples, 20,466 test triples
+
+:::
+
+FB15k-237 is generally preferred over FB15k for evaluation due to its removal of inverse relations, which prevents models from achieving artificially high performance through simple inverse relation matching.
+
+### WN18 and WN18RR
+
+WN18 is derived from WordNet, while WN18RR is a subset that addresses certain biases.
+
+::: {#def-wn18}
+
+## WN18 and WN18RR
+
+**WN18**
+
+- **Source**: Subset of WordNet
+- **Original Paper**: Bordes, A., et al. (2013). Translating Embeddings for Modeling Multi-relational Data. NIPS 2013.
+- **Access**: Available through most KGE libraries and [https://github.com/thunlp/KB2E](https://github.com/thunlp/KB2E)
+- **Statistics**: 40,943 entities, 18 relations, 141,442 training triples, 5,000 validation triples, 5,000 test triples
+
+**WN18RR**
+
+- **Source**: Modified version of WN18 with inverse relations removed
+- **Original Paper**: Dettmers, T., et al. (2018). Convolutional 2D Knowledge Graph Embeddings. AAAI 2018.
+- **Access**: Available through most KGE libraries and [https://github.com/TimDettmers/ConvE](https://github.com/TimDettmers/ConvE)
+- **Statistics**: 40,943 entities, 11 relations, 86,835 training triples, 3,034 validation triples, 3,134 test triples
+
+:::
+
+Similar to FB15k-237, WN18RR is generally preferred over WN18 for evaluation due to its removal of inverse relations.
+
+### YAGO3-10
+
+YAGO3-10 is a subset of the YAGO3 knowledge base.
+
+::: {#def-yago3-10}
+
+## YAGO3-10
+
+**YAGO3-10**
+
+- **Source**: Subset of YAGO3
+- **Original Paper**: Dettmers, T., et al. (2018). Convolutional 2D Knowledge Graph Embeddings. AAAI 2018.
+- **Access**: Available through most KGE libraries and [https://github.com/TimDettmers/ConvE](https://github.com/TimDettmers/ConvE)
+- **Statistics**: 123,182 entities, 37 relations, 1,079,040 training triples, 5,000 validation triples, 5,000 test triples
+
+:::
+
+YAGO3-10 is larger than FB15k-237 and WN18RR, making it useful for evaluating model scalability.
+
+### DBpedia and NELL
+
+These datasets are derived from DBpedia and the Never-Ending Language Learning (NELL) project.
+
+::: {#def-dbpedia-nell}
+
+## DBpedia and NELL
+
+**DB100k (DBpedia Subset)**
+
+- **Source**: Subset of DBpedia
+- **Access**: Available through some KGE libraries and academic repositories
+- **Statistics**: ~100,000 entities, ~470 relations, ~600,000 triples
+
+**NELL-995**
+
+- **Source**: Subset of NELL (Never-Ending Language Learning)
+- **Original Paper**: Xiong, W., et al. (2017). DeepPath: A Reinforcement Learning Method for Knowledge Graph Reasoning. EMNLP 2017.
+- **Access**: [https://github.com/xwhan/DeepPath](https://github.com/xwhan/DeepPath)
+- **Statistics**: 75,492 entities, 200 relations, 154,213 triples
+
+:::
+
+These datasets provide additional diversity in terms of domain and structure for evaluating knowledge graph embedding models.
+
+### Countries
+
+Countries is a small dataset specifically designed to test reasoning capabilities.
+
+::: {#def-countries}
+
+## Countries
+
+**Countries**
+
+- **Source**: Created specifically for testing multi-hop reasoning
+- **Original Paper**: Bouchard, G., et al. (2015). On Approximate Reasoning Capabilities of Low-Rank Vector Spaces. AAAI Spring Symposium Series.
+- **Access**: [https://github.com/pykeen/pykeen/tree/master/src/pykeen/datasets/countries](https://github.com/pykeen/pykeen/tree/master/src/pykeen/datasets/countries)
+- **Statistics**: 271 entities, 2 relations, 1,158 triples, divided into increasingly difficult tasks (S1, S2, S3)
+
+:::
+
+The Countries dataset is particularly useful for evaluating a model's ability to perform multi-hop reasoning.
+
+### Newer Benchmark Datasets
+
+Several newer datasets have been introduced to address limitations of earlier benchmarks.
+
+::: {#def-newer-datasets}
+
+## Newer Benchmark Datasets
+
+**FB15k-237-OWE**
+
+- **Source**: Extension of FB15k-237 for open-world embedding
+- **Original Paper**: Mohamed, S. K., et al. (2020). Loss Functions for Entity Alignments in Knowledge Graphs. Semantic Web Journal.
+- **Access**: [https://github.com/samehkamaleldin/fb15k-237-owe](https://github.com/samehkamaleldin/fb15k-237-owe)
+
+**CODEX**
+
+- **Source**: Comprehensive Dataset Extraction from Wikidata
+- **Original Paper**: Safavi, T., & Koutra, D. (2020). CoDEx: A Comprehensive Knowledge Graph Completion Benchmark. EMNLP 2020.
+- **Access**: [https://github.com/tsafavi/codex](https://github.com/tsafavi/codex)
+- **Variants**: CoDEx-S (small), CoDEx-M (medium), CoDEx-L (large)
+
+**OGB (Open Graph Benchmark) Knowledge Graphs**
+
+- **Source**: Various sources for large-scale evaluation
+- **Original Paper**: Hu, W., et al. (2020). Open Graph Benchmark: Datasets for Machine Learning on Graphs. NeurIPS 2020.
+- **Access**: [https://ogb.stanford.edu/docs/linkprop/](https://ogb.stanford.edu/docs/linkprop/)
+- **Variants**: ogbl-wikikg2, ogbl-biokg
+
+:::
+
+These newer datasets address various limitations of earlier benchmarks and provide additional challenges for evaluating knowledge graph embedding models.
+
+### Domain-Specific Datasets
+
+Various domain-specific knowledge graph datasets are available for specialized applications.
+
+::: {#def-domain-datasets}
+
+## Domain-Specific Datasets
+
+**Biomedical Datasets**
+
+- **Bio2RDF**: Linked data for the life sciences [http://bio2rdf.org/](http://bio2rdf.org/)
+- **Hetionet**: Integrative network of biomedical knowledge [https://github.com/hetio/hetionet](https://github.com/hetio/hetionet)
+- **UMLS**: Unified Medical Language System [https://www.nlm.nih.gov/research/umls/](https://www.nlm.nih.gov/research/umls/)
+
+**Scientific Literature Datasets**
+
+- **ORKG**: Open Research Knowledge Graph [https://www.orkg.org/](https://www.orkg.org/)
+- **AIDA**: Academic Institution Database Augmented [https://github.com/allenai/aida](https://github.com/allenai/aida)
+
+**E-commerce Datasets**
+
+- **Amazon-Books**: Knowledge graph derived from Amazon product metadata [https://github.com/zhenjiezhang/KGRecsys](https://github.com/zhenjiezhang/KGRecsys)
+- **Alibaba-iFashion**: Fashion knowledge graph for recommendation [https://github.com/xiangwang1223/KB4Rec](https://github.com/xiangwang1223/KB4Rec)
+
+:::
+
+Domain-specific datasets are valuable for developing and evaluating knowledge graph embedding models for particular applications.
+
+## Public Knowledge Graphs for Experimentation
+
+Several large-scale public knowledge graphs are available for experimentation beyond the standard benchmarks.
+
+::: {#def-public-kgs}
+
+## Public Knowledge Graphs
+
+**Wikidata**
+
+- **Website**: [https://www.wikidata.org/](https://www.wikidata.org/)
+- **Access**: Various dumps available at [https://dumps.wikimedia.org/wikidatawiki/entities/](https://dumps.wikimedia.org/wikidatawiki/entities/)
+- **Scale**: ~100 million entities, ~1 billion statements
+
+**DBpedia**
+
+- **Website**: [https://www.dbpedia.org/](https://www.dbpedia.org/)
+- **Access**: Various downloads available at [https://databus.dbpedia.org/](https://databus.dbpedia.org/)
+- **Scale**: ~4.5 million entities, ~500 million facts
+
+**YAGO**
+
+- **Website**: [https://yago-knowledge.org/](https://yago-knowledge.org/)
+- **Access**: Downloads available at [https://yago-knowledge.org/downloads/](https://yago-knowledge.org/downloads/)
+- **Scale**: ~10 million entities, ~120 million facts
+
+**ConceptNet**
+
+- **Website**: [https://conceptnet.io/](https://conceptnet.io/)
+- **Access**: Downloads available at [https://github.com/commonsense/conceptnet5/wiki/Downloads](https://github.com/commonsense/conceptnet5/wiki/Downloads)
+- **Scale**: ~8 million entities, ~34 million relations
+
+**BabelNet**
+
+- **Website**: [https://babelnet.org/](https://babelnet.org/)
+- **Access**: Available through API (registration required)
+- **Scale**: ~16 million entities, ~380 million relations
+
+:::
+
+These public knowledge graphs provide real-world data at scale for experimenting with knowledge graph embedding techniques.
+
+## Visualization Tools for Embeddings
+
+Visualization tools help understand and interpret knowledge graph embeddings.
+
+::: {#def-visualization-tools}
+
+## Visualization Tools
+
+**Embedding Projector**
+
+- **Website**: [https://projector.tensorflow.org/](https://projector.tensorflow.org/)
+- **Features**: Web-based visualization of high-dimensional data, supports PCA, t-SNE, and UMAP projections
+- **Integration**: Compatible with TensorFlow and general embedding formats
+
+**PIXIE**
+
+- **GitHub**: [https://github.com/marcalph/pixie](https://github.com/marcalph/pixie)
+- **Features**: Interactive visualization of word and graph embeddings, supports various dimensionality reduction techniques
+
+**PyKEEN Visualizations**
+
+- **Documentation**: [https://pykeen.readthedocs.io/en/stable/tutorial/visualization.html](https://pykeen.readthedocs.io/en/stable/tutorial/visualization.html)
+- **Features**: Built-in visualization capabilities for knowledge graph embeddings, entity clusters, and relation patterns
+
+**Embedding Navigator**
+
+- **GitHub**: [https://github.com/ieg-vienna/embeddingnav](https://github.com/ieg-vienna/embeddingnav)
+- **Features**: Interactive exploration of embeddings with multiple coordinated views
+
+**graph-tool Visualization**
+
+- **Website**: [https://graph-tool.skewed.de/](https://graph-tool.skewed.de/)
+- **Features**: Efficient tools for graph visualization and analysis, can be used with knowledge graph embeddings
+
+:::
+
+Visualization tools are essential for understanding the structure and patterns captured by knowledge graph embeddings.
+
+## Evaluation Frameworks and Tools
+
+Evaluation frameworks provide standardized methods for assessing knowledge graph embedding models.
+
+::: {#def-evaluation-frameworks}
+
+## Evaluation Frameworks and Tools
+
+**LPBench**
+
+- **GitHub**: [https://github.com/pykeen/lpbench](https://github.com/pykeen/lpbench)
+- **Features**: Benchmarking for link prediction models, standardized evaluation protocols
+
+**KGEB (Knowledge Graph Embedding Benchmark)**
+
+- **GitHub**: [https://github.com/ZhenfengLei/KGEBench](https://github.com/ZhenfengLei/KGEBench)
+- **Features**: Comprehensive benchmark for knowledge graph embedding models, includes various datasets and evaluation metrics
+
+**OpenKE Benchmarks**
+
+- **GitHub**: [https://github.com/thunlp/OpenKE/tree/OpenKE-PyTorch/benchmarks](https://github.com/thunlp/OpenKE/tree/OpenKE-PyTorch/benchmarks)
+- **Features**: Standard benchmarks for various knowledge graph embedding models
+
+**PyKEEN Benchmarking**
+
+- **Documentation**: [https://pykeen.readthedocs.io/en/stable/reference/benchmarking.html](https://pykeen.readthedocs.io/en/stable/reference/benchmarking.html)
+- **Features**: Built-in benchmarking capabilities, reproducibility of published results
+
+:::
+
+Standardized evaluation frameworks ensure fair and reproducible comparisons between different knowledge graph embedding models.
+
+## Online Courses and Tutorials
+
+Several online resources provide educational content on knowledge graph embeddings.
+
+::: {#def-courses-tutorials}
+
+## Online Courses and Tutorials
+
+**Stanford CS224W: Machine Learning with Graphs**
+
+- **Website**: [http://web.stanford.edu/class/cs224w/](http://web.stanford.edu/class/cs224w/)
+- **Features**: Comprehensive course on graph machine learning, includes lectures on knowledge graph embeddings
+
+**Knowledge Graph Tutorial by Azure Cognitive Services**
+
+- **Website**: [https://learn.microsoft.com/en-us/azure/cognitive-services/qnamaker/concepts/knowledge-graph](https://learn.microsoft.com/en-us/azure/cognitive-services/qnamaker/concepts/knowledge-graph)
+- **Features**: Practical tutorial on building and using knowledge graphs
+
+**PyKEEN Tutorials**
+
+- **Documentation**: [https://pykeen.readthedocs.io/en/stable/tutorial/](https://pykeen.readthedocs.io/en/stable/tutorial/)
+- **Features**: Step-by-step tutorials on implementing and evaluating knowledge graph embedding models
+
+**Knowledge Graph Embeddings Tutorial (EMNLP 2019)**
+
+- **Website**: [https://kge-tutorial-emnlp19.github.io/](https://kge-tutorial-emnlp19.github.io/)
+- **Features**: Comprehensive tutorial on knowledge graph embeddings by leading researchers
+
+**Neo4j Graph Data Science Library Tutorials**
+
+- **Website**: [https://neo4j.com/docs/graph-data-science/current/](https://neo4j.com/docs/graph-data-science/current/)
+- **Features**: Tutorials on applying graph embeddings to Neo4j knowledge graphs
+
+:::
+
+These educational resources provide structured learning paths for understanding and implementing knowledge graph embeddings.
+
+## Research Paper Collections
+
+Curated collections of research papers help navigate the vast literature on knowledge graph embeddings.
+
+::: {#def-paper-collections}
+
+## Research Paper Collections
+
+**Knowledge Graph Embedding Papers by THUNLP**
+
+- **GitHub**: [https://github.com/thunlp/KRLPapers](https://github.com/thunlp/KRLPapers)
+- **Features**: Comprehensive list of papers on knowledge representation learning
+
+**Graph Embedding Papers**
+
+- **GitHub**: [https://github.com/chihming/awesome-network-embedding](https://github.com/chihming/awesome-network-embedding)
+- **Features**: Collection of papers on network and graph embeddings, including knowledge graphs
+
+**Papers with Code: Knowledge Graph Embeddings**
+
+- **Website**: [https://paperswithcode.com/task/knowledge-graph-embeddings](https://paperswithcode.com/task/knowledge-graph-embeddings)
+- **Features**: Papers on knowledge graph embeddings with associated code implementations
+
+**Semantic Scholar: Knowledge Graph Embeddings**
+
+- **Website**: [https://www.semanticscholar.org/topic/Knowledge-Graph-Embedding/2288](https://www.semanticscholar.org/topic/Knowledge-Graph-Embedding/2288)
+- **Features**: Research papers on knowledge graph embeddings with citation information and related work
+
+:::
+
+These collections provide convenient access to the research literature on knowledge graph embeddings.
+
+## Community Forums and Discussion Groups
+
+Community forums provide platforms for discussion, questions, and sharing of knowledge about knowledge graph embeddings.
+
+::: {#def-community-forums}
+
+## Community Forums and Discussion Groups
+
+**Stack Overflow: Knowledge-Graph Tag**
+
+- **Website**: [https://stackoverflow.com/questions/tagged/knowledge-graph](https://stackoverflow.com/questions/tagged/knowledge-graph)
+- **Features**: Q&A forum for technical questions about knowledge graphs
+
+**PyKEEN GitHub Discussions**
+
+- **Website**: [https://github.com/pykeen/pykeen/discussions](https://github.com/pykeen/pykeen/discussions)
+- **Features**: Discussion forum for PyKEEN users and developers
+
+**Knowledge Graph Conference Community**
+
+- **Website**: [https://www.knowledgegraph.tech/the-knowledge-graph-community/](https://www.knowledgegraph.tech/the-knowledge-graph-community/)
+- **Features**: Community resources, events, and discussions related to knowledge graphs
+
+**Reddit: r/MachineLearning**
+
+- **Website**: [https://www.reddit.com/r/MachineLearning/](https://www.reddit.com/r/MachineLearning/)
+- **Features**: Discussions on machine learning, including knowledge graph embeddings
+
+**Discord: Artificial Intelligence**
+
+- **Website**: Various AI-focused Discord servers
+- **Features**: Real-time chat and discussion with researchers and practitioners
+
+:::
+
+Community forums provide opportunities to ask questions, share experiences, and connect with others working on knowledge graph embeddings.
+
+## Competitions and Challenges
+
+Competitions and challenges provide opportunities to test and improve knowledge graph embedding models.
+
+::: {#def-competitions-challenges}
+
+## Competitions and Challenges
+
+**Open Graph Benchmark (OGB) Leaderboards**
+
+- **Website**: [https://ogb.stanford.edu/docs/leader_linkprop/](https://ogb.stanford.edu/docs/leader_linkprop/)
+- **Features**: Leaderboards for link prediction on various knowledge graphs
+
+**Knowledge Graph Completion at WSDM Cup**
+
+- **Website**: Various WSDM Cup challenges
+- **Features**: Periodic competitions on knowledge graph completion tasks
+
+**ICLR Graph Representation Learning Challenges**
+
+- **Website**: Various ICLR workshop challenges
+- **Features**: Research challenges focused on graph representation learning
+
+**SemEval Tasks**
+
+- **Website**: [https://semeval.github.io/](https://semeval.github.io/)
+- **Features**: Semantic evaluation tasks, occasionally including knowledge graph-related challenges
+
+:::
+
+Participating in competitions and challenges can provide benchmarks for evaluating knowledge graph embedding methods and opportunities for improvement.
+
+## Industry Applications and Case Studies
+
+Real-world applications and case studies demonstrate the practical impact of knowledge graph embeddings.
+
+::: {#def-industry-applications}
+
+## Industry Applications and Case Studies
+
+**Google Knowledge Graph**
+
+- **Article**: Singhal, A. (2012). Introducing the Knowledge Graph: things, not strings. Google Blog.
+- **Application**: Enhanced search results, question answering, and entity disambiguation
+
+**Amazon Product Knowledge Graph**
+
+- **Paper**: Dong, X. (2018). Challenges and Innovations in Building a Product Knowledge Graph. KDD 2018.
+- **Application**: Product recommendations, search enhancement, and catalog management
+
+**LinkedIn Economic Graph**
+
+- **Website**: [https://economicgraph.linkedin.com/](https://economicgraph.linkedin.com/)
+- **Application**: Labor market insights, skill recommendations, and career path analysis
+
+**Uber Knowledge Graph**
+
+- **Article**: Uber Engineering. (2018). Uber's Big Data Platform: 100+ Petabytes with Minute Latency. Uber Engineering Blog.
+- **Application**: Location understanding, mapping, and operational optimization
+
+**Microsoft Academic Knowledge Graph**
+
+- **Website**: [https://aka.ms/mskg](https://aka.ms/mskg)
+- **Application**: Academic search, researcher recommendations, and scientific trend analysis
+
+:::
+
+Industry applications demonstrate the practical value of knowledge graph embeddings in various domains.
+
+## Additional Tools for Knowledge Graph Construction
+
+Tools for constructing and managing knowledge graphs complement embedding techniques.
+
+::: {#def-kg-construction-tools}
+
+## Knowledge Graph Construction Tools
+
+**Neo4j**
+
+- **Website**: [https://neo4j.com/](https://neo4j.com/)
+- **Features**: Graph database with support for knowledge graph management and querying
+
+**GraphDB**
+
+- **Website**: [https://graphdb.ontotext.com/](https://graphdb.ontotext.com/)
+- **Features**: Semantic graph database optimized for RDF and SPARQL
+
+**Stardog**
+
+- **Website**: [https://www.stardog.com/](https://www.stardog.com/)
+- **Features**: Enterprise knowledge graph platform with reasoning capabilities
+
+**OpenRefine**
+
+- **Website**: [https://openrefine.org/](https://openrefine.org/)
+- **Features**: Tool for cleaning and transforming data for knowledge graph construction
+
+**Stanford CoreNLP**
+
+- **Website**: [https://stanfordnlp.github.io/CoreNLP/](https://stanfordnlp.github.io/CoreNLP/)
+- **Features**: Natural language processing tools for extracting knowledge from text
+
+:::
+
+These tools facilitate the construction and management of knowledge graphs, which can then be enhanced with embedding techniques.
+
+## Performance Benchmarking Resources
+
+Resources for benchmarking the performance of knowledge graph embedding models on various hardware.
+
+::: {#def-performance-benchmarking}
+
+## Performance Benchmarking Resources
+
+**DGL-KE Benchmarks**
+
+- **GitHub**: [https://github.com/awslabs/dgl-ke/tree/master/benchmark](https://github.com/awslabs/dgl-ke/tree/master/benchmark)
+- **Features**: Performance benchmarks for various knowledge graph embedding models on different hardware configurations
+
+**GraphVite Benchmarks**
+
+- **GitHub**: [https://github.com/DeepGraphLearning/graphvite/tree/master/benchmark](https://github.com/DeepGraphLearning/graphvite/tree/master/benchmark)
+- **Features**: Performance comparisons between GraphVite and other frameworks
+
+**PyKEEN Memory and Runtime Profiling**
+
+- **Documentation**: [https://pykeen.readthedocs.io/en/stable/reference/performance.html](https://pykeen.readthedocs.io/en/stable/reference/performance.html)
+- **Features**: Tools for profiling memory usage and runtime of knowledge graph embedding models
+
+**OGB Benchmark Results**
+
+- **Website**: [https://ogb.stanford.edu/docs/leader_linkprop/](https://ogb.stanford.edu/docs/leader_linkprop/)
+- **Features**: Performance benchmarks for various models on standardized datasets
+
+**Hardware-Accelerated Graph Learning Benchmarks**
+
+- **GitHub**: [https://github.com/NVIDIA/DeepLearningExamples/tree/master/DGLPyTorch](https://github.com/NVIDIA/DeepLearningExamples/tree/master/DGLPyTorch)
+- **Features**: Benchmarks for accelerating graph learning, including knowledge graph embeddings, with NVIDIA hardware
+
+:::
+
+These resources help evaluate the computational efficiency of knowledge graph embedding models, which is crucial for large-scale applications.
+
+## API and Web Services
+
+Several APIs and web services provide access to knowledge graph embeddings and related functionality.
+
+::: {#def-api-services}
+
+## API and Web Services
+
+**Google Knowledge Graph API**
+
+- **Website**: [https://developers.google.com/knowledge-graph](https://developers.google.com/knowledge-graph)
+- **Features**: Access to Google's Knowledge Graph for entity search and information retrieval
+
+**Wikidata Query Service**
+
+- **Website**: [https://query.wikidata.org/](https://query.wikidata.org/)
+- **Features**: SPARQL endpoint for querying Wikidata
+
+**DBpedia Spotlight**
+
+- **Website**: [https://www.dbpedia-spotlight.org/](https://www.dbpedia-spotlight.org/)
+- **Features**: API for entity linking and knowledge graph integration
+
+**Microsoft Concept Graph**
+
+- **Website**: [https://concept.research.microsoft.com/](https://concept.research.microsoft.com/)
+- **Features**: API for accessing concept relationships
+
+**SciGraph API**
+
+- **Website**: [https://scigraph.springernature.com/](https://scigraph.springernature.com/)
+- **Features**: Access to scholarly knowledge graphs
+
+:::
+
+These services provide convenient access to knowledge graph data and functionality without requiring local infrastructure.
+
+## Pre-trained Knowledge Graph Embeddings
+
+Pre-trained knowledge graph embeddings can be useful for transfer learning and applications.
+
+::: {#def-pretrained-embeddings}
+
+## Pre-trained Knowledge Graph Embeddings
+
+**PyKEEN Pre-trained Models**
+
+- **Documentation**: [https://pykeen.readthedocs.io/en/stable/reference/pretrained.html](https://pykeen.readthedocs.io/en/stable/reference/pretrained.html)
+- **Features**: Pre-trained knowledge graph embedding models for various datasets
+
+**OpenKE Pre-trained Embeddings**
+
+- **GitHub**: [https://github.com/thunlp/OpenKE/tree/OpenKE-PyTorch/checkpoint](https://github.com/thunlp/OpenKE/tree/OpenKE-PyTorch/checkpoint)
+- **Features**: Pre-trained embeddings for FB15K, WN18, and other datasets
+
+**KG-BERT Pre-trained Models**
+
+- **GitHub**: [https://github.com/yao8839836/kg-bert](https://github.com/yao8839836/kg-bert)
+- **Features**: Pre-trained BERT-based knowledge graph embedding models
+
+**Wikidata Embeddings**
+
+- **Website**: [https://github.com/Wikidata/taxlink](https://github.com/Wikidata/taxlink)
+- **Features**: Pre-trained embeddings for Wikidata entities
+
+**BioKG Embeddings**
+
+- **Website**: [https://github.com/dsi-bdi/biokg](https://github.com/dsi-bdi/biokg)
+- **Features**: Pre-trained embeddings for biomedical knowledge graphs
+
+:::
+
+Pre-trained embeddings can save computational resources and provide a starting point for transfer learning to specific domains.
+
+## Knowledge Graph Reasoning Tools
+
+Tools for reasoning with knowledge graphs complement embedding-based approaches.
+
+::: {#def-reasoning-tools}
+
+## Knowledge Graph Reasoning Tools
+
+**AnyBURL (Rule Learning for Knowledge Graphs)**
+
+- **Website**: [http://web.informatik.uni-mannheim.de/AnyBURL/](http://web.informatik.uni-mannheim.de/AnyBURL/)
+- **Features**: Fast rule learning for knowledge graphs
+
+**NeuralLP**
+
+- **GitHub**: [https://github.com/fanyangxyz/Neural-LP](https://github.com/fanyangxyz/Neural-LP)
+- **Features**: Differentiable neural logic programming for knowledge graph reasoning
+
+**AMIE (Association Rule Mining under Incomplete Evidence)**
+
+- **GitHub**: [https://github.com/lajus/amie](https://github.com/lajus/amie)
+- **Features**: Rule mining system for large knowledge bases
+
+**kglib (Knowledge Graph Library)**
+
+- **GitHub**: [https://github.com/vaticle/kglib](https://github.com/vaticle/kglib)
+- **Features**: Machine learning with knowledge graphs, built on Grakn
+
+**RLvLR (Reinforcement Learning via Logic Rule)**
+
+- **GitHub**: [https://github.com/DeepGraphLearning/RLvLR](https://github.com/DeepGraphLearning/RLvLR)
+- **Features**: Reinforcement learning for knowledge graph reasoning
+
+:::
+
+These tools provide complementary approaches to reasoning with knowledge graphs, which can be combined with embedding-based methods.
+
+## Documentation and Style Guides
+
+Guidelines for documenting knowledge graph embeddings and related resources.
+
+::: {#def-documentation-guides}
+
+## Documentation and Style Guides
+
+**Knowledge Graph Best Practices**
+
+- **Website**: [https://www.w3.org/2019/09/kg-best-practices/](https://www.w3.org/2019/09/kg-best-practices/)
+- **Features**: Best practices for knowledge graph design and documentation
+
+**Schema.org**
+
+- **Website**: [https://schema.org/](https://schema.org/)
+- **Features**: Vocabulary for structured data markup and knowledge graph integration
+
+**PyKEEN Documentation Guidelines**
+
+- **GitHub**: [https://github.com/pykeen/pykeen/blob/master/CONTRIBUTING.md](https://github.com/pykeen/pykeen/blob/master/CONTRIBUTING.md)
+- **Features**: Guidelines for documenting knowledge graph embedding models and experiments
+
+**Knowledge Graph Publication Guidelines**
+
+- **Paper**: Hogan, A., et al. (2021). Knowledge Graphs. ACM Computing Surveys, 54(4), 1-37.
+- **Features**: Guidelines for publishing and documenting knowledge graphs and related research
+
+:::
+
+Proper documentation is essential for the reproducibility and usability of knowledge graph embedding research and applications.
+
+## Integrating with Deep Learning Frameworks
+
+Resources for integrating knowledge graph embeddings with popular deep learning frameworks.
+
+::: {#def-deep-learning-integration}
+
+## Integrating with Deep Learning Frameworks
+
+**PyTorch Geometric**
+
+- **Website**: [https://pytorch-geometric.readthedocs.io/](https://pytorch-geometric.readthedocs.io/)
+- **Features**: Extension of PyTorch for graph neural networks, can be used with knowledge graph embeddings
+
+**DGL (Deep Graph Library)**
+
+- **Website**: [https://www.dgl.ai/](https://www.dgl.ai/)
+- **Features**: Framework-agnostic library for graph neural networks, includes knowledge graph embedding support
+
+**TensorFlow Graph Neural Networks**
+
+- **GitHub**: [https://github.com/tensorflow/gnn](https://github.com/tensorflow/gnn)
+- **Features**: TensorFlow library for graph neural networks, can be integrated with knowledge graph embeddings
+
+**Spektral**
+
+- **Website**: [https://graphneural.network/](https://graphneural.network/)
+- **Features**: Graph neural network library for Keras and TensorFlow
+
+**Hugging Face Transformers Integration**
+
+- **Documentation**: [https://huggingface.co/blog/knowledge-graph-completion](https://huggingface.co/blog/knowledge-graph-completion)
+- **Features**: Integration of transformers with knowledge graph completion tasks
+
+:::
+
+Integration with deep learning frameworks facilitates the development of advanced knowledge graph embedding models and applications.
+
+## Industry Standards and Formats
+
+Standards and formats for representing knowledge graphs and their embeddings.
+
+::: {#def-standards-formats}
+
+## Industry Standards and Formats
+
+**RDF (Resource Description Framework)**
+
+- **Website**: [https://www.w3.org/RDF/](https://www.w3.org/RDF/)
+- **Features**: Standard model for data interchange on the web, widely used for knowledge graphs
+
+**OWL (Web Ontology Language)**
+
+- **Website**: [https://www.w3.org/OWL/](https://www.w3.org/OWL/)
+- **Features**: Knowledge representation language for defining ontologies
+
+**SPARQL**
+
+- **Website**: [https://www.w3.org/TR/sparql11-query/](https://www.w3.org/TR/sparql11-query/)
+- **Features**: Query language for RDF data
+
+**JSON-LD**
+
+- **Website**: [https://json-ld.org/](https://json-ld.org/)
+- **Features**: JSON-based format for linked data, compatible with knowledge graphs
+
+**Knowledge Graph Exchange (KGX)**
+
+- **GitHub**: [https://github.com/biolink/kgx](https://github.com/biolink/kgx)
+- **Features**: Format for exchanging knowledge graphs across different platforms
+
+:::
+
+Standardized formats facilitate interoperability and exchange of knowledge graphs and their embeddings.
+
+## Experimental and Research Frontiers
+
+Resources for exploring the cutting edge of knowledge graph embedding research.
+
+::: {#def-research-frontiers}
+
+## Experimental and Research Frontiers
+
+**Hyperbolic Knowledge Graph Embeddings**
+
+- **GitHub**: [https://github.com/HazyResearch/KGEmb](https://github.com/HazyResearch/KGEmb)
+- **Features**: Implementation of hyperbolic knowledge graph embeddings
+
+**Quantum Knowledge Graph Embeddings**
+
+- **GitHub**: [https://github.com/qiuchi/qaunt_KGE](https://github.com/qiuchi/qaunt_KGE)
+- **Features**: Exploration of quantum computing for knowledge graph embeddings
+
+**Self-Supervised Knowledge Graph Embeddings**
+
+- **GitHub**: Various repositories
+- **Features**: Methods that leverage self-supervised learning for knowledge graph embeddings
+
+**LLM-KG Integration**
+
+- **GitHub**: Various repositories
+- **Features**: Integration of large language models with knowledge graphs for enhanced reasoning
+
+**Cross-Modal Knowledge Graph Embeddings**
+
+- **GitHub**: Various repositories
+- **Features**: Approaches that integrate multiple modalities (text, images, etc.) with knowledge graph embeddings
+
+:::
+
+These resources provide glimpses into emerging research directions for knowledge graph embeddings.
+
+## Conclusion
+
+This appendix has provided a comprehensive collection of resources and tools for knowledge graph embeddings. From open-source libraries and benchmark datasets to visualization tools, evaluation frameworks, and industry applications, we have covered the breadth of resources available to researchers and practitioners working with knowledge graph embeddings.
+
+The field of knowledge graph embeddings continues to evolve rapidly, with new models, datasets, and applications emerging regularly. The resources listed in this appendix provide a solid foundation for understanding, implementing, and applying knowledge graph embedding techniques. By leveraging these resources, readers can build on the theoretical knowledge presented in the main chapters and apply it to their own knowledge graph projects.
+
+For the most up-to-date information, we encourage readers to explore the links provided, participate in community forums, and follow the latest research publications. The collaborative nature of the field ensures that new resources and tools will continue to emerge, further enhancing the capabilities and applications of knowledge graph embeddings.

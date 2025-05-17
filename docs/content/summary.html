@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>2&nbsp; Outline – Knowledge Graph Embeddings for Link Prediction and Reasoning</title>
+<title>1&nbsp; Summary – Knowledge Graph Embeddings for Link Prediction and Reasoning</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,8 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../content/intro.html" rel="next">
-<link href="../content/summary.html" rel="prev">
+<link href="../content/outline.html" rel="next">
+<link href="../index.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -82,7 +82,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../content/outline.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Outline</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../content/summary.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Summary</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -115,13 +115,13 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../content/summary.html" class="sidebar-item-text sidebar-link">
+  <a href="../content/summary.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Summary</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../content/outline.html" class="sidebar-item-text sidebar-link active">
+  <a href="../content/outline.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Outline</span></span></a>
   </div>
 </li>
@@ -219,20 +219,13 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#introduction-to-knowledge-graphs-and-representations" id="toc-introduction-to-knowledge-graphs-and-representations" class="nav-link active" data-scroll-target="#introduction-to-knowledge-graphs-and-representations"><span class="header-section-number">2.1</span> Introduction to Knowledge Graphs and Representations</a></li>
-  <li><a href="#fundamentals-of-vector-space-representations" id="toc-fundamentals-of-vector-space-representations" class="nav-link" data-scroll-target="#fundamentals-of-vector-space-representations"><span class="header-section-number">2.2</span> Fundamentals of Vector Space Representations</a></li>
-  <li><a href="#translation-based-embedding-models" id="toc-translation-based-embedding-models" class="nav-link" data-scroll-target="#translation-based-embedding-models"><span class="header-section-number">2.3</span> Translation-Based Embedding Models</a></li>
-  <li><a href="#semantic-matching-models" id="toc-semantic-matching-models" class="nav-link" data-scroll-target="#semantic-matching-models"><span class="header-section-number">2.4</span> Semantic Matching Models</a></li>
-  <li><a href="#advanced-models-rotations-and-neural-networks" id="toc-advanced-models-rotations-and-neural-networks" class="nav-link" data-scroll-target="#advanced-models-rotations-and-neural-networks"><span class="header-section-number">2.5</span> Advanced Models: Rotations and Neural Networks</a></li>
-  <li><a href="#training-and-optimization-techniques" id="toc-training-and-optimization-techniques" class="nav-link" data-scroll-target="#training-and-optimization-techniques"><span class="header-section-number">2.6</span> Training and Optimization Techniques</a></li>
-  <li><a href="#evaluation-methodologies-and-benchmarks" id="toc-evaluation-methodologies-and-benchmarks" class="nav-link" data-scroll-target="#evaluation-methodologies-and-benchmarks"><span class="header-section-number">2.7</span> Evaluation Methodologies and Benchmarks</a></li>
-  <li><a href="#incorporating-additional-information" id="toc-incorporating-additional-information" class="nav-link" data-scroll-target="#incorporating-additional-information"><span class="header-section-number">2.8</span> Incorporating Additional Information</a></li>
-  <li><a href="#reasoning-with-knowledge-graph-embeddings" id="toc-reasoning-with-knowledge-graph-embeddings" class="nav-link" data-scroll-target="#reasoning-with-knowledge-graph-embeddings"><span class="header-section-number">2.9</span> Reasoning with Knowledge Graph Embeddings</a></li>
-  <li><a href="#practical-applications-and-case-studies" id="toc-practical-applications-and-case-studies" class="nav-link" data-scroll-target="#practical-applications-and-case-studies"><span class="header-section-number">2.10</span> Practical Applications and Case Studies</a></li>
-  <li><a href="#advanced-topics-and-research-frontiers" id="toc-advanced-topics-and-research-frontiers" class="nav-link" data-scroll-target="#advanced-topics-and-research-frontiers"><span class="header-section-number">2.11</span> Advanced Topics and Research Frontiers</a></li>
-  <li><a href="#implementing-knowledge-graph-embedding-systems" id="toc-implementing-knowledge-graph-embedding-systems" class="nav-link" data-scroll-target="#implementing-knowledge-graph-embedding-systems"><span class="header-section-number">2.12</span> Implementing Knowledge Graph Embedding Systems</a></li>
-  <li><a href="#appendix-a-mathematical-foundations" id="toc-appendix-a-mathematical-foundations" class="nav-link" data-scroll-target="#appendix-a-mathematical-foundations"><span class="header-section-number">2.13</span> Appendix A: Mathematical Foundations</a></li>
-  <li><a href="#appendix-b-resources-and-tools" id="toc-appendix-b-resources-and-tools" class="nav-link" data-scroll-target="#appendix-b-resources-and-tools"><span class="header-section-number">2.14</span> Appendix B: Resources and Tools</a></li>
+  <li><a href="#transe-bordes-et-al.-2013" id="toc-transe-bordes-et-al.-2013" class="nav-link active" data-scroll-target="#transe-bordes-et-al.-2013"><span class="header-section-number">1.1</span> TransE (Bordes et al., 2013)</a></li>
+  <li><a href="#rescal-nickel-et-al.-2011" id="toc-rescal-nickel-et-al.-2011" class="nav-link" data-scroll-target="#rescal-nickel-et-al.-2011"><span class="header-section-number">1.2</span> RESCAL (Nickel et al., 2011)</a></li>
+  <li><a href="#distmult-yang-et-al.-2015" id="toc-distmult-yang-et-al.-2015" class="nav-link" data-scroll-target="#distmult-yang-et-al.-2015"><span class="header-section-number">1.3</span> DistMult (Yang et al., 2015)</a></li>
+  <li><a href="#complex-trouillon-et-al.-2016" id="toc-complex-trouillon-et-al.-2016" class="nav-link" data-scroll-target="#complex-trouillon-et-al.-2016"><span class="header-section-number">1.4</span> ComplEx (Trouillon et al., 2016)</a></li>
+  <li><a href="#rotate-sun-et-al.-2019" id="toc-rotate-sun-et-al.-2019" class="nav-link" data-scroll-target="#rotate-sun-et-al.-2019"><span class="header-section-number">1.5</span> RotatE (Sun et al., 2019)</a></li>
+  <li><a href="#comparison-and-performance-patterns" id="toc-comparison-and-performance-patterns" class="nav-link" data-scroll-target="#comparison-and-performance-patterns"><span class="header-section-number">1.6</span> Comparison and Performance Patterns</a></li>
+  <li><a href="#applications" id="toc-applications" class="nav-link" data-scroll-target="#applications"><span class="header-section-number">1.7</span> Applications</a></li>
   </ul>
 </nav>
     </div>
@@ -241,7 +234,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Outline</span></h1>
+<h1 class="title"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Summary</span></h1>
 </div>
 
 
@@ -258,249 +251,57 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="introduction-to-knowledge-graphs-and-representations" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="introduction-to-knowledge-graphs-and-representations"><span class="header-section-number">2.1</span> Introduction to Knowledge Graphs and Representations</h2>
-<p><strong>Objective:</strong> Introduce students to the fundamental concepts of knowledge graphs, their significance in data science, and the challenge of knowledge graph completion.</p>
-<p><strong>Motivation:</strong> Before diving into complex embedding models, students need to understand what knowledge graphs are, why they matter, and the primary challenges they present. This chapter sets the foundation for the entire book by explaining the problem that knowledge graph embeddings aim to solve.</p>
-<p><strong>Main Topics:</strong></p>
-<ul>
-<li>Basic concepts of graphs and network structures</li>
-<li>Definition and components of knowledge graphs (entities, relations, triples)</li>
-<li>Real-world examples of knowledge graphs (Freebase, WordNet, domain-specific KGs)</li>
-<li>Applications of knowledge graphs in search engines, recommendation systems, and AI</li>
-<li>The challenge of incomplete knowledge graphs</li>
-<li>Overview of approaches to knowledge graph completion</li>
-<li>Link prediction as a fundamental task in knowledge graph completion</li>
-</ul>
+<p>Based on the research papers you’ve provided, I can see that several approaches have been developed for embedding knowledge graphs to perform tasks like link prediction. I’ll summarize the key models:</p>
+<section id="transe-bordes-et-al.-2013" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="transe-bordes-et-al.-2013"><span class="header-section-number">1.1</span> TransE (Bordes et al., 2013)</h2>
+<p>TransE is one of the pioneering and most influential knowledge graph embedding models. It represents entities and relations as vectors in the same space, where relations are interpreted as translations in the embedding space.</p>
+<p>When a triple (h, r, t) is valid, TransE models the relation as a translation from the head entity to the tail entity, expecting that h + r ≈ t. The scoring function measures this distance, typically using L1 or L2 norm: ||h + r - t||.</p>
+<p>TransE is computationally efficient and performs well on many datasets, but it struggles with certain relation patterns, particularly one-to-many, many-to-one, and many-to-many relations.</p>
 </section>
-<section id="fundamentals-of-vector-space-representations" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="fundamentals-of-vector-space-representations"><span class="header-section-number">2.2</span> Fundamentals of Vector Space Representations</h2>
-<p><strong>Objective:</strong> Provide the necessary mathematical background for understanding embeddings and how they represent semantic relationships in vector spaces.</p>
-<p><strong>Motivation:</strong> Many students may not have extensive experience with embedding techniques. This chapter bridges the gap by explaining how semantic relationships can be captured in vector spaces, which is crucial for understanding how knowledge graph embedding models work.</p>
-<p><strong>Main Topics:</strong></p>
-<ul>
-<li>Vector spaces and their properties</li>
-<li>Word embeddings as a motivation (Word2Vec, GloVe)</li>
-<li>Geometric interpretations of vectors and their relationships</li>
-<li>Distance and similarity measures in vector spaces</li>
-<li>Basic operations in vector spaces (dot products, norms)</li>
-<li>Visual illustrations of embedding spaces</li>
-<li>Translational and rotational operations in vector spaces</li>
-<li>Complex vector spaces and their properties</li>
-</ul>
+<section id="rescal-nickel-et-al.-2011" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="rescal-nickel-et-al.-2011"><span class="header-section-number">1.2</span> RESCAL (Nickel et al., 2011)</h2>
+<p>RESCAL is a tensor factorization approach that represents relationships as matrices rather than vectors. It captures more complex interactions between entities by modeling relations as bilinear mappings.</p>
+<p>In RESCAL, entities are expressed as vectors and each relation is represented as a matrix that models pairwise interaction between entities. The scoring function is a bilinear product: h^T M_r t.</p>
+<p>While RESCAL is expressive, it has quadratic complexity (O(d^2) parameters per relation) which makes it less scalable than models like TransE.</p>
 </section>
-<section id="translation-based-embedding-models" class="level2" data-number="2.3">
-<h2 data-number="2.3" class="anchored" data-anchor-id="translation-based-embedding-models"><span class="header-section-number">2.3</span> Translation-Based Embedding Models</h2>
-<p><strong>Objective:</strong> Introduce the fundamental concepts of translation-based knowledge graph embedding models, starting with TransE and its extensions.</p>
-<p><strong>Motivation:</strong> Translation-based models represent an intuitive starting point for understanding knowledge graph embeddings, where relations are viewed as translations from head to tail entities. These models are conceptually simple yet powerful, making them an excellent entry point for students.</p>
-<p><strong>Main Topics:</strong></p>
-<ul>
-<li>Intuition behind translational approaches</li>
-<li>TransE: formulation, scoring function, and geometric interpretation</li>
-<li>Limitations of TransE for various relation patterns</li>
-<li>TransH: projection onto relation-specific hyperplanes</li>
-<li>TransR: relation-specific spaces</li>
-<li>TransD and other extensions with reduced parameter complexity</li>
-<li>Comparative analysis of translation-based models</li>
-<li>Step-by-step training process for translation-based models</li>
-<li>Visual examples of embeddings in 2D/3D space</li>
-</ul>
+<section id="distmult-yang-et-al.-2015" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="distmult-yang-et-al.-2015"><span class="header-section-number">1.3</span> DistMult (Yang et al., 2015)</h2>
+<p>DistMult can be seen as a simplification of RESCAL that restricts relation matrices to be diagonal, resulting in a more efficient model with fewer parameters.</p>
+<p>DistMult enjoys the same scalable property as TransE and it achieves superior performance over TransE. The scoring function is h^T diag(r) t.</p>
+<p>A key limitation of DistMult is that it can only model symmetric relations due to the mathematical properties of its scoring function.</p>
 </section>
-<section id="semantic-matching-models" class="level2" data-number="2.4">
-<h2 data-number="2.4" class="anchored" data-anchor-id="semantic-matching-models"><span class="header-section-number">2.4</span> Semantic Matching Models</h2>
-<p><strong>Objective:</strong> Explore semantic matching approaches to knowledge graph embeddings that focus on matching entity embeddings through relation-specific operations.</p>
-<p><strong>Motivation:</strong> Semantic matching models offer a different perspective on knowledge graph embeddings compared to translation-based models. They often provide better handling of complex relation patterns and have become the foundation for many state-of-the-art approaches.</p>
-<p><strong>Main Topics:</strong></p>
-<ul>
-<li>From geometric distance to semantic similarity</li>
-<li>RESCAL: tensor factorization approach</li>
-<li>DistMult: simplified bilinear model</li>
-<li>ComplEx: handling asymmetric relations with complex embeddings</li>
-<li>Theoretical connections between different semantic matching models</li>
-<li>Strengths and limitations of semantic matching approaches</li>
-<li>Matrix operations and tensor decomposition basics</li>
-<li>Scoring functions and their geometric interpretations</li>
-<li>Case studies comparing semantic matching and translation-based models</li>
-</ul>
+<section id="complex-trouillon-et-al.-2016" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="complex-trouillon-et-al.-2016"><span class="header-section-number">1.4</span> ComplEx (Trouillon et al., 2016)</h2>
+<p>ComplEx extends DistMult to complex vector space to overcome its limitations with asymmetric relations.</p>
+<p>As ComplEx targets to learn antisymmetric relations, the authors extend the embedding representation to complex numbers, where they can factorize complex matrices.</p>
+<p>By using complex-valued embeddings, ComplEx can effectively capture both symmetric and antisymmetric patterns while maintaining computational efficiency.</p>
 </section>
-<section id="advanced-models-rotations-and-neural-networks" class="level2" data-number="2.5">
-<h2 data-number="2.5" class="anchored" data-anchor-id="advanced-models-rotations-and-neural-networks"><span class="header-section-number">2.5</span> Advanced Models: Rotations and Neural Networks</h2>
-<p><strong>Objective:</strong> Present more sophisticated knowledge graph embedding models that leverage complex embeddings, rotations, and neural network architectures.</p>
-<p><strong>Motivation:</strong> After understanding the basic models, students need exposure to more advanced approaches that achieve state-of-the-art performance. These models incorporate more complex mathematical structures but offer greater flexibility in modeling various relation patterns.</p>
-<p><strong>Main Topics:</strong></p>
-<ul>
-<li>RotatE: relational rotation in complex space</li>
-<li>Quaternion embeddings and their advantages</li>
-<li>Neural Tensor Networks for knowledge graph completion</li>
-<li>Convolutional approaches (ConvE, ConvKB)</li>
-<li>Graph Neural Network-based models for knowledge graphs</li>
-<li>Attention mechanisms in knowledge graph embeddings</li>
-<li>Comparative analysis of model expressiveness for different relation types</li>
-<li>Theoretical foundations of complex and hyperbolic embeddings</li>
-<li>Visualization of different transformations in embedding space</li>
-</ul>
+<section id="rotate-sun-et-al.-2019" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="rotate-sun-et-al.-2019"><span class="header-section-number">1.5</span> RotatE (Sun et al., 2019)</h2>
+<p>RotatE defines relations as rotations in complex vector space from the head entity to the tail entity.</p>
+<p>RotatE is able to model and infer various relation patterns including: symmetry/antisymmetry, inversion, and composition.</p>
+<p>The model’s ability to capture these different relation patterns helps it achieve strong performance across various knowledge graph benchmark datasets.</p>
 </section>
-<section id="training-and-optimization-techniques" class="level2" data-number="2.6">
-<h2 data-number="2.6" class="anchored" data-anchor-id="training-and-optimization-techniques"><span class="header-section-number">2.6</span> Training and Optimization Techniques</h2>
-<p><strong>Objective:</strong> Provide a thorough understanding of how knowledge graph embedding models are trained, with a focus on objective functions, negative sampling, and optimization strategies.</p>
-<p><strong>Motivation:</strong> Even with a perfect model architecture, improper training procedures can lead to poor performance. This chapter helps students understand the practical aspects of implementing and training knowledge graph embedding models effectively.</p>
-<p><strong>Main Topics:</strong></p>
-<ul>
-<li>Loss functions for knowledge graph embeddings</li>
-<li>Margin-based ranking loss and alternatives</li>
-<li>Negative sampling strategies and their importance</li>
-<li>Self-adversarial negative sampling</li>
-<li>Hyperparameter selection and tuning</li>
-<li>Regularization techniques for knowledge graph embeddings</li>
-<li>Early stopping and other training considerations</li>
-<li>Batch selection strategies for large knowledge graphs</li>
-<li>Implementation tricks and best practices</li>
-<li>Step-by-step algorithm descriptions with pseudocode</li>
-</ul>
+<section id="comparison-and-performance-patterns" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="comparison-and-performance-patterns"><span class="header-section-number">1.6</span> Comparison and Performance Patterns</h2>
+<p>From empirical evaluations across these papers, several patterns emerge:</p>
+<ol type="1">
+<li><p>Factorization models such as ComplEx and DistMult and neural network models such as ConvE generally perform better than translational models like TransE on certain datasets.</p></li>
+<li><p>Different models excel at handling different relation patterns - TransE struggles with symmetry, DistMult with antisymmetry, while ComplEx and RotatE can handle both.</p></li>
+<li><p>Translation-based models (TransE family), semantic-matching models (RESCAL, DistMult), complex embeddings (RotatE, ComplEx), and neural-network models represent the main categories of knowledge graph embedding approaches.</p></li>
+</ol>
 </section>
-<section id="evaluation-methodologies-and-benchmarks" class="level2" data-number="2.7">
-<h2 data-number="2.7" class="anchored" data-anchor-id="evaluation-methodologies-and-benchmarks"><span class="header-section-number">2.7</span> Evaluation Methodologies and Benchmarks</h2>
-<p><strong>Objective:</strong> Explain how knowledge graph embedding models are evaluated, including metrics, protocols, datasets, and common pitfalls.</p>
-<p><strong>Motivation:</strong> Proper evaluation is crucial for comparing different models and tracking progress. This chapter helps students understand how to correctly assess model performance and interpret results from papers in the field.</p>
-<p><strong>Main Topics:</strong></p>
-<ul>
-<li>Link prediction as an evaluation task</li>
-<li>Ranking metrics: Mean Rank, Mean Reciprocal Rank, Hits@k</li>
-<li>Filtered vs.&nbsp;raw evaluation settings</li>
-<li>Standard benchmark datasets (FB15k, WN18, FB15k-237, WN18RR)</li>
-<li>Issues with inverse relations in early benchmarks</li>
-<li>Recent benchmark datasets and their characteristics</li>
-<li>Triple classification as an evaluation task</li>
-<li>Implementation of evaluation protocols</li>
-<li>Statistical significance testing for knowledge graph embeddings</li>
-<li>Common mistakes in evaluation and how to avoid them</li>
-</ul>
-</section>
-<section id="incorporating-additional-information" class="level2" data-number="2.8">
-<h2 data-number="2.8" class="anchored" data-anchor-id="incorporating-additional-information"><span class="header-section-number">2.8</span> Incorporating Additional Information</h2>
-<p><strong>Objective:</strong> Explore how additional information beyond the graph structure can enhance knowledge graph embeddings, such as textual descriptions, types, and visual information.</p>
-<p><strong>Motivation:</strong> Pure graph-based approaches have limitations, especially for entities with few connections. This chapter shows students how to leverage additional information sources to improve embedding quality and handle sparse data.</p>
-<p><strong>Main Topics:</strong></p>
-<ul>
-<li>Types of additional information for knowledge graphs</li>
-<li>Text-enhanced knowledge graph embeddings</li>
-<li>Entity descriptions and their incorporation</li>
-<li>Type constraints and their implementation</li>
-<li>Visual information for multimodal knowledge graphs</li>
-<li>Temporal information in dynamic knowledge graphs</li>
-<li>Numeric attributes and their integration</li>
-<li>Pre-trained language models for knowledge graph completion</li>
-<li>Joint learning approaches for multi-modal information</li>
-<li>Case studies showing performance improvements with additional information</li>
-</ul>
-</section>
-<section id="reasoning-with-knowledge-graph-embeddings" class="level2" data-number="2.9">
-<h2 data-number="2.9" class="anchored" data-anchor-id="reasoning-with-knowledge-graph-embeddings"><span class="header-section-number">2.9</span> Reasoning with Knowledge Graph Embeddings</h2>
-<p><strong>Objective:</strong> Demonstrate how knowledge graph embeddings enable various forms of reasoning, including rule mining, path reasoning, and answering complex queries.</p>
-<p><strong>Motivation:</strong> Link prediction is just one application of knowledge graph embeddings. This chapter expands students’ understanding of how embeddings can support more complex forms of reasoning over knowledge graphs.</p>
-<p><strong>Main Topics:</strong></p>
-<ul>
-<li>Different types of reasoning tasks over knowledge graphs</li>
-<li>Relation path modeling and composition</li>
-<li>Rule mining from knowledge graph embeddings</li>
-<li>Multi-hop reasoning with embeddings</li>
-<li>Complex query answering on knowledge graphs</li>
-<li>Reasoning under uncertainty</li>
-<li>Explainable reasoning with knowledge graph embeddings</li>
-<li>Combining symbolic and embedding-based reasoning</li>
-<li>Analysis of embedding spaces for relation composition</li>
-<li>Real-world applications of reasoning tasks</li>
-</ul>
-</section>
-<section id="practical-applications-and-case-studies" class="level2" data-number="2.10">
-<h2 data-number="2.10" class="anchored" data-anchor-id="practical-applications-and-case-studies"><span class="header-section-number">2.10</span> Practical Applications and Case Studies</h2>
-<p><strong>Objective:</strong> Present concrete applications of knowledge graph embeddings across various domains, with detailed case studies demonstrating their implementation and impact.</p>
-<p><strong>Motivation:</strong> Connecting theory to practice is essential for students to appreciate the value of knowledge graph embeddings. This chapter shows how the techniques discussed throughout the book are applied to solve real-world problems.</p>
-<p><strong>Main Topics:</strong></p>
-<ul>
-<li>Recommendation systems enhanced with knowledge graph embeddings</li>
-<li>Question answering systems using knowledge graphs</li>
-<li>Information retrieval with knowledge graph embeddings</li>
-<li>Drug discovery and biomedical applications</li>
-<li>Social network analysis using knowledge graph embeddings</li>
-<li>E-commerce applications</li>
-<li>Financial fraud detection</li>
-<li>Implementation challenges in production environments</li>
-<li>Integration with existing systems</li>
-<li>Performance considerations and scaling strategies</li>
-</ul>
-</section>
-<section id="advanced-topics-and-research-frontiers" class="level2" data-number="2.11">
-<h2 data-number="2.11" class="anchored" data-anchor-id="advanced-topics-and-research-frontiers"><span class="header-section-number">2.11</span> Advanced Topics and Research Frontiers</h2>
-<p><strong>Objective:</strong> Introduce cutting-edge research directions and open challenges in knowledge graph embeddings, preparing students for potential research contributions.</p>
-<p><strong>Motivation:</strong> The field of knowledge graph embeddings is rapidly evolving. This chapter exposes students to current research frontiers and encourages them to explore open questions and challenges.</p>
-<p><strong>Main Topics:</strong></p>
-<ul>
-<li>Inductive knowledge graph embeddings</li>
-<li>Few-shot and zero-shot learning for new entities and relations</li>
-<li>Uncertainty quantification in knowledge graph embeddings</li>
-<li>Explainable knowledge graph embeddings</li>
-<li>Adversarial attacks and robustness</li>
-<li>Self-supervised learning for knowledge graphs</li>
-<li>Knowledge graph embeddings on specialized hardware</li>
-<li>Integration with large language models</li>
-<li>Knowledge graph embeddings for logical reasoning</li>
-<li>Open challenges and future research directions</li>
-</ul>
-</section>
-<section id="implementing-knowledge-graph-embedding-systems" class="level2" data-number="2.12">
-<h2 data-number="2.12" class="anchored" data-anchor-id="implementing-knowledge-graph-embedding-systems"><span class="header-section-number">2.12</span> Implementing Knowledge Graph Embedding Systems</h2>
-<p><strong>Objective:</strong> Provide practical guidance on implementing knowledge graph embedding systems, from data preparation to deployment and maintenance.</p>
-<p><strong>Motivation:</strong> Theoretical understanding must be complemented by practical implementation skills. This chapter bridges theory and practice by walking students through the process of building and deploying knowledge graph embedding systems.</p>
-<p><strong>Main Topics:</strong></p>
-<ul>
-<li>Data preparation and preprocessing pipelines</li>
-<li>Framework selection (PyTorch, TensorFlow, specialized libraries)</li>
-<li>Efficient implementation techniques</li>
-<li>Scalability considerations for large knowledge graphs</li>
-<li>Distributed training approaches</li>
-<li>Model serving and deployment strategies</li>
-<li>Integration with downstream applications</li>
-<li>System monitoring and maintenance</li>
-<li>Popular software frameworks for knowledge graph embeddings</li>
-<li>Hands-on tutorial with code examples</li>
-</ul>
-</section>
-<section id="appendix-a-mathematical-foundations" class="level2" data-number="2.13">
-<h2 data-number="2.13" class="anchored" data-anchor-id="appendix-a-mathematical-foundations"><span class="header-section-number">2.13</span> Appendix A: Mathematical Foundations</h2>
-<p><strong>Objective:</strong> Provide supplementary material on the mathematical concepts used throughout the book for students who need additional background.</p>
-<p><strong>Motivation:</strong> Students come from diverse backgrounds, and some may need a refresher on certain mathematical concepts. This appendix ensures that all students can understand the mathematical foundations without interrupting the flow of the main text.</p>
-<p><strong>Main Topics:</strong></p>
-<ul>
-<li>Linear algebra essentials for embeddings</li>
-<li>Probability and statistics concepts</li>
-<li>Optimization theory basics</li>
-<li>Complex number operations</li>
-<li>Tensor algebra fundamentals</li>
-<li>Information theory concepts</li>
-<li>Graph theory basics</li>
-<li>Metric spaces and distance functions</li>
-<li>Matrix decomposition methods</li>
-<li>Differential calculus for optimization</li>
-</ul>
-</section>
-<section id="appendix-b-resources-and-tools" class="level2" data-number="2.14">
-<h2 data-number="2.14" class="anchored" data-anchor-id="appendix-b-resources-and-tools"><span class="header-section-number">2.14</span> Appendix B: Resources and Tools</h2>
-<p><strong>Objective:</strong> Compile a comprehensive list of resources, tools, datasets, and libraries for knowledge graph embeddings.</p>
-<p><strong>Motivation:</strong> Provides students with practical resources to continue their learning and implementation beyond the book.</p>
-<p><strong>Main Topics:</strong></p>
-<ul>
-<li>Open-source libraries for knowledge graph embeddings</li>
-<li>Benchmark datasets and access instructions</li>
-<li>Public knowledge graphs for experimentation</li>
-<li>Visualization tools for embeddings</li>
-<li>Evaluation frameworks and tools</li>
-<li>Online courses and tutorials</li>
-<li>Research paper collections</li>
-<li>Community forums and discussion groups</li>
-<li>Competitions and challenges</li>
-<li>Industry applications and case studies</li>
-</ul>
+<section id="applications" class="level2" data-number="1.7">
+<h2 data-number="1.7" class="anchored" data-anchor-id="applications"><span class="header-section-number">1.7</span> Applications</h2>
+<p>These KG embedding models have broad applications beyond just link prediction:</p>
+<ol type="1">
+<li>Knowledge graph completion</li>
+<li>Entity classification</li>
+<li>Relation extraction</li>
+<li>Question answering</li>
+<li>Recommendation systems</li>
+</ol>
+<p>The field continues to evolve with newer models combining the strengths of different approaches or incorporating additional information like textual descriptions, entity types, or graph structure.</p>
 
 
 </section>
@@ -930,13 +731,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation column-body">
   <div class="nav-page nav-page-previous">
-      <a href="../content/summary.html" class="pagination-link" aria-label="Summary">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Summary</span></span>
+      <a href="../index.html" class="pagination-link" aria-label="Welcome">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Welcome</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../content/intro.html" class="pagination-link" aria-label="Introduction to Knowledge Graphs and Representations">
-        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Introduction to Knowledge Graphs and Representations</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../content/outline.html" class="pagination-link" aria-label="Outline">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Outline</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

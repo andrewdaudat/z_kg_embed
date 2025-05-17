@@ -1,0 +1,798 @@
+# Evaluation Methodologies and Benchmarks
+
+## Introduction to Knowledge Graph Embedding Evaluation
+
+Proper evaluation of knowledge graph embedding (KGE) models is crucial for tracking progress in the field, comparing different approaches, and understanding their strengths and limitations. However, evaluating KGE models presents unique challenges, from the selection of appropriate metrics to the design of evaluation protocols and benchmark datasets.
+
+This chapter focuses on the methodologies, metrics, datasets, and best practices for evaluating knowledge graph embedding models. We'll explore how to correctly assess model performance, how to interpret results from research papers, and how to avoid common pitfalls in evaluation. We'll also examine the evolution of benchmark datasets and how they've shaped the development of KGE models.
+
+Understanding these evaluation methodologies is essential not only for researchers developing new models but also for practitioners selecting appropriate models for specific applications. Let's begin by examining the primary evaluation tasks used to assess knowledge graph embeddings.
+
+## Link Prediction as an Evaluation Task
+
+Link prediction is the most common task for evaluating knowledge graph embeddings. The task involves predicting missing links in a knowledge graph, which directly aligns with the primary goal of knowledge graph completion.
+
+::: {#def-link-prediction}
+
+## Link Prediction Task
+
+Given a knowledge graph $G = (E, R, T)$ where $E$ is the set of entities, $R$ is the set of relations, and $T$ is the set of triples $(h, r, t)$, the link prediction task involves:
+
+1. Removing a subset of triples from the graph to create a test set
+2. Training the embedding model on the remaining triples
+3. For each test triple $(h, r, t)$, evaluating the model's ability to:
+   - Predict the tail entity when given $(h, r, ?)$
+   - Predict the head entity when given $(?, r, t)$
+
+:::
+
+Link prediction serves as an effective proxy for measuring how well the embedding model captures the structure and semantics of the knowledge graph. It challenges the model to reconstruct missing information, which is precisely what knowledge graph completion aims to achieve.
+
+### Ranking Protocol for Link Prediction
+
+The standard evaluation protocol for link prediction involves a ranking procedure:
+
+::: {#def-ranking-protocol}
+
+## Ranking Protocol
+
+For each test triple $(h, r, t)$:
+
+1. **Head Prediction**: Replace the head entity $h$ with every entity $e \in E$ to create corrupted triples $(e, r, t)$
+2. **Score Computation**: Compute scores for all corrupted triples plus the original triple
+3. **Ranking**: Rank all entities based on their scores (in descending or ascending order, depending on whether higher or lower scores are better)
+4. **Metric Calculation**: Record the rank of the correct entity
+5. **Tail Prediction**: Repeat steps 1-4 for tail prediction by creating corrupted triples $(h, r, e)$
+6. **Aggregation**: Compute aggregate metrics over all test triples
+
+:::
+
+This procedure tests the model's ability to distinguish the correct entities from incorrect ones, which is fundamental to the link prediction task.
+
+::: {#exm-ranking-procedure}
+
+## Example of Ranking Procedure
+
+Consider a test triple $(Bob, friendOf, Alice)$ in a small knowledge graph with entities $E = \{Alice, Bob, Charlie, David, Eve\}$.
+
+For tail prediction, the model evaluates scores for:
+
+- $(Bob, friendOf, Alice)$ [correct]
+- $(Bob, friendOf, Bob)$
+- $(Bob, friendOf, Charlie)$
+- $(Bob, friendOf, David)$
+- $(Bob, friendOf, Eve)$
+
+If the scores are $[0.8, 0.3, 0.6, 0.2, 0.7]$ and higher scores indicate better triples, the entities would be ranked as: $[Alice, Eve, Charlie, Bob, David]$
+
+The correct entity (Alice) has rank 1.
+
+Similarly, for head prediction, the model would evaluate $(Alice, friendOf, Alice)$, $(Bob, friendOf, Alice)$, etc., and rank the entities based on their scores.
+
+:::
+
+## Evaluation Metrics for Link Prediction
+
+Several metrics have been developed to evaluate the performance of KGE models on the link prediction task. These metrics capture different aspects of the ranking performance.
+
+### Mean Rank
+
+The simplest metric is the mean rank, which averages the ranks of the correct entities across all test triples.
+
+::: {#def-mean-rank}
+
+## Mean Rank (MR)
+
+The mean rank is defined as:
+
+$$MR = \frac{1}{2|T_{test}|} \sum_{(h,r,t) \in T_{test}} (rank_h + rank_t)$$
+
+where $T_{test}$ is the set of test triples, $rank_h$ is the rank of the head entity when predicting the head, and $rank_t$ is the rank of the tail entity when predicting the tail.
+
+:::
+
+Lower mean rank values indicate better performance. However, mean rank is sensitive to outliers (very high ranks) and can be heavily influenced by the size of the entity set.
+
+### Mean Reciprocal Rank
+
+The mean reciprocal rank (MRR) addresses some of the limitations of mean rank by using the reciprocal of the rank.
+
+::: {#def-mean-reciprocal-rank}
+
+## Mean Reciprocal Rank (MRR)
+
+The mean reciprocal rank is defined as:
+
+$$MRR = \frac{1}{2|T_{test}|} \sum_{(h,r,t) \in T_{test}} \left(\frac{1}{rank_h} + \frac{1}{rank_t}\right)$$
+
+where $rank_h$ and $rank_t$ are the ranks of the head and tail entities, respectively.
+
+:::
+
+MRR values range from 0 to 1, with higher values indicating better performance. MRR gives more weight to higher ranks (lower rank values) and is less sensitive to outliers than mean rank.
+
+::: {#exm-mrr-calculation}
+
+## Example of MRR Calculation
+
+Consider three test triples with the following ranks:
+
+- Triple 1: $rank_h = 3$, $rank_t = 1$
+- Triple 2: $rank_h = 10$, $rank_t = 5$
+- Triple 3: $rank_h = 2$, $rank_t = 2$
+
+The MRR would be: $$MRR = \frac{1}{2 \times 3} \left(\frac{1}{3} + \frac{1}{1} + \frac{1}{10} + \frac{1}{5} + \frac{1}{2} + \frac{1}{2}\right) = \frac{1}{6} \times \frac{143}{60} = 0.397$$
+
+:::
+
+### Hits@k
+
+Hits@k measures the proportion of test triples where the correct entity is ranked among the top k.
+
+::: {#def-hits-at-k}
+
+## Hits@k
+
+Hits@k is defined as:
+
+$$Hits@k = \frac{1}{2|T_{test}|} \sum_{(h,r,t) \in T_{test}} (I[rank_h \leq k] + I[rank_t \leq k])$$
+
+where $I[\cdot]$ is the indicator function that returns 1 if the condition is true and 0 otherwise.
+
+:::
+
+Common values for k are 1, 3, and 10. Hits@1 measures the accuracy of the model in predicting the exact correct entity, while Hits@10 measures the ability of the model to include the correct entity in a small set of candidates.
+
+::: {#exm-hits-calculation}
+
+## Example of Hits@k Calculation
+
+Using the same three test triples from the MRR example:
+
+- Triple 1: $rank_h = 3$, $rank_t = 1$
+- Triple 2: $rank_h = 10$, $rank_t = 5$
+- Triple 3: $rank_h = 2$, $rank_t = 2$
+
+For Hits@1: $$Hits@1 = \frac{1}{6} (0 + 1 + 0 + 0 + 0 + 0) = \frac{1}{6} = 0.167$$
+
+For Hits@3: $$Hits@3 = \frac{1}{6} (1 + 1 + 0 + 0 + 1 + 1) = \frac{4}{6} = 0.667$$
+
+For Hits@10: $$Hits@10 = \frac{1}{6} (1 + 1 + 1 + 1 + 1 + 1) = 1.0$$
+
+:::
+
+## Filtered vs. Raw Evaluation Settings
+
+A critical consideration in link prediction evaluation is the handling of existing triples in the knowledge graph when computing ranks.
+
+::: {#def-raw-setting}
+
+## Raw Evaluation Setting
+
+In the raw setting, all entities are considered when computing ranks, regardless of whether the resulting triples exist in the training, validation, or test set.
+
+:::
+
+The raw setting can lead to misleading results because a model may rank a valid triple (that exists in the training set) higher than the test triple, which would count as an error even though the prediction is actually correct.
+
+::: {#def-filtered-setting}
+
+## Filtered Evaluation Setting
+
+In the filtered setting, when computing the rank for a test triple $(h, r, t)$:
+
+1. For head prediction, remove all triples $(h', r, t)$ where $h' \neq h$ that exist in the training, validation, or test set
+2. For tail prediction, remove all triples $(h, r, t')$ where $t' \neq t$ that exist in the training, validation, or test set
+3. Compute ranks considering only the remaining corrupted triples
+
+:::
+
+The filtered setting provides a more accurate assessment of model performance by ensuring that valid triples are not counted as incorrect predictions.
+
+::: {#exm-filtered-vs-raw}
+
+## Example of Filtered vs. Raw Evaluation
+
+Consider a knowledge graph with these triples in the training set:
+
+- $(Bob, friendOf, Alice)$
+- $(Bob, friendOf, Charlie)$
+- $(David, friendOf, Alice)$
+
+And the test triple $(Eve, friendOf, Alice)$.
+
+When evaluating tail prediction for $(Eve, friendOf, ?)$:
+
+In the raw setting, if the model scores entities as $[Alice > Charlie > Bob > David > Eve]$, Alice would have rank 1.
+
+In the filtered setting, we would exclude $(Bob, friendOf, Alice)$ and $(David, friendOf, Alice)$ since they are valid triples. The ranking would then be based on $[Alice > Charlie > Eve]$, and Alice would still have rank 1.
+
+However, if the model ranks entities as $[Bob > Alice > David > Charlie > Eve]$, in the raw setting Alice would have rank 2, but in the filtered setting (excluding Bob and David), Alice would have rank 1.
+
+:::
+
+The filtered setting is now the standard in the field, as it provides a more accurate assessment of model performance. However, it's important to recognize that older papers may report only raw metrics.
+
+## Standard Benchmark Datasets
+
+Several benchmark datasets have become standard in the field of knowledge graph embeddings. These datasets serve as common ground for comparing different models and approaches.
+
+### FB15k
+
+FB15k is a subset of Freebase, a large collaborative knowledge base of general facts.
+
+::: {#def-fb15k}
+
+## FB15k Dataset
+
+FB15k contains:
+
+- 14,951 entities
+- 1,345 relation types
+- 483,142 training triples
+- 50,000 validation triples
+- 59,071 test triples
+
+:::
+
+FB15k was one of the first widely used benchmarks for knowledge graph embeddings. However, it was later discovered to have a significant flaw: many test triples can be answered through inverse relations in the training set, which allows models to achieve artificially high performance.
+
+### WN18
+
+WN18 is derived from WordNet, a lexical database for the English language.
+
+::: {#def-wn18}
+
+## WN18 Dataset
+
+WN18 contains:
+
+- 40,943 entities (word senses)
+- 18 relation types
+- 141,442 training triples
+- 5,000 validation triples
+- 5,000 test triples
+
+:::
+
+Like FB15k, WN18 also suffers from the inverse relation issue, where many test triples can be answered by simply finding the inverse of a training triple.
+
+### FB15k-237
+
+FB15k-237 was created to address the inverse relation issue in FB15k by removing redundant relations.
+
+::: {#def-fb15k-237}
+
+## FB15k-237 Dataset
+
+FB15k-237 contains:
+
+- 14,541 entities
+- 237 relation types
+- 272,115 training triples
+- 17,535 validation triples
+- 20,466 test triples
+
+:::
+
+FB15k-237 is considered a more challenging and realistic benchmark than FB15k because it requires models to make more sophisticated inferences rather than simply memorizing inverse relations.
+
+### WN18RR
+
+WN18RR (WN18 with Reversed Relations removed) addresses the same issue in WN18.
+
+::: {#def-wn18rr}
+
+## WN18RR Dataset
+
+WN18RR contains:
+
+- 40,943 entities
+- 11 relation types
+- 86,835 training triples
+- 3,034 validation triples
+- 3,134 test triples
+
+:::
+
+WN18RR is more challenging than WN18 and provides a better assessment of a model's ability to capture the semantics of the knowledge graph.
+
+::: {#exm-inverse-relation-issue}
+
+## Example of the Inverse Relation Issue
+
+In FB15k, if the training set contains:
+
+- $(France, hasCapital, Paris)$
+
+And the test set contains:
+
+- $(Paris, isCapitalOf, France)$
+
+A model that simply learns that $isCapitalOf$ is the inverse of $hasCapital$ can trivially predict the test triple without understanding the semantics of the relations.
+
+FB15k-237 addresses this by keeping only one of these relations in the dataset.
+
+:::
+
+### YAGO3-10
+
+YAGO3-10 is derived from YAGO3, a knowledge base that combines information from Wikipedia, WordNet, and GeoNames.
+
+::: {#def-yago3-10}
+
+## YAGO3-10 Dataset
+
+YAGO3-10 contains:
+
+- 123,182 entities
+- 37 relation types
+- 1,079,040 training triples
+- 5,000 validation triples
+- 5,000 test triples
+
+:::
+
+YAGO3-10 is larger than FB15k-237 and WN18RR and provides a more challenging benchmark for evaluating model scalability.
+
+### Newer Benchmark Datasets
+
+Several newer benchmark datasets have been proposed to address limitations of earlier datasets or to test specific aspects of knowledge graph embeddings:
+
+::: {#def-codex}
+
+## CODEX Datasets
+
+CODEX (Comprehensive Dataset Extraction) is a collection of datasets (CODEX-S, CODEX-M, CODEX-L) derived from Wikidata and Wikipedia, designed to promote entity and content diversity:
+
+- CODEX-S: 2,034 entities, 42 relations, 36,543 triples
+- CODEX-M: 17,050 entities, 51 relations, 206,205 triples
+- CODEX-L: 77,951 entities, 69 relations, 612,437 triples
+
+:::
+
+::: {#def-ogb}
+
+## OGB Knowledge Graph Datasets
+
+The Open Graph Benchmark (OGB) includes knowledge graph datasets optimized for benchmarking purposes:
+
+- ogbl-wikikg2: 2,500,604 entities, 535 relations, 16,109,182 triples
+- ogbl-biokg: 93,773 entities, 51 relations, 5,088,434 triples
+
+:::
+
+These newer datasets provide more diverse evaluation scenarios and help assess model performance across different domains and scales.
+
+## Issues with Standard Benchmarks
+
+Despite their widespread use, standard benchmark datasets have several limitations that researchers should be aware of:
+
+### Inverse Relation Bias
+
+As discussed earlier, many early benchmarks like FB15k and WN18 contain inverse relations, which can lead to artificially high performance for models that can exploit this pattern.
+
+::: {#def-inverse-relation-bias}
+
+## Inverse Relation Bias
+
+Inverse relation bias occurs when:
+
+1. A test triple $(h, r, t)$ has a corresponding inverse triple $(t, r', h)$ in the training set
+2. Models can achieve high performance by simply recognizing that $r$ and $r'$ are inverse relations
+3. This doesn't test the model's ability to infer new facts, only to recognize relation patterns
+
+:::
+
+While FB15k-237 and WN18RR address this issue to some extent, researchers should still be cautious about other potential biases in benchmark datasets.
+
+### Balanced vs. Realistic Relations
+
+Many benchmark datasets have a more balanced distribution of relation types than real-world knowledge graphs, which can affect the generalizability of results.
+
+::: {#def-relation-imbalance}
+
+## Relation Imbalance
+
+In real-world knowledge graphs:
+
+1. Some relations occur much more frequently than others
+2. Some entities participate in many more triples than others
+3. The distribution of relation types and entity participation is often highly skewed
+
+:::
+
+Models that perform well on balanced benchmark datasets may struggle with the imbalance of real-world knowledge graphs.
+
+### Domain Specificity
+
+Most benchmark datasets focus on general-domain knowledge, but many real-world applications involve domain-specific knowledge graphs.
+
+::: {#def-domain-specificity}
+
+## Domain Specificity
+
+Domain-specific knowledge graphs:
+
+1. May have different relation patterns and structures than general-domain knowledge graphs
+2. Often have unique constraints and dependencies
+3. May require different modeling approaches for optimal performance
+
+:::
+
+Performance on standard benchmarks may not accurately predict performance on domain-specific knowledge graphs.
+
+## Triple Classification as an Evaluation Task
+
+In addition to link prediction, triple classification is another common evaluation task for knowledge graph embeddings.
+
+::: {#def-triple-classification}
+
+## Triple Classification Task
+
+The triple classification task involves:
+
+1. Training the model on the training triples
+2. For each test triple $(h, r, t)$, classifying it as valid or invalid based on its score
+3. Evaluating the classification performance using metrics like accuracy, precision, recall, and F1-score
+
+:::
+
+Triple classification requires a threshold to convert scores into binary classifications. This threshold is typically determined using the validation set to maximize classification performance.
+
+::: {#exm-triple-classification}
+
+## Example of Triple Classification
+
+Consider a model that assigns the following scores to triples:
+
+- $(Bob, friendOf, Alice)$: 0.8
+- $(Bob, friendOf, Charlie)$: 0.6
+- $(Bob, livesIn, Paris)$: 0.2
+- $(Bob, friendOf, New York)$: 0.1
+
+If the threshold for the "friendOf" relation is 0.5 and for the "livesIn" relation is 0.3, then:
+
+- $(Bob, friendOf, Alice)$ and $(Bob, friendOf, Charlie)$ would be classified as valid
+- $(Bob, livesIn, Paris)$ would be classified as invalid
+- $(Bob, friendOf, New York)$ would be classified as invalid
+
+:::
+
+While triple classification is conceptually simple, it has received less attention than link prediction in recent years. This is partly because the binary nature of the task provides less fine-grained information about model performance compared to ranking-based evaluation.
+
+## Implementation of Evaluation Protocols
+
+Correctly implementing evaluation protocols is crucial for fair and reproducible comparisons between models. Here's a pseudo-code example of how to implement the filtered evaluation protocol for link prediction:
+
+```python
+def evaluate_link_prediction(model, test_triples, all_triples, entities, relations):
+    """
+    Evaluate a model on link prediction using the filtered setting.
+
+    Parameters:
+    model: The trained KGE model
+    test_triples: List of test triples (h, r, t)
+    all_triples: Set of all triples in the dataset (train + valid + test)
+    entities: List of all entities
+    relations: List of all relations
+
+    Returns:
+    Dictionary of evaluation metrics
+    """
+    ranks_head = []
+    ranks_tail = []
+
+    for h, r, t in test_triples:
+        # Head prediction
+        head_candidates = [(e, r, t) for e in entities]
+        head_scores = model.score(head_candidates)
+
+        # Filter existing triples
+        filtered_indices = []
+        for i, (e, _, _) in enumerate(head_candidates):
+            if e != h and (e, r, t) in all_triples:
+                filtered_indices.append(i)
+
+        # Compute rank (assuming higher scores are better)
+        true_score = model.score([(h, r, t)])[0]
+        rank = 1
+        for i, score in enumerate(head_scores):
+            if i not in filtered_indices and score > true_score:
+                rank += 1
+
+        ranks_head.append(rank)
+
+        # Tail prediction (similar process)
+        tail_candidates = [(h, r, e) for e in entities]
+        # ... (similar to head prediction)
+
+        ranks_tail.append(rank)
+
+    # Compute metrics
+    mean_rank = (sum(ranks_head) + sum(ranks_tail)) / (len(ranks_head) + len(ranks_tail))
+    mrr = sum(1.0/r for r in ranks_head + ranks_tail) / (len(ranks_head) + len(ranks_tail))
+
+    hits = {}
+    for k in [1, 3, 10]:
+        hits[k] = sum(1 for r in ranks_head + ranks_tail if r <= k) / (len(ranks_head) + len(ranks_tail))
+
+    return {
+        'mean_rank': mean_rank,
+        'mrr': mrr,
+        'hits': hits
+    }
+```
+
+In practice, this implementation would be optimized for computational efficiency, especially for large knowledge graphs with many entities.
+
+## Statistical Significance Testing
+
+When comparing the performance of different models, it's important to assess whether the observed differences are statistically significant.
+
+::: {#def-significance-testing}
+
+## Statistical Significance Testing
+
+Statistical significance testing for KGE models involves:
+
+1. Running multiple evaluations with different random initializations
+2. Computing means and standard deviations of performance metrics
+3. Applying statistical tests (e.g., t-test, Wilcoxon signed-rank test) to assess whether differences between models are significant
+
+:::
+
+Unfortunately, statistical significance testing is often overlooked in knowledge graph embedding research, which can lead to overestimating the importance of small performance differences.
+
+::: {#exm-significance-testing}
+
+## Example of Significance Testing
+
+Consider two models with the following MRR results over 5 runs:
+
+- Model A: [0.32, 0.30, 0.33, 0.31, 0.29], mean = 0.31, std = 0.015
+- Model B: [0.33, 0.34, 0.32, 0.35, 0.33], mean = 0.334, std = 0.011
+
+A t-test could be performed to determine if the difference (0.334 - 0.31 = 0.024) is statistically significant given the observed variability.
+
+:::
+
+## Common Evaluation Mistakes and Pitfalls
+
+Several common mistakes can lead to misleading or invalid evaluation results:
+
+### Reporting Only Favorable Metrics
+
+Some papers report only metrics where their model excels, giving an incomplete picture of performance.
+
+::: {#def-cherry-picking}
+
+## Cherry-Picking Metrics
+
+Cherry-picking occurs when:
+
+1. A paper presents only metrics where their model outperforms others
+2. Important metrics where the model underperforms are omitted
+3. This creates a misleading impression of overall performance
+
+:::
+
+To avoid this, researchers should report a comprehensive set of metrics, including mean rank, MRR, and Hits@k for different values of k.
+
+### Inconsistent Evaluation Protocols
+
+Using different evaluation protocols when comparing models can lead to unfair comparisons.
+
+::: {#def-protocol-inconsistency}
+
+## Evaluation Protocol Inconsistency
+
+Inconsistencies can include:
+
+1. Using filtered metrics for one model but raw metrics for another
+2. Using different entity filtering strategies
+3. Using different ranking strategies (e.g., handling ties differently)
+
+:::
+
+Researchers should clearly describe their evaluation protocol and ensure that all models are evaluated using the same protocol.
+
+### Ignoring Hyperparameter Sensitivity
+
+Some models are more sensitive to hyperparameter choices than others, which can affect the fairness of comparisons.
+
+::: {#def-hyperparameter-sensitivity}
+
+## Hyperparameter Sensitivity
+
+Issues with hyperparameter sensitivity include:
+
+1. Some models may require extensive tuning to achieve good performance
+2. The reported performance may represent the best-case scenario rather than typical performance
+3. The computational cost of hyperparameter tuning may not be accounted for
+
+:::
+
+Researchers should report both the hyperparameter sensitivity of their models and the resources used for hyperparameter tuning.
+
+### Overtuning on Test Set
+
+A serious methodological error is tuning hyperparameters based on test set performance.
+
+::: {#def-test-set-overtuning}
+
+## Test Set Overtuning
+
+Test set overtuning occurs when:
+
+1. Hyperparameters are selected based on performance on the test set
+2. This creates an artificial performance boost that won't generalize to new data
+3. It violates the principle that the test set should only be used for final evaluation
+
+:::
+
+Proper methodology requires using the validation set for hyperparameter tuning and the test set only for final evaluation.
+
+## Comparison with Alternative Evaluation Approaches
+
+While link prediction and triple classification are the most common evaluation tasks, alternative approaches have been proposed to provide a more comprehensive assessment of knowledge graph embeddings.
+
+### Relational Pattern Evaluation
+
+Relational pattern evaluation focuses on assessing how well models capture different types of relation patterns (symmetry, antisymmetry, inversion, composition, etc.).
+
+::: {#def-pattern-evaluation}
+
+## Relational Pattern Evaluation
+
+Relational pattern evaluation involves:
+
+1. Identifying sets of triples that exhibit specific relation patterns
+2. Evaluating model performance on these sets separately
+3. Comparing performance across different relation patterns
+
+:::
+
+This approach provides insights into the strengths and limitations of different models with respect to specific relation patterns.
+
+### Inductive Evaluation
+
+Traditional evaluation focuses on the transductive setting, where all entities are known during training. Inductive evaluation assesses how well models generalize to previously unseen entities.
+
+::: {#def-inductive-evaluation}
+
+## Inductive Evaluation
+
+Inductive evaluation involves:
+
+1. Removing a subset of entities and their associated triples from the training set
+2. Training the model on the remaining data
+3. Evaluating the model's ability to predict triples involving the unseen entities
+
+:::
+
+Inductive evaluation is particularly relevant for real-world applications where new entities are continually being added to the knowledge graph.
+
+### Explainability Assessment
+
+As explainability becomes increasingly important in AI, new evaluation approaches focus on assessing how well the learned embeddings can be interpreted and explained.
+
+::: {#def-explainability-assessment}
+
+## Explainability Assessment
+
+Explainability assessment involves:
+
+1. Evaluating whether the learned embeddings align with human-understandable concepts
+2. Testing whether the model can provide explanations for its predictions
+3. Assessing the quality of generated explanations
+
+:::
+
+Explainability assessment is an emerging area of evaluation that goes beyond traditional performance metrics.
+
+## Benchmarking Libraries and Frameworks
+
+Several libraries and frameworks have been developed to facilitate the benchmarking of knowledge graph embedding models.
+
+::: {#def-benchmarking-frameworks}
+
+## KGE Benchmarking Frameworks
+
+Popular frameworks include:
+
+1. **PyKEEN**: A comprehensive framework for training and evaluating knowledge graph embeddings
+2. **LibKGE**: A library focused on reproducible experimentation with knowledge graph embeddings
+3. **DGL-KE**: A scalable package built on deep graph library for learning large-scale knowledge graph embeddings
+4. **OpenKE**: An open-source framework for knowledge embedding
+5. **AmpliGraph**: A library for representation learning on knowledge graphs
+
+:::
+
+These frameworks provide standardized implementations of various models and evaluation protocols, making it easier to conduct fair and reproducible comparisons.
+
+## Toward Better Evaluation Practices
+
+As the field of knowledge graph embeddings matures, there is a growing need for more comprehensive and rigorous evaluation practices.
+
+### Reproducibility Initiatives
+
+Several initiatives aim to improve reproducibility in knowledge graph embedding research:
+
+::: {#def-reproducibility-initiatives}
+
+## Reproducibility Initiatives
+
+Key initiatives include:
+
+1. **Open-source code requirements**: Many conferences and journals now require code submissions
+2. **Standardized benchmarking platforms**: Platforms like PyKEEN and LibKGE that enforce consistent evaluation
+3. **Reproducibility challenges**: Events focused on reproducing and verifying published results
+
+:::
+
+These initiatives help ensure that reported performance gains are real and reproducible.
+
+### Multi-Faceted Evaluation
+
+Rather than focusing on a single metric or task, multi-faceted evaluation provides a more comprehensive assessment of model capabilities:
+
+::: {#def-multi-faceted-evaluation}
+
+## Multi-Faceted Evaluation
+
+Multi-faceted evaluation includes:
+
+1. **Multiple tasks**: Link prediction, triple classification, relation prediction, etc.
+2. **Multiple metrics**: MRR, Hits@k, precision, recall, etc.
+3. **Multiple datasets**: Across different domains and scales
+4. **Pattern-specific evaluation**: Performance on different relation patterns
+5. **Resource efficiency evaluation**: Training time, memory usage, etc.
+
+:::
+
+This approach gives a more complete picture of a model's strengths and limitations.
+
+### Realistic Evaluation Scenarios
+
+Moving beyond standard benchmarks to more realistic evaluation scenarios:
+
+::: {#def-realistic-evaluation}
+
+## Realistic Evaluation Scenarios
+
+Realistic scenarios include:
+
+1. **Time-evolving knowledge graphs**: Testing on temporal data
+2. **Noisy knowledge graphs**: Testing robustness to errors
+3. **Sparse knowledge graphs**: Testing with limited training data
+4. **Multi-modal knowledge graphs**: Incorporating different types of information
+5. **Domain-specific knowledge graphs**: Testing on specialized domains
+
+:::
+
+These scenarios better reflect the challenges faced in real-world applications of knowledge graph embeddings.
+
+## Conclusion
+
+Proper evaluation is essential for tracking progress in knowledge graph embedding research and for selecting appropriate models for specific applications. The field has evolved from simple metrics on small datasets to more comprehensive evaluation approaches that assess multiple facets of model performance.
+
+Key takeaways from this chapter include:
+
+1. The importance of using filtered evaluation settings for link prediction
+2. The limitations of standard benchmark datasets and the need for more diverse evaluation scenarios
+3. The value of reporting multiple metrics to provide a comprehensive assessment of model performance
+4. The need for statistical significance testing to validate performance differences
+5. The importance of avoiding common evaluation pitfalls, such as inconsistent protocols and test set overtuning
+
+As the field continues to evolve, evaluation methodologies will likely become even more sophisticated, with greater emphasis on reproducibility, comprehensive assessment, and real-world relevance.
+
+## Further Reading
+
+1. Bordes, A., Usunier, N., Garcia-Duran, A., Weston, J., & Yakhnenko, O. (2013). Translating embeddings for modeling multi-relational data. NIPS.
+2. Toutanova, K., & Chen, D. (2015). Observed versus latent features for knowledge base and text inference. In Proceedings of the 3rd Workshop on Continuous Vector Space Models and their Compositionality.
+3. Sun, Z., Deng, Z. H., Nie, J. Y., & Tang, J. (2019). RotatE: Knowledge graph embedding by relational rotation in complex space. ICLR.
+4. Ali, M., Berrendorf, M., Hoyt, C. T., Vermue, L., Galkin, M., Sharifzadeh, S., ... & Lehmann, J. (2021). PyKEEN 1.0: A Python library for training and evaluating knowledge graph embeddings. Journal of Machine Learning Research, 22(82), 1-6.
+5. Ruffinelli, D., Broscheit, S., & Gemulla, R. (2020). You CAN teach an old dog new tricks! On training knowledge graph embeddings. ICLR.
+6. Safavi, T., & Koutra, D. (2020). CoDEx: A comprehensive knowledge graph completion benchmark. EMNLP.
+7. Hu, W., Fey, M., Zitnik, M., Dong, Y., Ren, H., Liu, B., ... & Leskovec, J. (2020). Open graph benchmark: Datasets for machine learning on graphs. NeurIPS.

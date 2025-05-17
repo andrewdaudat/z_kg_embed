@@ -1,0 +1,65 @@
+# Summary
+
+Based on the research papers you've provided, I can see that several approaches have been developed for embedding knowledge graphs to perform tasks like link prediction. I'll summarize the key models:
+
+## TransE (Bordes et al., 2013)
+
+TransE is one of the pioneering and most influential knowledge graph embedding models. It represents entities and relations as vectors in the same space, where relations are interpreted as translations in the embedding space.
+
+When a triple (h, r, t) is valid, TransE models the relation as a translation from the head entity to the tail entity, expecting that h + r ≈ t. The scoring function measures this distance, typically using L1 or L2 norm: ||h + r - t||.
+
+TransE is computationally efficient and performs well on many datasets, but it struggles with certain relation patterns, particularly one-to-many, many-to-one, and many-to-many relations.
+
+## RESCAL (Nickel et al., 2011)
+
+RESCAL is a tensor factorization approach that represents relationships as matrices rather than vectors. It captures more complex interactions between entities by modeling relations as bilinear mappings.
+
+In RESCAL, entities are expressed as vectors and each relation is represented as a matrix that models pairwise interaction between entities. The scoring function is a bilinear product: h^T M_r t.
+
+While RESCAL is expressive, it has quadratic complexity (O(d^2) parameters per relation) which makes it less scalable than models like TransE.
+
+## DistMult (Yang et al., 2015)
+
+DistMult can be seen as a simplification of RESCAL that restricts relation matrices to be diagonal, resulting in a more efficient model with fewer parameters.
+
+DistMult enjoys the same scalable property as TransE and it achieves superior performance over TransE. The scoring function is h^T diag(r) t.
+
+A key limitation of DistMult is that it can only model symmetric relations due to the mathematical properties of its scoring function.
+
+## ComplEx (Trouillon et al., 2016)
+
+ComplEx extends DistMult to complex vector space to overcome its limitations with asymmetric relations.
+
+As ComplEx targets to learn antisymmetric relations, the authors extend the embedding representation to complex numbers, where they can factorize complex matrices.
+
+By using complex-valued embeddings, ComplEx can effectively capture both symmetric and antisymmetric patterns while maintaining computational efficiency.
+
+## RotatE (Sun et al., 2019)
+
+RotatE defines relations as rotations in complex vector space from the head entity to the tail entity.
+
+RotatE is able to model and infer various relation patterns including: symmetry/antisymmetry, inversion, and composition.
+
+The model's ability to capture these different relation patterns helps it achieve strong performance across various knowledge graph benchmark datasets.
+
+## Comparison and Performance Patterns
+
+From empirical evaluations across these papers, several patterns emerge:
+
+1. Factorization models such as ComplEx and DistMult and neural network models such as ConvE generally perform better than translational models like TransE on certain datasets.
+
+2. Different models excel at handling different relation patterns - TransE struggles with symmetry, DistMult with antisymmetry, while ComplEx and RotatE can handle both.
+
+3. Translation-based models (TransE family), semantic-matching models (RESCAL, DistMult), complex embeddings (RotatE, ComplEx), and neural-network models represent the main categories of knowledge graph embedding approaches.
+
+## Applications
+
+These KG embedding models have broad applications beyond just link prediction:
+
+1. Knowledge graph completion
+2. Entity classification
+3. Relation extraction
+4. Question answering
+5. Recommendation systems
+
+The field continues to evolve with newer models combining the strengths of different approaches or incorporating additional information like textual descriptions, entity types, or graph structure.

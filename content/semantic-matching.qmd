@@ -34,12 +34,12 @@ The key differences between semantic matching models and translation-based model
 
 ## Semantic matching example
 
-Consider a knowledge graph about movies, with entities like "The Godfather," "Francis Ford Coppola," and "Crime" and relations like "directed_by" and "has_genre."
+Consider a knowledge graph about movies, with entities like "The Godfather," "Francis Ford Coppola," and "Crime" and relations like "directed_by" and `"has_genre"`
 
 In a semantic matching model:
 
 - The plausibility of (The_Godfather, directed_by, Francis_Ford_Coppola) would be measured by how well the embeddings of "The Godfather" and "Francis Ford Coppola" match in the context of the "directed_by" relation.
-- Similarly, the plausibility of (The_Godfather, has_genre, Crime) would be measured by how well the embeddings of "The Godfather" and "Crime" match in the context of the "has_genre" relation.
+- Similarly, the plausibility of (The_Godfather, has_genre, Crime) would be measured by how well the embeddings of "The Godfather" and "Crime" match in the context of the `"has_genre"` relation.
 
 These matchings are learned from data rather than enforced through a geometric constraint like translation.
 
@@ -104,7 +104,7 @@ This decomposition reveals that $\mathbf{W}_r$ represents a linear transformatio
 
 ## RESCAL geometric example
 
-Consider a relation "is*parent_of" with a relation matrix $\mathbf{W}*{\text{is_parent_of}}$. This matrix might encode:
+Consider a relation `"is_parent_of"` with a relation matrix $\mathbf{W}_{\text{is\_parent\_of}}$. This matrix might encode:
 
 1. **Directionality**: Parents and children are in different regions of the embedding space
 2. **Age correlation**: The transformation captures the age difference between parents and children
@@ -201,9 +201,9 @@ where $\odot$ denotes the element-wise (Hadamard) product, and $\langle \cdot, \
 
 ## DistMult geometric example
 
-Consider a relation "has*profession" with relation vector $\mathbf{r}*{\text{has_profession}} = [0.9, 0.1, 0.7, 0.2, ...]$.
+Consider a relation `"has_profession"` with relation vector $\mathbf{r}_{\text{has\_profession}} = [0.9, 0.1, 0.7, 0.2, ...]$.
 
-The high values (0.9, 0.7) indicate dimensions that are important for the "has_profession" relation, while low values (0.1, 0.2) indicate dimensions that are less relevant.
+The high values (0.9, 0.7) indicate dimensions that are important for the `"has_profession"` relation, while low values (0.1, 0.2) indicate dimensions that are less relevant.
 
 When computing the score of (Person, has_profession, Doctor), the model emphasizes dimensions where Person and Doctor have similar values and where the relation vector has high values.
 
@@ -225,7 +225,7 @@ However, DistMult has a critical limitation:
 
 ## DistMult symmetry limitation example
 
-Consider the relation "is_capital_of" and the triple (Paris, is_capital_of, France).
+Consider the relation `"is_capital_of"` and the triple (Paris, is_capital_of, France).
 
 Since DistMult's scoring function is symmetric, it assigns the same score to:
 
@@ -262,7 +262,7 @@ The key difference between CP decomposition and DistMult is that CP uses differe
 
 ## CP decomposition example
 
-Consider the relation "is_capital_of" and the triples:
+Consider the relation `"is_capital_of"` and the triples:
 
 - (Paris, is_capital_of, France)
 - (Berlin, is_capital_of, Germany)
@@ -340,7 +340,7 @@ The asymmetry in ComplEx comes from the use of the complex conjugate of the tail
 
 ## ComplEx geometric example
 
-Consider a relation "is*part_of" with a complex embedding $\mathbf{r}*{\text{is_part_of}} = [0.7 + 0.3i, 0.1 - 0.9i, ...]$.
+Consider a relation `"is_part_of"` with a complex embedding $\mathbf{r}_{\text{is\_part\_of}} = [0.7 + 0.3i, 0.1 - 0.9i, ...]$.
 
 For symmetric parts of the relation, the imaginary components would be close to zero, while for antisymmetric parts, the imaginary components would have larger magnitudes.
 
@@ -763,7 +763,7 @@ Consider the entity "Paris" with type "City" and "France" with type "Country".
 A type-aware model would:
 
 1. Learn embeddings for types (City, Country)
-2. Incorporate type compatibility for relations (e.g., "is_capital_of" connects City to Country)
+2. Incorporate type compatibility for relations (e.g., `"is_capital_of"` connects City to Country)
 3. Use type information to constrain predictions (only predict entities of the correct type)
 
 This can significantly improve prediction accuracy by reducing the search space to type-compatible entities.
@@ -774,9 +774,7 @@ This can significantly improve prediction accuracy by reducing the search space 
 
 Different semantic matching models have different capabilities for modeling relation patterns:
 
-::: {#def-pattern-capabilities}
-
-## Model capabilities for relation patterns
+Model capabilities for relation patterns
 
 | Relation Pattern | RESCAL | DistMult | ComplEx | HolE | SimplE | TuckER | QuatE |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -786,8 +784,6 @@ Different semantic matching models have different capabilities for modeling rela
 | Composition | Strong | Medium | Medium | Medium | Medium | Strong | Strong |
 | Hierarchy | Medium | Medium | Medium | Medium | Medium | Strong | Strong |
 
-:::
-
 Understanding these capabilities helps in selecting the appropriate model for specific knowledge graphs based on the prevalent relation patterns.
 
 ::: {#exm-model-selection}
@@ -796,11 +792,11 @@ Understanding these capabilities helps in selecting the appropriate model for sp
 
 Consider knowledge graphs with different characteristics:
 
-1. **Biomedical knowledge graph** (many hierarchical relationships like "is_a" and "part_of"):
+1. **Biomedical knowledge graph** (many hierarchical relationships like `"is_a"` and "part_of"):
 
    - TuckER or QuatE might be most appropriate due to their strong hierarchical modeling capabilities
 
-2. **Social network knowledge graph** (many symmetric relationships like "is_friend_of"):
+2. **Social network knowledge graph** (many symmetric relationships like `"is_friend_of"`):
 
    - Even simpler models like DistMult might perform well since they naturally handle symmetry
 
@@ -870,9 +866,7 @@ Proper regularization is especially important for models with many parameters, l
 
 Let's analyze the empirical performance of semantic matching models on standard benchmark datasets:
 
-::: {#def-comparative-results}
-
-## Performance comparison (Hits@10 in %)
+Performance comparison (Hits@10 in %)
 
 | Model    | FB15k | WN18 | FB15k-237 | WN18RR |
 | -------- | ----- | ---- | --------- | ------ |
@@ -883,8 +877,6 @@ Let's analyze the empirical performance of semantic matching models on standard 
 | SimplE   | 83.8  | 94.2 | 42.5      | 49.6   |
 | TuckER   | 89.2  | 95.8 | 54.4      | 52.6   |
 | QuatE    | 88.0  | 95.9 | 51.6      | 53.3   |
-
-:::
 
 These results show the progression of performance as semantic matching models have evolved to become more expressive while maintaining computational efficiency.
 
